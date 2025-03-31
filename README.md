@@ -13,7 +13,7 @@ https://github.com/leofig-rj/leofig-hass-addons
 
 ## More information
 
-[README](https://github.com/leofig-rj/leofig-hass-addons/blob/master/ttlock2mqtt/README.md).
+[README](https://github.com/leofig-rj/leofig-hass-addons/blob/master/lora2mqtt/README.md).
 
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-development%20beta-red.svg
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2025.svg
