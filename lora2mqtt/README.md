@@ -1,4 +1,4 @@
-# TTLock2MQTT
+# LoRa2MQTT
 > Integrating your LoRa devices with Home Assistant over MQTT.
 
 ![Project Stage][project-stage-shield]![Maintenance][maintenance-shield]
