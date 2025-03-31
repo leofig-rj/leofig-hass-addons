@@ -15,7 +15,7 @@ Enables adding your LoRa devices with Home Assistant over MQTT
 ## Release History
 
 * 0.1
-    * Work in progress
+    * Starting work
 
 ## Meta
 
