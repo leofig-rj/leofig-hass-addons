@@ -1,0 +1,43 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Start the lora2mqtt service
+# s6-overlay docs: https://github.com/just-containers/s6-overlay
+# ==============================================================================
+
+# Declare variables
+declare ttlockclientid
+declare ttlockclientsecret
+declare ttlockuser
+declare ttlockhash
+declare publishstatedelay
+declare publishstatedelayshort
+declare publishbatterydelay
+declare loglevel
+declare maxthreads
+declare mqttbrokerhost
+declare mqttbrokerport
+declare mqttbrokeruser
+declare mqttbrokerpass
+
+# Get the keys from the user config options.
+ttlockclientid=$(bashio::config 'ttlockclientid')
+ttlockclientsecret=$(bashio::config 'ttlockclientsecret')
+ttlockuser=$(bashio::config 'ttlockuser')
+ttlockhash=$(bashio::config 'ttlockhash')
+publishstatedelay=$(bashio::config 'publishstatedelay')
+publishstatedelayshort=$(bashio::config 'publishstatedelayshort')
+publishbatterydelay=$(bashio::config 'publishbatterydelay')
+loglevel=$(bashio::config 'loglevel')
+maxthreads=$(bashio::config 'maxthreads')
+
+# Get the keys from the mqtt service.
+mqttbrokerhost=$(bashio::services mqtt "host")
+mqttbrokerport=1883
+mqttbrokeruser=$(bashio::services mqtt "username")
+mqttbrokerpass=$(bashio::services mqtt "password")
+
+# Print
+bashio::log.info "Run application..."
+
+# Run application
+exec python3 /usr/bin/lora_adapter.py --client=${ttlockclientid} --secrete=${ttlockclientsecret} --User_tt=${ttlockuser} --hash=${ttlockhash} --broker=${mqttbrokerhost} --port=${mqttbrokerport} --user=${mqttbrokeruser} --Pass=${mqttbrokerpass} --State_delay=${publishstatedelay} --Delta_delay=${publishstatedelayshort} --Battery_delay=${publishbatterydelay} --log_level=${loglevel} --Max_threads=${maxthreads}
