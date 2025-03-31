@@ -5,7 +5,7 @@
 
 Enables adding your LoRa devices with Home Assistant over MQTT
 
-<img src="https://raw.githubusercontent.com/leofig-rj/tonyldo-hassio-addons/master/ttlock2mqtt/pictures/diagram.png"/>
+<img src="https://raw.githubusercontent.com/leofig-rj/tonyldo-hassio-addons/master/ttlock2mqtt/pictures/LoRa2MQTT_INI"/>
 
 ## Configuration
 
