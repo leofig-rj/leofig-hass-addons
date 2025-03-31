@@ -5,7 +5,7 @@
 
 Enables adding your LoRa devices with Home Assistant over MQTT
 
-<img src="https://raw.githubusercontent.com/leofig-rj/leofig-hass-addons/blob/master/lora2mqtt/pictures/LoRa2MQTT_INI"/>
+<img src="https://raw.githubusercontent.com/leofig-rj/leofig-hass-addons/blob/master/lora2mqtt/pictures/LoRa2MQTT_INI.png"/>
 
 ## Configuration
 
