@@ -5,13 +5,13 @@
 # ==============================================================================
 
 # Declare variables
-declare home_assistant_prefix
-declare chip_mac
-declare lora_slave_addrs
-declare lora_slave_names
-declare lora_slave_macs
-declare lora_slave_vers
-declare lora_slave_chips
+declare homeassistantprefix
+declare chipmac
+declare loraslaveaddrs
+declare loraslavenames
+declare loraslavemacs
+declare loraslavevers
+declare loraslavechips
 declare loglevel
 declare maxthreads
 declare mqttbrokerhost
@@ -20,13 +20,13 @@ declare mqttbrokeruser
 declare mqttbrokerpass
 
 # Get the keys from the user config options.
-home_assistant_prefix=$(bashio::config 'home_assistant_prefix')
-chip_mac=$(bashio::config 'chip_mac')
-lora_slave_addrs=$(bashio::config 'lora_slave_addrs')
-lora_slave_names=$(bashio::config 'lora_slave_names')
-lora_slave_macs=$(bashio::config 'lora_slave_macs')
-lora_slave_vers=$(bashio::config 'lora_slave_vers')
-lora_slave_chips=$(bashio::config 'lora_slave_chips')
+homeassistantprefix=$(bashio::config 'homeassistantprefix')
+chipmac=$(bashio::config 'chipmac')
+loraslaveaddrs=$(bashio::config 'loraslaveaddrs')
+loraslavenames=$(bashio::config 'loraslavenames')
+loraslavemacs=$(bashio::config 'loraslavemacs')
+loraslavevers=$(bashio::config 'loraslavevers')
+loraslavechips=$(bashio::config 'loraslavechips')
 loglevel=$(bashio::config 'loglevel')
 maxthreads=$(bashio::config 'maxthreads')
 
@@ -44,4 +44,4 @@ bashio::log.info $(bashio::services mqtt "username")
 bashio::log.info $(bashio::services mqtt "password")
 
 # Run application
-exec python3 /usr/bin/lora_adapter.py --haprefix=${home_assistant_prefix} --chip=${chip_mac} --addrs=${lora_slave_addrs} --names=${lora_slave_names} --broker=${mqttbrokerhost} --port=${mqttbrokerport} --user=${mqttbrokeruser} --Pass=${mqttbrokerpass} --macs=${lora_slave_macs} --vers=${lora_slave_vers} --Chips=${lora_slave_chips} --log_level=${loglevel} --Max_threads=${maxthreads}
+exec python3 /usr/bin/lora_adapter.py --haprefix=${homeassistantprefix} --chip=${chipmac} --addrs=${loraslaveaddrs} --names=${loraslavenames} --broker=${mqttbrokerhost} --port=${mqttbrokerport} --user=${mqttbrokeruser} --Pass=${mqttbrokerpass} --macs=${loraslavemacs} --vers=${loraslavevers} --Chips=${loraslavechips} --log_level=${loglevel} --Max_threads=${maxthreads}

@@ -18,21 +18,21 @@ init: false
 map:
   - share:rw
 options:
-  home_assistant_prefix: "homeassistant"
-  chip_mac: "123456789012"
-  lora_slave_addrs: 2
-  lora_slave_names: "Eletricidade"
-  lora_slave_macs: "234567890123"
-  lora_slave_vers: "Ver 1.1"
-  lora_slave_chips: "ESP32"
+  homeassistantprefix: "homeassistant"
+  chipmac: "123456789012"
+  loraslaveaddrs: 2
+  loraslavenames: "Eletricidade"
+  loraslavemacs: "234567890123"
+  loraslavevers: "Ver 1.1"
+  loraslavechips: "ESP32"
   loglevel: "INFO"
 schema:
-  home_assistant_prefix: "str"
-  chip_mac: "str"
-  lora_slave_addrs: "int"
-  lora_slave_names: "str"
-  lora_slave_macs: "str"
-  lora_slave_vers: "str"
-  lora_slave_chips: "str"
+  homeassistantprefix: "str"
+  chipmac: "str"
+  loraslaveaddrs: "int"
+  loraslavenames: "str"
+  loraslavemacs: "str"
+  loraslavevers: "str"
+  loraslavechips: "str"
   loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
   maxthreads: "int?"
