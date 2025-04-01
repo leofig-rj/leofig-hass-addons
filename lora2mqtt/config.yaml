@@ -20,19 +20,19 @@ map:
 options:
   home_assistant_prefix: "homeassistant"
   chip_mac: "123456789012"
-  lora_slave_addrs: [2,3]
-  lora_slave_names: ["Eletricidade", "Luz"]
-  lora_slave_macs: ["234567890123", "345678901234"]
-  lora_slave_vers: ["Ver 1.1", "Ver 2.2"]
-  lora_slave_chips: ["ESP32", "ESP8266"]
+  lora_slave_addrs: 2
+  lora_slave_names: "Eletricidade"
+  lora_slave_macs: "234567890123"
+  lora_slave_vers: "Ver 1.1"
+  lora_slave_chips: "ESP32"
   loglevel: "INFO"
 schema:
   home_assistant_prefix: "str"
   chip_mac: "str"
-  lora_slave_addrs: "list"
-  lora_slave_names: "list"
-  lora_slave_macs: "list"
-  lora_slave_vers: "list"
-  lora_slave_chips: "list"
+  lora_slave_addrs: "int"
+  lora_slave_names: "str"
+  lora_slave_macs: "str"
+  lora_slave_vers: "str"
+  lora_slave_chips: "str"
   loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
   maxthreads: "int?"
