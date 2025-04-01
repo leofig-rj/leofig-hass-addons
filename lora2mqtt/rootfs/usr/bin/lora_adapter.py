@@ -604,8 +604,8 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
     #lora_device = "/dev/ttyUSB0"  # Dispositivo LoRa (substituir conforme necessário)
 
     client = LoRa2MQTTClient("/dev/ttyUSB0", 
-                             "10.0.1.84", 
-                             1883, 
+                             broker, 
+                             port, 
                              "123456789012", 
                              [2], 
                              ["Eletricidade"], 
@@ -613,8 +613,8 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                              ["Ver 1.1"], 
                              ["ESP32"], 
                              "homeassistant", 
-                             "mqtt_usr", 
-                             "mqtt_psw", 
+                             broker_user, 
+                             broker_pass, 
                              60, 
                              "LoRa2MQTT_123456")
 
