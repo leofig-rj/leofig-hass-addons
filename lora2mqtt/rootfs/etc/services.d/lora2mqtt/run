@@ -5,13 +5,13 @@
 # ==============================================================================
 
 # Declare variables
-declare ttlockclientid
-declare ttlockclientsecret
-declare ttlockuser
-declare ttlockhash
-declare publishstatedelay
-declare publishstatedelayshort
-declare publishbatterydelay
+declare home_assistant_prefix
+declare chip_mac
+declare lora_slave_addrs
+declare lora_slave_names
+declare lora_slave_macs
+declare lora_slave_vers
+declare lora_slave_chips
 declare loglevel
 declare maxthreads
 declare mqttbrokerhost
@@ -20,13 +20,13 @@ declare mqttbrokeruser
 declare mqttbrokerpass
 
 # Get the keys from the user config options.
-ttlockclientid=$(bashio::config 'ttlockclientid')
-ttlockclientsecret=$(bashio::config 'ttlockclientsecret')
-ttlockuser=$(bashio::config 'ttlockuser')
-ttlockhash=$(bashio::config 'ttlockhash')
-publishstatedelay=$(bashio::config 'publishstatedelay')
-publishstatedelayshort=$(bashio::config 'publishstatedelayshort')
-publishbatterydelay=$(bashio::config 'publishbatterydelay')
+home_assistant_prefix=$(bashio::config 'ttlockclientid')
+chip_mac=$(bashio::config 'ttlockclientsecret')
+lora_slave_addrs=$(bashio::config 'ttlockuser')
+lora_slave_names=$(bashio::config 'ttlockhash')
+lora_slave_macs=$(bashio::config 'publishstatedelay')
+lora_slave_vers=$(bashio::config 'publishstatedelayshort')
+lora_slave_chips=$(bashio::config 'publishbatterydelay')
 loglevel=$(bashio::config 'loglevel')
 maxthreads=$(bashio::config 'maxthreads')
 
@@ -40,4 +40,4 @@ mqttbrokerpass=$(bashio::services mqtt "password")
 bashio::log.info "Run application..."
 
 # Run application
-exec python3 /usr/bin/lora_adapter.py --client=${ttlockclientid} --secrete=${ttlockclientsecret} --User_tt=${ttlockuser} --hash=${ttlockhash} --broker=${mqttbrokerhost} --port=${mqttbrokerport} --user=${mqttbrokeruser} --Pass=${mqttbrokerpass} --State_delay=${publishstatedelay} --Delta_delay=${publishstatedelayshort} --Battery_delay=${publishbatterydelay} --log_level=${loglevel} --Max_threads=${maxthreads}
+exec python3 /usr/bin/lora_adapter.py --haprefix=${home_assistant_prefix} --chip=${chip_mac} --addrs=${lora_slave_addrs} --names=${lora_slave_names} --broker=${mqttbrokerhost} --port=${mqttbrokerport} --user=${mqttbrokeruser} --Pass=${mqttbrokerpass} --macs=${lora_slave_macs} --vers=${lora_slave_vers} --Chips=${lora_slave_chips} --log_level=${loglevel} --Max_threads=${maxthreads}

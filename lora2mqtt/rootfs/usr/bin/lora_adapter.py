@@ -1,384 +1,648 @@
+#import serial
 import paho.mqtt.client as mqtt
+import logging
+import json
+import constants
 import time
-import threading
-import concurrent.futures
 import getopt
 import sys
-import logging
-from ttlockwrapper import TTLock, constants
 
-DELAY_BETWEEN_NEW_THREADS_CREATION = 60
-DELAY_BETWEEN_LOCK_PUBLISH_INFOS = 60
-run_flag = True
-client_futures = dict()
-executor = None
+# Configurando conexão serial
+#ser = serial.Serial('/dev/ttyUSB0', 115200)
 
-class TTLock2MQTTClient(mqtt.Client):
-    def __init__(self, ttlock, broker, port, broker_user, broker_pass, keepalive):
-        super().__init__(self.mqttClientId, False)
-        self.ttlock = ttlock
+# Configurando o cliente MQTT
+#mqtt_client = mqtt.Client()
+#mqtt_client.connect("broker.hivemq.com", 1883)
 
+#try:
+#    while True:
+#        # Lendo dados da serial
+#        serial_data = ser.readline().decode('utf-8').strip()
+#        
+#        # Tratando dados (exemplo simples)
+#        processed_data = f"Dado recebido: {serial_data}"
+#        
+#        # Publicando no MQTT
+#        mqtt_client.publish("meu_topico/dados", processed_data)
+#        print(f"Publicado: {processed_data}")
+
+#except KeyboardInterrupt:
+#    print("Encerrando aplicação...")
+#    ser.close()
+
+class LoRa2MQTTClient(mqtt.Client):
+    def __init__(self, lora, broker, port, chip_mac, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, broker_user=None, broker_pass=None, keepalive=60, mqtt_client_id="LoRa2MQTT"):
+        super().__init__(mqtt_client_id, clean_session=True)
+        self.lora = lora
         self.connected_flag = False
-        self.on_connect = TTLock2MQTTClient.cb_on_connect
-        self.on_disconnect = TTLock2MQTTClient.cb_on_disconnect
-        self.on_message = TTLock2MQTTClient.cb_on_message
         self.broker_host = broker
         self.broker_port = port
+        self.channel = constants.CHANNEL
+        self.dispname = constants.DISP_NAME
+        self.chip_mac = chip_mac
+        self.idhdwdisp = last4(chip_mac)
+        self.lora_slave_addrs = lora_slave_addrs
+        self.lora_slave_names = lora_slave_names
+        self.lora_slave_macs = lora_slave_macs
+        self.lora_slave_vers = lora_slave_vers
+        self.lora_slave_chips = lora_slave_chips
+        self.num_slaves = len(lora_slave_names)
+        self.home_assistant_prefix = home_assistant_prefix
         self.keepalive_mqtt = keepalive
+        self.bridge_topic = None          # Definido em _setup_mqtt_topics
+        self.bridge_set_topic = None      # Definido em _setup_mqtt_topics
+        self.bridge_status_topic = None   # Definido em _setup_mqtt_topics
+        self.todos_topic = None           # Definido em _setup_mqtt_topics
+        self.work_topics = []             # Definido em _setup_mqtt_topics
+        self.tele_topics = []             # Definido em _setup_mqtt_topics
+        self.set_topics = []              # Definido em _setup_mqtt_topics
+        self.masc_uniq_topics = []        # Definido em _setup_mqtt_topics
+        self.masc_disc_topics = []        # Definido em _setup_mqtt_topics
+        self.lwt_topic = None             # Definido em _setup_mqtt_topics
+        self.lwt_message = "offline"  # Mensagem enviada no LWT
+        self.lwt_qos = 0
+        self.lwt_retain = True
+        self._setup_mqtt_topics()
+
+        # Configurações de autenticação MQTT (se fornecidas)
         if broker_user and broker_pass:
             self.username_pw_set(broker_user, password=broker_pass)
-        logging.info("Client {} TTlock Mqtt Created".format(
-            self.mqttClientId))
-        self.COMMAND_TOPIC = None
 
-    def sendMensage(self, topic, msg, retain=False):
-        logging.debug('Client {} sending mensage "{}" to topic "{}" and retained {}'.format(
-            self.mqttClientId, msg, topic, retain))
-        self.publish(topic, msg, 0, retain)
+        # Configura o LWT
+        self.will_set(self.lwt_topic, self.lwt_message, qos=self.lwt_qos, retain=self.lwt_retain)
 
-    def mqttConnection(self):
-        logging.debug("Client {} try connection at {}:{}".format(
-            self.mqttClientId, self.broker_host, self.broker_port))
-        self.connect(self.broker_host, self.broker_port, self.keepalive_mqtt)
+        # Callback para eventos MQTT
+        self.on_connect = LoRa2MQTTClient.cb_on_connect
+        self.on_disconnect = LoRa2MQTTClient.cb_on_disconnect
+        self.on_message = LoRa2MQTTClient.cb_on_message
+
+        # Logging informativo
+        logging.info(f"Client {mqtt_client_id} LoRa2MQTT Created")
+
+    def _setup_mqtt_topics(self):
+        """Configura os tópicos MQTT."""
+        self.bridge_topic = f"{self.channel}/bridge"
+        self.bridge_set_topic = f"{self.bridge_topic}/+/set"
+        self.bridge_status_topic = f"{self.channel}/bridge/status"
+        self.todos_topic = f"{self.channel}/*/+/set"
+        self.lwt_topic = self.bridge_status_topic
+
+        # Configura os tópicos para cada slave
+        for i in range(self.num_slaves):
+            work_topic = f"{self.channel}/{self.lora_slave_names[i]}"
+            tele_topic = f"{work_topic}/telemetry"
+            set_topic = f"{work_topic}/+/set"
+            masc_uniq_topic = f"{self.channel}_{self.lora_slave_macs[i]}_%s"
+            masc_disc_topic = f"{self.home_assistant_prefix}/%s/{self.channel}_{self.lora_slave_macs[i]}/%s/config"
+
+            self.work_topics.append(work_topic)
+            self.tele_topics.append(tele_topic)
+            self.set_topics.append(set_topic)
+            self.masc_uniq_topics.append(masc_uniq_topic)
+            self.masc_disc_topics.append(masc_disc_topic)
+
+        # Logging para verificar se os tópicos foram configurados
+        logging.info("MQTT topics successfully configured.")
+        logging.debug(f"Bridge Topic: {self.bridge_topic}")
+        logging.debug(f"Telemetry Topics: {self.tele_topics}")
+        logging.debug(f"Set Topics: {self.set_topics}")
+
+    def send_message(self, topic, msg, retain=False):
+        """Envia uma mensagem para um tópico MQTT."""
+        try:
+            logging.debug(f'Sending message "{msg}" to topic "{topic}" with retain={retain}')
+            self.publish(topic, msg, qos=0, retain=retain)
+        except Exception as e:
+            logging.error(f"Failed to send message: {e}")
+
+    def mqtt_connection(self):
+        """Tenta conectar ao broker MQTT."""
+        try:
+            logging.debug(f"Connecting to MQTT broker {self.broker_host}:{self.broker_port}")
+            self.connect(self.broker_host, self.broker_port, self.keepalive_mqtt)
+        except Exception as e:
+            logging.error(f"Failed to connect to MQTT broker: {e}")
 
     @classmethod
     def cb_on_message(cls, client, userdata, message):
+        """Callback para mensagens recebidas."""
         try:
-            time.sleep(1)
-            logging.debug("Client {} message received: {}".format(client.mqttClientId, str(message.payload.decode("utf-8"))))
-            client.handleMessage(message)
-        except Exception:
-            logging.exception('Client {} error on received mqtt message'.format(client.getLockId()))
+            payload = message.payload.decode("utf-8")
+            logging.debug(f"Message received on topic {message.topic}: {payload}")
+            # Processa a mensagem aqui, se necessário
+            client.handle_message(message)
+        except Exception as e:
+            logging.error(f"Error processing received message: {e}")
 
     @classmethod
     def cb_on_disconnect(cls, client, userdata, rc):
-        client.connected_flag = False  # set flag
-        logging.info("Client {} disconnected!".format(client.mqttClientId))
+        """Callback para desconexões."""
+        client.connected_flag = False
+        logging.info(f"Client {client._client_id.decode('utf-8')} disconnected!")
 
     @classmethod
     def cb_on_connect(cls, client, userdata, flags, rc):
-        try:
-            if rc == 0:
-                client.connected_flag = True  # set flag
-                logging.info("Client {} connected OK!".format(client.mqttClientId))
-                if client.COMMAND_TOPIC:
-                    logging.info("Client {} subscribe on command topic: {}".format(
-                        client.mqttClientId, client.COMMAND_TOPIC))
-                    client.subscribe(client.COMMAND_TOPIC)
-                client.sendDiscoveryMsgs()
-                time.sleep(20)
-                client.forcePublishInfos()
-            else:
-                logging.error("Client {} Bad connection Returned code= {}".format(
-                    client.mqttClientId, rc))
-        except Exception:
-            logging.exception('Client {} error on connect'.format(client.mqttClientId))
-
-
-class TTLock2MQTTClientGateway(TTLock2MQTTClient):
-
-    def __init__(self, gateway, ttlock, broker, port, broker_user, broker_pass, connection_info_delay, keepalive):
-        self.gateway = gateway
-        self.mqttClientId = "GATEWAY-{}-{}".format(str(self.getGatewayId()), str(int(time.time())))
-        super().__init__(ttlock, broker, port, broker_user, broker_pass, keepalive)
-
-        self.DISCOVERY_GATEWAY_CONNECTION_TOPIC = 'homeassistant/binary_sensor/ttlock/{}_gateway/config'.format(
-            self.getGatewayId())
-        self.CONNECTION_BINARY_SENSOR_TOPIC = 'ttlocktomqtt/{}/connection'.format(
-            self.getGatewayId())
-        self.CONNECTION_BINARY_SENSOR_PAYLOAD = '{{"device_class": "connectivity", "name": "{} connection", "state_topic": "{}", "value_template": "{{{{ value_json.connection }}}}", "uniq_id":"{}_CONNECTION","device":{{"identifiers":["{}"], "name": "TTLOCK_GATEWAY_{}", "connections":[["mac","{}"]]}} }}'
-        self.CONNECTION_PAYLOAD = '{{"connection": "{}"}}'
-
-        self.lastConnectionPublishInfo = time.time()
-        self.connection_info_delay = connection_info_delay
-
-
-    def getGatewayId(self):
-        return self.gateway.get(constants.GATEWAY_ID_FIELD)
-
-    def getMac(self):
-        return self.gateway.get(constants.GATEWAY_MAC_FIELD)
-
-    def getName(self):
-        return self.gateway.get('gatewayName')
-
-    def updateGatewayJson(self):
-        try:
-            for gateway in self.ttlock.get_gateway_generator():
-                if gateway.get(constants.GATEWAY_ID_FIELD)==self.getGatewayId():
-                    self.gateway = gateway
-                    return
-        except Exception as error:
-            logging.error('Client {} error while update Gateway Json: {}'.format(
-                self.mqttClientId, str(error)))
-
-    def publishInfos(self):
-        if time.time()-self.lastConnectionPublishInfo > self.connection_info_delay:
-            self.updateGatewayJson()
-            self.forcePublishConnectionInfo()
-
-    def forcePublishConnectionInfo(self):
-        try:
-            logging.info(
-                'Client {} publish connection info.'.format(self.mqttClientId))
-            self.sendGatewayConnectionLevel()
-        except Exception as error:
-            logging.error('Client {} error: {}'.format(
-                self.mqttClientId, str(error)))
-        finally:
-            self.lastConnectionPublishInfo = time.time()
-
-    def forcePublishInfos(self):
-        self.forcePublishConnectionInfo()
-
-    def sendGatewayConnectionLevel(self):
-        connectionState = 'ON' if self.gateway.get('isOnline') else 'OFF'
-        msg = self.CONNECTION_PAYLOAD.format(connectionState)
-        self.sendMensage(self.CONNECTION_BINARY_SENSOR_TOPIC, msg)
-
-    def sendDiscoveryMsgs(self):
-        logging.info(
-            'Client {} sending discoveries msgs.'.format(self.mqttClientId))
-        msg = self.CONNECTION_BINARY_SENSOR_PAYLOAD.format(self.getName(
-        ), self.CONNECTION_BINARY_SENSOR_TOPIC, self.getGatewayId(), self.getGatewayId(), self.getGatewayId(), self.getMac())
-        self.sendMensage(self.DISCOVERY_GATEWAY_CONNECTION_TOPIC, msg, True)
-
-
-class TTLock2MQTTClientLock(TTLock2MQTTClient):
-
-    def __init__(self, lock, gateway, ttlock, broker, port, broker_user, broker_pass, state_delay, short_delay, battery_delay, keepalive):
-        self.lock = lock
-        self.gateway = gateway
-        self.mqttClientId = "LOCK-{}-{}".format(str(self.getLockId()), str(int(time.time())))
-        super().__init__(ttlock, broker, port, broker_user, broker_pass, keepalive)
-
-        self.DISCOVERY_LOCK_TOPIC = 'homeassistant/lock/ttlock/{}_lock/config'.format(
-            self.getLockId())
-        self.DISCOVERY_SENSOR_TOPIC = 'homeassistant/sensor/ttlock/{}_battery/config'.format(
-            self.getLockId())
-        self.BATTERY_LEVEL_SENSOR_TOPIC = 'ttlocktomqtt/{}/battery'.format(
-            self.getLockId())
-        self.COMMAND_TOPIC = 'ttlocktomqtt/{}/command'.format(self.getLockId())
-        self.STATE_SENSOR_TOPIC = 'ttlocktomqtt/{}/state'.format(
-            self.getLockId())
-        self.DISCOVERY_LOCK_PAYLOAD = '{{"name": "{} lock", "command_topic": "{}", "state_topic": "{}", "value_template": "{{{{ value_json.state }}}}", "uniq_id":"{}_lock","device":{{"identifiers":["{}"], "name": "TTLOCK_LOCK_{}", "connections":[["mac","{}"]]}} }}'
-        self.DISCOVERY_BATTERY_LEVEL_SENSOR_PAYLOAD = '{{"device_class": "battery", "name": "{} battery", "state_topic": "{}", "unit_of_measurement": "%", "value_template": "{{{{ value_json.battery }}}}", "uniq_id":"{}_battery","device":{{"identifiers":["{}"], "name": "TTLOCK_LOCK_{}", "connections":[["mac","{}"]]}} }}'
-        self.STATE_PAYLOAD = '{{"state": "{}"}}'
-        self.BATTERY_LEVEL_PAYLOAD = '{{"battery": {}}}'
-
-        self.lastStatePublishInfo = time.time()
-        self.lastBatteryPublishInfo = time.time()
-        self.state_delay = state_delay
-        self.short_delay = short_delay
-        self.battery_delay = battery_delay
-
-    def getName(self):
-        return self.lock.get(constants.LOCK_ALIAS_FIELD)
-
-    def getLockId(self):
-        return self.lock.get(constants.LOCK_ID_FIELD)
-
-    def getMac(self):
-        return self.lock.get(constants.LOCK_MAC_FIELD)
-
-    def getGatewayId(self):
-        return self.gateway.get(constants.GATEWAY_ID_FIELD)
-
-    def handleMessage(self, message):
-        result = False
-        command = str(message.payload.decode("utf-8"))
-        if command == 'LOCK':
-            result = self.ttlock.lock(self.getLockId())
-        elif command == 'UNLOCK':
-            result = self.ttlock.unlock(self.getLockId())
+        """Callback para conexões."""
+        if rc == 0:
+            client.connected_flag = True
+            logging.info(f"Client {client._client_id.decode('utf-8')} connected successfully!")
+            # Publica mensagem de "online" ao conectar
+            client.publish("lora2mqtt/status", "online", qos=0, retain=True)
+            client.on_mqtt_connect()
         else:
-            logging.info('Invalid command.')
-            return
-        if not result:
-            logging.warning(
-                'Client {} has fail to send API command.'.format(self.mqttClientId))
-            # todo: send unavailble msg
-            return
-        time.sleep(3)
-        self.forcePublishStateInfo()
-        # I reduce the time to report status again...
-        # self.lastStatePublishInfo = time.time() + self.state_delay - self.short_delay
+            logging.error(f"Connection failed with return code {rc}")
 
-    def publishInfos(self):
-        if time.time()-self.lastStatePublishInfo > self.state_delay:
-            self.forcePublishStateInfo()
-        if time.time()-self.lastBatteryPublishInfo > self.battery_delay:
-            self.forcePublishBatteryInfo()
+    def handle_message(self, message):
+        """Processa mensagens específicas (substituir pela lógica necessária)."""
+        logging.info(f"Processing message from topic {message.topic}: {message.payload.decode('utf-8')}")
 
-    def forcePublishStateInfo(self):
+
+    def on_mqtt_connect(self):
+        """Assina os tópicos MQTT necessários ao conectar."""
         try:
-            logging.info(
-                'Client {} publish lock state.'.format(self.mqttClientId))
-            self.sendLockState()
-        except Exception as error:
-            logging.error('Client {} error: {}'.format(
-                self.mqttClientId, str(error)))
-        finally:
-            self.lastStatePublishInfo = time.time()
+            # Subscrever aos tópicos principais
+            self.subscribe(self.todos_topic, qos=1)
+            self.subscribe(self.bridge_set_topic, qos=1)
+            self.subscribe(self.config_topic, qos=1)
 
-    def forcePublishBatteryInfo(self):
-        try:
-            logging.info(
-                'Client {} publish battery info.'.format(self.mqttClientId))
-            self.sendLockBatteryLevel()
-        except Exception as error:
-            logging.error('Client {} error: {}'.format(
-                self.mqttClientId, str(error)))
-        finally:
-            self.lastBatteryPublishInfo = time.time()
+            # Subscrever aos tópicos dos slaves
+            for i in range(self.num_slaves):
+                self.subscribe(self.set_topics[i], qos=1)
 
-    def forcePublishInfos(self):
-        self.forcePublishStateInfo()
-        self.forcePublishBatteryInfo()
+            # Atualiza status online
+            self.online = False
+            logging.info("Successfully subscribed to all relevant topics.")
 
-    def sendLockBatteryLevel(self):
-        batteryLevel = self.ttlock.lock_electric_quantity(self.getLockId())
-        msg = self.BATTERY_LEVEL_PAYLOAD.format(batteryLevel)
-        self.sendMensage(self.BATTERY_LEVEL_SENSOR_TOPIC, msg)
+        except Exception as e:
+            logging.error(f"Error during MQTT topic subscription: {e}")
 
-    def sendLockState(self):
-        # Open state of lock:0-locked,1-unlocked,2-unknown
-        state = self.ttlock.lock_state(self.getLockId())
-        if state == 2:
-            logging.warning(
-                'Client {} lock state TTlockAPI return "unknown".'.format(self.mqttClientId))
+    def common_discovery(self):
+        """
+        Realiza a descoberta comum para o dispositivo principal.
+        """
+        payload = {
+            "dev": {
+                "ids": [f"{self.channel}_{self.chip_mac}"],
+                "cns": [["mac", self.chip_mac]],
+                "name": f"{self.dispname} {self.idhdwdisp}",
+                "sw": constants.VERSION,
+                "mf": "Leonardo Figueiró",
+                "mdl": "Chip Model"  # Substituir por informações específicas do chip, se aplicável.
+            }
+        }
+        return payload
+
+    def common_discovery_ind(self, index):
+        """
+        Realiza a descoberta individual para um slave LoRa.
+        """
+        payload = {
+            "dev": {
+                "ids": [f"{self.channel}_{self.lora_slave_macs[index]}"],
+                "cns": [["mac", self.lora_slave_macs[index]]],
+                "name": f"{self.lora_slave_names[index]} {last4(self.lora_slave_macs[index])}",
+                "sw": self.lora_slave_vers[index],
+                "mf": "Leonardo Figueiró",
+                "mdl": self.lora_slave_chips[index]
+            }
+        }
+        return payload
+
+    def send_connectivity_discovery(self):
+        """
+        Envia a descoberta de conectividade para o dispositivo principal.
+        """
+        payload = self.common_discovery()
+        payload.update({
+            "~": self.bridge_topic,
+            "name": "Conectividade",
+            "uniq_id": f"{self.channel}_{self.chip_mac}_conectividade",
+            "json_attr_t": "~/telemetry",
+            "stat_t": "~/status",
+            "dev_cla": "connectivity",
+            "pl_on": "online",
+            "pl_off": "offline"
+        })
+
+        topic = f"{self.home_assistant_prefix}/binary_sensor/{self.channel}_{self.chip_mac}/conectividade/config"
+        payload_json = json.dumps(payload)
+        return self.pub(topic, 0, True, payload_json)
+
+    def send_aux_connectivity_discovery(self, index):
+        """
+        Envia a descoberta auxiliar de conectividade para um slave LoRa.
+        """
+        name = "Com Lora"
+        slug = slugify(name)
+        payload = self.common_discovery_ind(index)
+        payload.update({
+            "~": self.work_topics[index],
+            "name": name,
+            "uniq_id": self.masc_uniq_topics[index] % slug,
+            "json_attr_t": "~/telemetry",
+            "stat_t": f"~/{slug}",
+            "dev_cla": "connectivity",
+            "pl_on": "online",
+            "pl_off": "offline"
+        })
+
+        topic = self.masc_disc_topics[index] % ("binary_sensor", slug)
+        payload_json = json.dumps(payload)
+        return self.pub(topic, 0, True, payload_json)
+
+    def send_tele_binary_sensor_discovery(self, index, name, entity_category, value_template, device_class):
+        """
+        Envia a descoberta de um sensor binário de telemetria via MQTT.
+        """
+        slug = slugify(name)
+        payload = self.common_discovery_ind(index)
+        payload.update({
+            "~": self.work_topics[index],
+            "name": name,
+            "uniq_id": self.masc_uniq_topics[index] % slug,
+            "avty_t": "~/com_lora",
+            "stat_t": "~/telemetry",
+            "value_template": value_template,
+        })
+        if entity_category:
+            payload["entity_category"] = entity_category
+        if device_class:
+            payload["dev_cla"] = device_class
+
+        topic = self.masc_disc_topics[index] % ("binary_sensor", slug)
+        payload_json = json.dumps(payload)
+        return self.pub(topic, 0, True, payload_json)
+
+    def send_tele_sensor_discovery(self, index, name, entity_category, value_template, device_class, units):
+        """
+        Envia a descoberta de um sensor de telemetria via MQTT.
+        """
+        slug = slugify(name)
+        payload = self.common_discovery_ind(index)
+        payload.update({
+            "~": self.work_topics[index],
+            "name": name,
+            "uniq_id": self.masc_uniq_topics[index] % slug,
+            "avty_t": "~/com_lora",
+            "stat_t": "~/telemetry",
+            "value_template": value_template,
+        })
+        if entity_category:
+            payload["entity_category"] = entity_category
+        if device_class:
+            payload["dev_cla"] = device_class
+        if units:
+            payload["unit_of_meas"] = units
+
+        topic = self.masc_disc_topics[index] % ("sensor", slug)
+        payload_json = json.dumps(payload)
+        return self.pub(topic, 0, True, payload_json)
+
+    def send_sensor_discovery(self, index, name, entity_category, device_class, units, state_class, force_update):
+        """
+        Envia a descoberta de um sensor MQTT com estado específico.
+        """
+        slug = slugify(name)
+        payload = self.common_discovery_ind(index)
+        payload.update({
+            "~": self.work_topics[index],
+            "name": name,
+            "uniq_id": self.masc_uniq_topics[index] % slug,
+            "avty_t": "~/com_lora",
+            "stat_t": f"~/{slug}",
+            "frc_upd": force_update,
+        })
+        if entity_category:
+            payload["entity_category"] = entity_category
+        if device_class:
+            payload["dev_cla"] = device_class
+        if units:
+            payload["unit_of_meas"] = units
+        if state_class:
+            payload["stat_cla"] = state_class
+
+        topic = self.masc_disc_topics[index] % ("sensor", slug)
+        payload_json = json.dumps(payload)
+        return self.pub(topic, 0, True, payload_json)
+
+    def send_binary_sensor_discovery(self, index, name, entity_category, device_class):
+        """
+        Envia a descoberta de um sensor binário via MQTT.
+        """
+        slug = slugify(name)
+        payload = self.common_discovery_ind(index)
+        payload.update({
+            "~": self.work_topics[index],
+            "name": name,
+            "uniq_id": self.masc_uniq_topics[index] % slug,
+            "avty_t": "~/com_lora",
+            "stat_t": f"~/{slug}",
+        })
+        if entity_category:
+            payload["entity_category"] = entity_category
+        if device_class:
+            payload["dev_cla"] = device_class
+
+        topic = self.masc_disc_topics[index] % ("binary_sensor", slug)
+        payload_json = json.dumps(payload)
+        return self.pub(topic, 0, True, payload_json)
+
+    def send_button_discovery(self, index, name, entity_category, device_class):
+        """
+        Envia a descoberta de um botão via MQTT.
+        """
+        slug = slugify(name)
+        payload = self.common_discovery_ind(index)
+        payload.update({
+            "~": self.work_topics[index],
+            "name": name,
+            "uniq_id": self.masc_uniq_topics[index] % slug,
+            "avty_t": "~/com_lora",
+            "stat_t": f"~/{slug}",
+            "cmd_t": f"~/{slug}/set",
+        })
+        if entity_category:
+            payload["entity_category"] = entity_category
+        if device_class:
+            payload["dev_cla"] = device_class
+
+        topic = self.masc_disc_topics[index] % ("button", slug)
+        payload_json = json.dumps(payload)
+        return self.pub(topic, 0, True, payload_json)
+
+    def send_switch_discovery(self, index, name, entity_category):
+        """
+        Envia a descoberta de um interruptor via MQTT.
+        """
+        slug = slugify(name)
+        payload = self.common_discovery_ind(index)
+        payload.update({
+            "~": self.work_topics[index],
+            "name": name,
+            "uniq_id": self.masc_uniq_topics[index] % slug,
+            "avty_t": "~/com_lora",
+            "stat_t": f"~/{slug}",
+            "cmd_t": f"~/{slug}/set",
+            "entity_category": entity_category,
+        })
+
+        topic = self.masc_disc_topics[index] % ("switch", slug)
+        payload_json = json.dumps(payload)
+        return self.pub(topic, 0, True, payload_json)
+
+    def send_number_discovery(self, index, name, entity_category, step):
+        """
+        Envia a descoberta de um número via MQTT.
+        """
+        slug = slugify(name)
+        payload = self.common_discovery_ind(index)
+        payload.update({
+            "~": self.work_topics[index],
+            "name": name,
+            "uniq_id": self.masc_uniq_topics[index] % slug,
+            "avty_t": "~/com_lora",
+            "stat_t": f"~/{slug}",
+            "cmd_t": f"~/{slug}/set",
+        })
+        if step:
+            payload["step"] = step
+        if entity_category:
+            payload["entity_category"] = entity_category
+
+        topic = self.masc_disc_topics[index] % ("number", slug)
+        payload_json = json.dumps(payload)
+        return self.pub(topic, 0, True, payload_json)
+
+    def send_light_discovery(self, index, name, entity_category, rgb):
+        """
+        Envia a descoberta de luz via MQTT.
+        """
+        slug = slugify(name)
+        payload = self.common_discovery_ind(index)
+        payload.update({
+            "~": self.work_topics[index],
+            "name": name,
+            "uniq_id": self.masc_uniq_topics[index] % slug,
+            "avty_t": "~/com_lora",
+            "schema": "json",
+            "stat_t": f"~/{slug}",
+            "cmd_t": f"~/{slug}/set",
+            "brightness": True,
+            "rgb": rgb,
+        })
+        if entity_category:
+            payload["entity_category"] = entity_category
+
+        topic = self.masc_disc_topics[index] % ("light", slug)
+        payload_json = json.dumps(payload)
+        return self.pub(topic, 0, True, payload_json)
+
+    def send_light_switch_discovery(self, index, name, entity_category):
+        """
+        Envia a descoberta de interruptor de luz via MQTT.
+        """
+        slug = slugify(name)
+        payload = self.common_discovery_ind(index)
+        payload.update({
+            "~": self.work_topics[index],
+            "name": name,
+            "uniq_id": self.masc_uniq_topics[index] % slug,
+            "avty_t": "~/com_lora",
+            "schema": "json",
+            "stat_t": f"~/{slug}",
+            "cmd_t": f"~/{slug}/set",
+            "brightness": False,
+            "rgb": False,
+        })
+        if entity_category:
+            payload["entity_category"] = entity_category
+
+        topic = self.masc_disc_topics[index] % ("light", slug)
+        payload_json = json.dumps(payload)
+        return self.pub(topic, 0, True, payload_json)
+
+    def send_bridge_button_discovery(self, name, entity_category, device_class):
+        """
+        Envia a descoberta de botão para a ponte via MQTT.
+        """
+        slug = slugify(name)
+        payload = self.common_discovery()
+        payload.update({
+            "~": self.bridge_topic,
+            "name": name,
+            "uniq_id": f"{self.channel}_{self.chip_mac}_{slug}",
+            "avty_t": "~/status",
+            "stat_t": f"~/{slug}",
+            "cmd_t": f"~/{slug}/set",
+        })
+        if entity_category:
+            payload["entity_category"] = entity_category
+        if device_class:
+            payload["dev_cla"] = device_class
+
+        topic = f"{self.home_assistant_prefix}/button/{self.channel}_{self.chip_mac}/{slug}/config"
+        payload_json = json.dumps(payload)
+        return self.pub(topic, 0, True, payload_json)
+
+    def send_delete_discovery(self, domain, name):
+        """
+        Envia uma mensagem para deletar descoberta.
+        """
+        slug = slugify(name)
+        topic = f"{self.home_assistant_prefix}/{domain}/{self.channel}_{self.chip_mac}/{slug}/config"
+        return self.pub(topic, 0, False, "")
+
+    def send_delete_discovery_x(self, domain, name, index):
+        """
+        Envia uma mensagem para deletar descoberta de um slave LoRa.
+        """
+        slug = slugify(name)
+        topic = f"{self.home_assistant_prefix}/{domain}/{self.channel}_{self.lora_slave_macs[index]}/{slug}/config"
+        return self.pub(topic, 0, False, "")
+
+    def send_online(self):
+        """
+        Envia o status online do dispositivo via MQTT.
+        """
+        if self.pub(self.bridge_status_topic, 0, True, "online"):
+            self.online = True
+        else:
+            logging.error("Erro enviando status=online")
+
+    def send_com_lora(self):
+        """
+        Envia o status de conectividade dos dispositivos LoRa.
+        """
+        for i in range(self.num_slaves):
+            if self.last_lora_com[i] != self.lora_com[i]:
+                self.last_lora_com[i] = self.lora_com[i]
+                status = "online" if self.lora_com[i] else "offline"
+                self.pub(f"{self.work_topics[i]}/com_lora", 0, True, status)
+
+    def send_telemetry(self):
+        """
+        Envia telemetria dos dispositivos LoRa.
+        """
+        tempo_loop = self.pega_delta_millis(self.last_tele_millis)
+        if tempo_loop < self.refresh_telemetry:
             return
-        lock_is = 'UNLOCKED' if state else 'LOCKED'
-        msg = self.STATE_PAYLOAD.format(lock_is)
-        self.sendMensage(self.STATE_SENSOR_TOPIC, msg, True)
 
-    def sendDiscoveryMsgs(self):
-        logging.info(
-            'Client {} sending discoveries msgs.'.format(self.mqttClientId))
-        msg = self.DISCOVERY_BATTERY_LEVEL_SENSOR_PAYLOAD.format(self.getName(
-        ), self.BATTERY_LEVEL_SENSOR_TOPIC, self.getLockId(), self.getLockId(), self.getLockId(), self.getMac())
-        self.sendMensage(self.DISCOVERY_SENSOR_TOPIC, msg, True)
+        self.last_tele_millis = self.millis()
+        for i in range(self.num_slaves):
+            payload = {
+                "rssi": str(self.lora_rssi[i])
+            }
+            payload_json = json.dumps(payload)
+            self.pub(self.tele_topics[i], 0, False, payload_json)
 
-        msg = self.DISCOVERY_LOCK_PAYLOAD.format(self.getName(), self.COMMAND_TOPIC, self.STATE_SENSOR_TOPIC, self.getLockId(
-        ), self.getLockId(), self.getLockId(), self.getMac())
-        self.sendMensage(self.DISCOVERY_LOCK_TOPIC, msg, True)
+    def pub(self, topic, qos, retain, payload):
+        """
+        Publica uma mensagem no MQTT com tentativas de repetição.
 
+        Args:
+            topic (str): O tópico MQTT onde a mensagem será publicada.
+            qos (int): Nível de Qualidade de Serviço (QoS).
+            retain (bool): Define se a mensagem deve ser retida.
+            payload (str): O conteúdo da mensagem.
 
-def client_loop(ttlock2MqttClient, loop_delay=2.0, run_forever=False):
-    try:
-        logging.info("Client {} TTlock Mqtt on client_loop".format(
-            ttlock2MqttClient.mqttClientId))
-        bad_connection = 0
-        ttlock2MqttClient.mqttConnection()
-        while run_flag:  # loop
-            ttlock2MqttClient.loop(loop_delay)
-            if ttlock2MqttClient.connected_flag:
-                ttlock2MqttClient.publishInfos()
-            else:
-                if bad_connection > 5 and not run_forever:
-                    logging.error("Client {} has 5 times bad connection".format(
-                        ttlock2MqttClient.mqttClientId))
-                    break
-                bad_connection += 1
-                time.sleep(10)
+        Returns:
+            bool: True se a mensagem for publicada com sucesso, False caso contrário.
+        """
+        for attempt in range(10):  # Tenta publicar a mensagem até 10 vezes
+            result = self.publish(topic, payload, qos=qos, retain=retain)
+            if result.rc == mqtt.MQTT_ERR_SUCCESS:
+                return True
+            time.sleep(0.025)  # Espera 25ms entre as tentativas
+        return False
 
-        if ttlock2MqttClient.connected_flag:
-            ttlock2MqttClient.disconnect()
+# Funções Auxiliares
+def last4(s):
+    """
+    Retorna os últimos 4 caracteres de uma string, começando do índice 8.
+    """
+    return s[8:]
 
-    except Exception:
-        logging.exception("Client {} Loop Thread Error ".format(
-            ttlock2MqttClient.mqttClientId))
+def slugify(text):
+    """Converte um texto em formato 'slug' (substitui espaços por _ e coloca tudo em minúsculas)."""
+    return text.lower().replace(' ', '_')
 
-    finally:
-        logging.debug("Client {} return future".format(
-            ttlock2MqttClient.mqttClientId))
-        return ttlock2MqttClient
+def nome_com_lora(index):
+    """Retorna o nome básico para um dispositivo LoRa."""
+    return "Com LoRa"  # Pode ser expandido com nomes individuais, se necessário.
 
-def create_futures(id,client):
-    if not client:
-        logging.debug('TTlock Element {} Client is empty...'.format(id))
-    elif id in client_futures.keys() and not client_futures.get(id).done():
-        logging.debug('TTlock Element {} Client already created...'.format(id))
-    else:
-        client_futures[id] = executor.submit(client_loop, client)
-    time.sleep(DELAY_BETWEEN_NEW_THREADS_CREATION)
-
-def createClients(broker, port, broker_user, broker_pass, ttlock_client, ttlock_token, state_delay, short_delay, battery_delay):
-    ttlock = TTLock(ttlock_client, ttlock_token)
-    ttlock2MqttClient = None
-    for gateway in ttlock.get_gateway_generator():
-        ttlock2MqttClient = TTLock2MQTTClientGateway(gateway, ttlock, broker, port, broker_user, broker_pass, battery_delay, DELAY_BETWEEN_LOCK_PUBLISH_INFOS*2)
-        create_futures(gateway.get(constants.GATEWAY_ID_FIELD),ttlock2MqttClient)
-        for lock in ttlock.get_locks_per_gateway_generator(gateway.get(constants.GATEWAY_ID_FIELD)):
-            ttlock2MqttClient = TTLock2MQTTClientLock(
-                    lock, gateway, ttlock, broker, port, broker_user, broker_pass, state_delay, short_delay, battery_delay, DELAY_BETWEEN_LOCK_PUBLISH_INFOS*2)
-            create_futures(lock.get(constants.LOCK_ID_FIELD),ttlock2MqttClient)
-
-
-def main(broker, port, broker_user, broker_pass, ttlock_client, ttlock_secret, ttlock_user, ttlock_hash, state_delay, short_delay, battery_delay, max_threads):
-    try:
-        global executor
-        executor = concurrent.futures.ThreadPoolExecutor(max_workers=max_threads)
-
-        if not ttlock_client or not ttlock_secret:
-            raise ValueError('Invalid ttlock client or secret.')
-
-        if not ttlock_secret or not ttlock_user or not ttlock_hash:
-            raise ValueError('Invalid ttlock user or hash.')
-        
-        if short_delay >= state_delay:
-            raise ValueError('Invalid short_delay.')
-        
-        result = TTLock.get_token(ttlock_client,ttlock_secret,ttlock_user,ttlock_hash,"",hashed_password=True)
-        logging.debug(result)
-        result_token = result["access_token"]
-        logging.debug("Result Token: {}".format(result_token))
-        
-        logging.debug("Starting main loop...")
-        while True:
-            try:
-                createClients(broker, port, broker_user, broker_pass,
-                              ttlock_client, result_token, state_delay, short_delay, battery_delay)
-                logging.info("Current threads: {}".format(
-                    threading.active_count()))
-            except Exception:
-                logging.exception("Error main method")
-                time.sleep(DELAY_BETWEEN_NEW_THREADS_CREATION)
-
-    except KeyboardInterrupt:
-        logging.info("Ending...")
-        global run_flag
-        run_flag = False
-        for id, future in client_futures.items():
-            logging.info("Client {} thread is over!".format(
-                future.result().mqttClientId))
-    except ValueError:
-        logging.exception('Exiting script...')
+def slug_com_lora(index):
+    """Retorna o nome slugificado de um dispositivo LoRa."""
+    return slugify(nome_com_lora(index))
 
 def isEmptyStr(s):
     return s == 'null' or len(s) == 0 or s.isspace()
+
+def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, max_threads):
+
+    if not chip_mac:
+        raise ValueError('Invalid LoRa chip mac.')
+
+    if not lora_slave_addrs or not lora_slave_names or not lora_slave_macs or not lora_slave_vers or not lora_slave_chips:
+        raise ValueError('Invalid ttlock user or hash.')
+    
+    if not home_assistant_prefix:
+        raise ValueError('Invalid Homeassistant Prefix.')
+
+    if not max_threads:
+        max_threads = 200
+
+    lora_device = "/dev/ttyUSB0"  # Dispositivo LoRa (substituir conforme necessário)
+
+    client = LoRa2MQTTClient(lora_device, 
+                             broker, 
+                             port, 
+                             chip_mac, 
+                             lora_slave_addrs, 
+                             lora_slave_names, 
+                             lora_slave_macs, 
+                             lora_slave_vers, 
+                             lora_slave_chips, 
+                             home_assistant_prefix, 
+                             broker_user, 
+                             broker_pass, 
+                             60, 
+                             "LoRa2MQTT_123456")
+
+    try:
+        client.mqtt_connection()
+        client.loop_start()  # Inicia o loop MQTT em uma thread separada
+        while True:
+            # Simulação de envio de mensagens
+            data_to_publish = "Mensagem do LoRa simulada"
+            client.send_message("lora2mqtt/dados", data_to_publish)
+            time.sleep(10000)  # Intervalo entre mensagens
+    except KeyboardInterrupt:
+        logging.info("Encerrando aplicação LoRa2MQTT...")
+    finally:
+        client.loop_stop()
+        client.disconnect()
 
 if __name__ == '__main__':
     broker = 'localhost'
     port = 1883
     broker_user = None
     broker_pass = None
-    ttlock_client = None
-    ttlock_secret = None
-    ttlock_user = None
-    ttlock_hash = None
-    state_delay = DELAY_BETWEEN_LOCK_PUBLISH_INFOS
-    short_delay = DELAY_BETWEEN_LOCK_PUBLISH_INFOS/4
-    battery_delay = DELAY_BETWEEN_LOCK_PUBLISH_INFOS*5
+    chip_mac = None
+    lora_slave_addrs = None
+    lora_slave_names = None
+    lora_slave_macs = None
+    lora_slave_vers = None
+    lora_slave_chips = None
+    home_assistant_prefix = None
+    max_threads = None
     loglevel = 'INFO'
-    max_threads= 200
     full_cmd_arguments = sys.argv
     argument_list = full_cmd_arguments[1:]
-    short_options = 'b:p:u:P:c:s:U:h:l:S:D:B:M'
+    short_options = 'b:p:u:P:c:a:n:m:v:C:h:l:M'
     long_options = ['broker=', 'port=', 'user=',
-                    'Pass=', 'client=', 'secrete=',
-                    'User_tt=', 'hash=', 'log_level=',
-                    'State_delay=','Delta_delay=','Battery_delay=',
+                    'Pass=', 'chip=', 'addrs=',
+                    'names=', 'macs=', 'vers=',
+                    'Chips=','haprefix=','log_level=',
                     'Max_threads=']
     try:
         arguments, values = getopt.getopt(
@@ -397,22 +661,22 @@ if __name__ == '__main__':
             broker_user = current_value
         elif current_argument in ("-P", "--Pass"):
             broker_pass = current_value
-        elif current_argument in ("-c", "--client"):
-            ttlock_client = current_value
-        elif current_argument in ("-s", "--secrete"):
-            ttlock_secret = current_value
-        elif current_argument in ("-U", "--User_tt"):
-            ttlock_user = current_value
-        elif current_argument in ("-h", "--hash"):
-            ttlock_hash = current_value
+        elif current_argument in ("-c", "--chip"):
+            chip_mac = current_value
+        elif current_argument in ("-a", "--addrs"):
+            lora_slave_addrs = current_value
+        elif current_argument in ("-n", "--names"):
+            lora_slave_names = current_value
+        elif current_argument in ("-m", "--macs"):
+            lora_slave_macs = current_value
+        elif current_argument in ("-v", "--lvers"):
+            lora_slave_vers = current_value
+        elif current_argument in ("-", "--Chips"):
+            lora_slave_chips = int(current_value)
+        elif current_argument in ("-h", "--haprefix"):
+            home_assistant_prefix = int(current_value)
         elif current_argument in ("-l", "--log_level"):
-            loglevel = current_value
-        elif current_argument in ("-S", "--State_delay"):
-            state_delay = int(current_value)
-        elif current_argument in ("-D", "--Delta_delay"):
-            short_delay = int(current_value)
-        elif current_argument in ("-B", "--Battery_delay"):
-            battery_delay = int(current_value)
+            loglevel = int(current_value)
         elif current_argument in ("-M", "--Max_threads"):
             max_threads = int(current_value)
 
@@ -420,9 +684,11 @@ if __name__ == '__main__':
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % loglevel)
 
-    logging.basicConfig(level=numeric_level, datefmt='%Y-%m-%d %H:%M:%S',
-                        format='%(asctime)-15s - [%(levelname)s] TTLOCK2MQTT: %(message)s', )
+#logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S',
+                        format='%(asctime)-15s - [%(levelname)s] LoRa2MQTT: %(message)s', )
 
     logging.debug("Options: {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(
-        ttlock_client, ttlock_secret, ttlock_user, ttlock_hash, broker, port, broker_user, broker_pass, loglevel, state_delay, short_delay, battery_delay, max_threads))
-    main(broker, port, broker_user, broker_pass, ttlock_client, ttlock_secret, ttlock_user, ttlock_hash, state_delay, short_delay, battery_delay, max_threads)
+        chip_mac, home_assistant_prefix, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, broker, port, broker_user, broker_pass, loglevel, max_threads))
+    main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, max_threads)
+    
