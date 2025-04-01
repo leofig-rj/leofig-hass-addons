@@ -79,6 +79,7 @@ class LoRa2MQTTClient(mqtt.Client):
 
         # Logging informativo
         logging.info(f"Client {mqtt_client_id} LoRa2MQTT Created")
+        logging.info(f"MQTT broker {self.broker_host}:{self.broker_port} {broker_user} {broker_pass}")
 
     def _setup_vars(self):
         """Configura os tópicos MQTT."""
@@ -109,14 +110,15 @@ class LoRa2MQTTClient(mqtt.Client):
 
         # Logging para verificar se os tópicos foram configurados
         logging.info("MQTT topics successfully configured.")
-        logging.debug(f"Bridge Topic: {self.bridge_topic}")
-        logging.debug(f"Telemetry Topics: {self.tele_topics}")
-        logging.debug(f"Set Topics: {self.set_topics}")
+        logging.info(f"Bridge Topic: {self.bridge_topic}")
+        logging.info(f"Telemetry Topics: {self.tele_topics}")
+        logging.info(f"Set Topics: {self.set_topics}")
+        logging.info(f"Masc Disc Topics: {self.masc_disc_topics}")
 
     def send_message(self, topic, msg, retain=False):
         """Envia uma mensagem para um tópico MQTT."""
         try:
-            logging.debug(f'Sending message "{msg}" to topic "{topic}" with retain={retain}')
+            logging.info(f'Sending message "{msg}" to topic "{topic}" with retain={retain}')
             self.publish(topic, msg, qos=0, retain=retain)
         except Exception as e:
             logging.error(f"Failed to send message: {e}")
@@ -124,7 +126,7 @@ class LoRa2MQTTClient(mqtt.Client):
     def mqtt_connection(self):
         """Tenta conectar ao broker MQTT."""
         try:
-            logging.debug(f"Connecting to MQTT broker {self.broker_host}:{self.broker_port}")
+            logging.info(f"Connecting to MQTT broker {self.broker_host}:{self.broker_port}")
             self.connect(self.broker_host, self.broker_port, self.keepalive_mqtt)
         except Exception as e:
             logging.error(f"Failed to connect to MQTT broker: {e}")
@@ -601,8 +603,6 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
     #lora_device = "/dev/ttyUSB0"  # Dispositivo LoRa (substituir conforme necessário)
 
-    logging.debug("Options: {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(
-        chip_mac, home_assistant_prefix, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, broker, port, broker_user, broker_pass, max_threads))
     client = LoRa2MQTTClient("/dev/ttyUSB0", 
                              "10.0.1.84", 
                              1883, 
