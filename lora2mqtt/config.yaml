@@ -20,6 +20,11 @@ map:
 options:
   home_assistant_prefix: "homeassistant"
   chip_mac: "123456789012"
+  lora_slave_addrs: [2,3]
+  lora_slave_names: ["Eletricidade", "Luz"]
+  lora_slave_macs: ["234567890123", "345678901234"]
+  lora_slave_vers: ["Ver 1.1", "Ver 2.2"]
+  lora_slave_chips: ["ESP32", "ESP8266"]
   loglevel: "INFO"
 schema:
   home_assistant_prefix: "str"
