@@ -62,8 +62,8 @@ class LoRa2MQTTClient(mqtt.Client):
         self.lwt_message = "offline"  # Mensagem enviada no LWT
         self.lwt_qos = 0
         self.lwt_retain = True
-        self._setup_mqtt_topics()
         self._setup_vars()
+        self._setup_mqtt_topics()
 
         # Configurações de autenticação MQTT (se fornecidas)
         if broker_user and broker_pass:
