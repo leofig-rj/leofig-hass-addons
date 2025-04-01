@@ -80,8 +80,13 @@ class LoRa2MQTTClient(mqtt.Client):
         # Logging informativo
         logging.info(f"Client {mqtt_client_id} LoRa2MQTT Created")
 
+    def _setup_vars(self):
+        """Configura os tópicos MQTT."""
+        self.idhdwdisp = last4(self.chip_mac)
+
     def _setup_mqtt_topics(self):
         """Configura os tópicos MQTT."""
+        self.num_slaves = len(self.lora_slave_names)
         self.bridge_topic = f"{self.channel}/bridge"
         self.bridge_set_topic = f"{self.bridge_topic}/+/set"
         self.bridge_status_topic = f"{self.channel}/bridge/status"
@@ -90,11 +95,11 @@ class LoRa2MQTTClient(mqtt.Client):
 
         # Configura os tópicos para cada slave
         for i in range(self.num_slaves):
-            work_topic = f"{self.channel}/{self.lora_slave_names[i]}"
+            work_topic = f"{self.channel}/{self.lora_slave_names[i-1]}"
             tele_topic = f"{work_topic}/telemetry"
             set_topic = f"{work_topic}/+/set"
-            masc_uniq_topic = f"{self.channel}_{self.lora_slave_macs[i]}_%s"
-            masc_disc_topic = f"{self.home_assistant_prefix}/%s/{self.channel}_{self.lora_slave_macs[i]}/%s/config"
+            masc_uniq_topic = f"{self.channel}_{self.lora_slave_macs[i-1]}_%s"
+            masc_disc_topic = f"{self.home_assistant_prefix}/%s/{self.channel}_{self.lora_slave_macs[i-1]}/%s/config"
 
             self.work_topics.append(work_topic)
             self.tele_topics.append(tele_topic)
@@ -107,11 +112,6 @@ class LoRa2MQTTClient(mqtt.Client):
         logging.debug(f"Bridge Topic: {self.bridge_topic}")
         logging.debug(f"Telemetry Topics: {self.tele_topics}")
         logging.debug(f"Set Topics: {self.set_topics}")
-
-    def _setup_vars(self):
-        """Configura os tópicos MQTT."""
-        self.idhdwdisp = last4(self.chip_mac)
-        self.num_slaves = len(self.lora_slave_names)
 
     def send_message(self, topic, msg, retain=False):
         """Envia uma mensagem para um tópico MQTT."""
