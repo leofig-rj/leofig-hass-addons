@@ -595,7 +595,7 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
     lora_device = "/dev/ttyUSB0"  # Dispositivo LoRa (substituir conforme necessário)
 
-    client = LoRa2MQTTClient(lora_device, 
+    client = LoRa2MQTTClient("TESTE", 
                              broker, 
                              port, 
                              chip_mac, 
