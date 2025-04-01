@@ -40,13 +40,13 @@ class LoRa2MQTTClient(mqtt.Client):
         self.channel = constants.CHANNEL
         self.dispname = constants.DISP_NAME
         self.chip_mac = "123456789012"
-        self.idhdwdisp = "9012"
+        self.idhdwdisp = None
         self.lora_slave_addrs = [2]
         self.lora_slave_names = ["Eletricidade"]
         self.lora_slave_macs = ["234567890123"]
         self.lora_slave_vers = ["Ver 1.1"]
         self.lora_slave_chips = ["ESP32"]
-        self.num_slaves = len(lora_slave_names)
+        self.num_slaves = None
         self.home_assistant_prefix = "homeassistant"
         self.keepalive_mqtt = keepalive
         self.bridge_topic = None          # Definido em _setup_mqtt_topics
@@ -63,6 +63,7 @@ class LoRa2MQTTClient(mqtt.Client):
         self.lwt_qos = 0
         self.lwt_retain = True
         self._setup_mqtt_topics()
+        self._setup_vars()
 
         # Configurações de autenticação MQTT (se fornecidas)
         if broker_user and broker_pass:
@@ -106,6 +107,11 @@ class LoRa2MQTTClient(mqtt.Client):
         logging.debug(f"Bridge Topic: {self.bridge_topic}")
         logging.debug(f"Telemetry Topics: {self.tele_topics}")
         logging.debug(f"Set Topics: {self.set_topics}")
+
+    def _setup_vars(self):
+        """Configura os tópicos MQTT."""
+        self.idhdwdisp = last4(self.chip_mac)
+        self.num_slaves = len(self.lora_slave_names)
 
     def send_message(self, topic, msg, retain=False):
         """Envia uma mensagem para um tópico MQTT."""
