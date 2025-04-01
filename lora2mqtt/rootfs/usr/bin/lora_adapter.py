@@ -627,7 +627,7 @@ if __name__ == '__main__':
     port = 1883
     broker_user = None
     broker_pass = None
-    chip_mac = None
+    chip_mac = "123456789012"
     lora_slave_addrs = None
     lora_slave_names = None
     lora_slave_macs = None
