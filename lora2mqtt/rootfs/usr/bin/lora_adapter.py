@@ -40,7 +40,7 @@ class LoRa2MQTTClient(mqtt.Client):
         self.channel = constants.CHANNEL
         self.dispname = constants.DISP_NAME
         self.chip_mac = "123456789012"
-        self.idhdwdisp = last4(chip_mac)
+        self.idhdwdisp = "9012"
         self.lora_slave_addrs = [2]
         self.lora_slave_names = ["Eletricidade"]
         self.lora_slave_macs = ["234567890123"]
