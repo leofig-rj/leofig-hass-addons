@@ -38,6 +38,10 @@ mqttbrokerpass=$(bashio::services mqtt "password")
 
 # Print
 bashio::log.info "Run application..."
+bashio::log.info f" Host {mqttbrokerhost}"
+bashio::log.info f" Port {mqttbrokerport}"
+bashio::log.info f" Usr {mqttbrokeruser}"
+bashio::log.info f" Psw {mqttbrokerpass}"
 
 # Run application
 exec python3 /usr/bin/lora_adapter.py --haprefix=${home_assistant_prefix} --chip=${chip_mac} --addrs=${lora_slave_addrs} --names=${lora_slave_names} --broker=${mqttbrokerhost} --port=${mqttbrokerport} --user=${mqttbrokeruser} --Pass=${mqttbrokerpass} --macs=${lora_slave_macs} --vers=${lora_slave_vers} --Chips=${lora_slave_chips} --log_level=${loglevel} --Max_threads=${maxthreads}
