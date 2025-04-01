@@ -587,6 +587,8 @@ def isEmptyStr(s):
 
 def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, max_threads):
 
+    logging.info(f"MQTT broker inicial {broker}:{port} {broker_user} {broker_pass}")
+
     #return
 
     #if not chip_mac:
@@ -694,7 +696,6 @@ if __name__ == '__main__':
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % loglevel)
 
-#logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S',
                         format='%(asctime)-15s - [%(levelname)s] LoRa2MQTT: %(message)s', )
 
