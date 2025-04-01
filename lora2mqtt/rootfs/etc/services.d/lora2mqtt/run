@@ -20,13 +20,13 @@ declare mqttbrokeruser
 declare mqttbrokerpass
 
 # Get the keys from the user config options.
-home_assistant_prefix=$(bashio::config 'ttlockclientid')
-chip_mac=$(bashio::config 'ttlockclientsecret')
-lora_slave_addrs=$(bashio::config 'ttlockuser')
-lora_slave_names=$(bashio::config 'ttlockhash')
-lora_slave_macs=$(bashio::config 'publishstatedelay')
-lora_slave_vers=$(bashio::config 'publishstatedelayshort')
-lora_slave_chips=$(bashio::config 'publishbatterydelay')
+home_assistant_prefix=$(bashio::config 'home_assistant_prefix')
+chip_mac=$(bashio::config 'chip_mac')
+lora_slave_addrs=$(bashio::config 'lora_slave_addrs')
+lora_slave_names=$(bashio::config 'lora_slave_names')
+lora_slave_macs=$(bashio::config 'lora_slave_macs')
+lora_slave_vers=$(bashio::config 'lora_slave_vers')
+lora_slave_chips=$(bashio::config 'lora_slave_chips')
 loglevel=$(bashio::config 'loglevel')
 maxthreads=$(bashio::config 'maxthreads')
 

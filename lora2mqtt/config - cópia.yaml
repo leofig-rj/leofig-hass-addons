@@ -48,5 +48,6 @@ schema:
   lora_slave_chips:
     type: "list"
     items:
-      type: "str"  loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
+      type: "str"  
+  loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
   maxthreads: "int?"
