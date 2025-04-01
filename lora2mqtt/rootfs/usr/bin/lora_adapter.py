@@ -601,6 +601,8 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
     #lora_device = "/dev/ttyUSB0"  # Dispositivo LoRa (substituir conforme necessário)
 
+    logging.debug("Options: {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(
+        chip_mac, home_assistant_prefix, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, broker, port, broker_user, broker_pass, max_threads))
     client = LoRa2MQTTClient("/dev/ttyUSB0", 
                              "10.0.1.84", 
                              1883, 
