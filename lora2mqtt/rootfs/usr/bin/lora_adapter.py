@@ -579,6 +579,8 @@ def isEmptyStr(s):
 
 def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, max_threads):
 
+    return
+
     if not chip_mac:
         raise ValueError('Invalid LoRa chip mac.')
 
@@ -627,7 +629,7 @@ if __name__ == '__main__':
     port = 1883
     broker_user = None
     broker_pass = None
-    chip_mac = "123456789012"
+    chip_mac = None
     lora_slave_addrs = None
     lora_slave_names = None
     lora_slave_macs = None
