@@ -593,20 +593,20 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
     if not max_threads:
         max_threads = 200
 
-    lora_device = "/dev/ttyUSB0"  # Dispositivo LoRa (substituir conforme necessário)
+    #lora_device = "/dev/ttyUSB0"  # Dispositivo LoRa (substituir conforme necessário)
 
-    client = LoRa2MQTTClient("TESTE", 
-                             broker, 
-                             port, 
-                             chip_mac, 
-                             lora_slave_addrs, 
-                             lora_slave_names, 
-                             lora_slave_macs, 
-                             lora_slave_vers, 
-                             lora_slave_chips, 
-                             home_assistant_prefix, 
-                             broker_user, 
-                             broker_pass, 
+    client = LoRa2MQTTClient("/dev/ttyUSB0", 
+                             "10.0.1.84", 
+                             1883, 
+                             "123456789012", 
+                             [2], 
+                             ["Eletricidade"], 
+                             ["234567890123"], 
+                             ["Ver 1.1"], 
+                             ["ESP32"], 
+                             "homeassistant", 
+                             "mqtt_usr", 
+                             "mqtt_psw", 
                              60, 
                              "LoRa2MQTT_123456")
 
