@@ -618,6 +618,7 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
         client.mqtt_connection()
         #client.loop_forever()
         client.loop_start()  # Inicia o loop MQTT em uma thread separada
+        client.send_connectivity_discovery()
         while True:
             # Simulação de envio de mensagens
             data_to_publish = "Mensagem do LoRa simulada"
