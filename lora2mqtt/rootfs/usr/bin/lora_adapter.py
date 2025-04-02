@@ -588,8 +588,8 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
     if not chip_mac:
         raise ValueError('Invalid LoRa chip mac.')
 
-    if not lora_slave_addrs or not lora_slave_names or not lora_slave_macs or not lora_slave_vers or not lora_slave_chips:
-        raise ValueError('Invalid ttlock user or hash.')
+    #if not lora_slave_addrs or not lora_slave_names or not lora_slave_macs or not lora_slave_vers or not lora_slave_chips:
+    #    raise ValueError('Invalid arrays of slaves.')
     
     if not home_assistant_prefix:
         raise ValueError('Invalid Homeassistant Prefix.')
