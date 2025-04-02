@@ -86,6 +86,7 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def _setup_mqtt_topics(self):
         """Configura os tópicos MQTT."""
+        logging.info(f"Slave names {self.lora_slave_names}")
         self.num_slaves = len(self.lora_slave_names)
         self.bridge_topic = f"{self.channel}/bridge"
         self.bridge_set_topic = f"{self.bridge_topic}/+/set"
