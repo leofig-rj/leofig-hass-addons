@@ -29,7 +29,7 @@ options:
 schema:
   homeassistantprefix: "str"
   chipmac: "str"
-  loraslaveaddrs: "int"
+  loraslaveaddrs: "str"
   loraslavenames: "str"
   loraslavemacs: "str"
   loraslavevers: "str"
