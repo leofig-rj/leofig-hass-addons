@@ -634,10 +634,17 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                 # Publicando o dado
                 client.send_message("lora2mqtt/dados", data_to_publish)
             # Envio comando
-            serial_data = f"01020{contador}000D000\n"
+#            serial_data = f"01020{contador}000D000\n"
+#            serial_data = f"01020{contador}000D000"
+            if contador == 0:
+                serial_data = "010201000D000"
+            else:
+                serial_data = "010202000D000"
             ser.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
+            logging.info(f"Enviado {serial_data}")
+
             contador = contador + 1
-            if contador > 9:
+            if contador > 1:
                 contador = 0
             time.sleep(5)  # Aguarda 5 segundos
     except KeyboardInterrupt:
