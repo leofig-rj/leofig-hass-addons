@@ -41,11 +41,16 @@ class LoRa2MQTTClient(mqtt.Client):
         self.dispname = constants.DISP_NAME
         self.chip_mac = chip_mac
         self.idhdwdisp = None
-        self.lora_slave_addrs = lora_slave_addrs
-        self.lora_slave_names = lora_slave_names
-        self.lora_slave_macs = lora_slave_macs
-        self.lora_slave_vers = lora_slave_vers
-        self.lora_slave_chips = lora_slave_chips
+        self.lora_slave_addrs_ = lora_slave_addrs
+        self.lora_slave_names_ = lora_slave_names
+        self.lora_slave_macs_ = lora_slave_macs
+        self.lora_slave_vers_ = lora_slave_vers
+        self.lora_slave_chips_ = lora_slave_chips
+        self.lora_slave_addrs = None
+        self.lora_slave_names = None
+        self.lora_slave_macs = None
+        self.lora_slave_vers = None
+        self.lora_slave_chips = None
         self.num_slaves = None
         self.home_assistant_prefix = home_assistant_prefix
         self.keepalive_mqtt = keepalive
@@ -86,7 +91,14 @@ class LoRa2MQTTClient(mqtt.Client):
         """Configura os tópicos MQTT."""
         self.idhdwdisp = last4(self.chip_mac)
         logging.info(f"Chip mac {self.chip_mac}")
-        logging.info(f"Slave names {self.lora_slave_names}")
+        logging.info(f"Slave names antes {self.lora_slave_names_}")
+        self.lora_slave_addrs = [int(x) for x in self.lora_slave_addrs_.split(",")]
+        self.lora_slave_names = self.lora_slave_names_.split(",")
+        self.lora_slave_macs = self.lora_slave_macs_.split(",")
+        self.lora_slave_vers = self.lora_slave_vers_.split(",")
+        self.lora_slave_chips = self.lora_slave_chips_.split(",")
+        logging.info(f"Slave names depois {self.lora_slave_names}")
+
 
     def _setup_mqtt_topics(self):
         """Configura os tópicos MQTT."""
@@ -607,11 +619,11 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                              broker, 
                              port, 
                              chip_mac, 
-                             [2,3], 
-                             ["Eletricidade", "Luz"], 
-                             ["234567890123", "345678901234"], 
-                             ["Ver 1.1", "Ver 2.2"], 
-                             ["ESP32", "ESP8266"], 
+                             lora_slave_addrs, 
+                             lora_slave_names, 
+                             lora_slave_macs, 
+                             lora_slave_vers, 
+                             lora_slave_chips, 
                              home_assistant_prefix, 
                              broker_user, 
                              broker_pass, 
