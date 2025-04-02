@@ -240,7 +240,7 @@ class LoRa2MQTTClient(mqtt.Client):
             "pl_off": "offline"
         })
 
-        topic = f"{self.home_assistant_prefix}/binary_sensor/{self.channel}_{self.chip_mac}/conectividade/config"
+        topic = f"{self.home_assistant_prefix}/binary_sensor/{self.channel}_{constants.UINQUE}/conectividade/config"
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
