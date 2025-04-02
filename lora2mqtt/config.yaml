@@ -19,12 +19,13 @@ map:
   - share:rw
 options:
   homeassistantprefix: "homeassistant"
+  chipmac: "123456789012"
   lora_slave_addrs:
     - 2
     - 3
   lora_slave_names:
     - "Eletricidade"
-    - "Luz"  chipmac: "123456789012"
+    - "Luz"
   loraslavemacs:
     - "234567890123"
     - "345678901234"
