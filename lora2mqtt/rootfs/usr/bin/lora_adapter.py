@@ -585,16 +585,14 @@ def isEmptyStr(s):
 
 def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, max_threads):
 
-    #return
+    if not chip_mac:
+        raise ValueError('Invalid LoRa chip mac.')
 
-    #if not chip_mac:
-    #    raise ValueError('Invalid LoRa chip mac.')
-
-    #if not lora_slave_addrs or not lora_slave_names or not lora_slave_macs or not lora_slave_vers or not lora_slave_chips:
-    #    raise ValueError('Invalid ttlock user or hash.')
+    if not lora_slave_addrs or not lora_slave_names or not lora_slave_macs or not lora_slave_vers or not lora_slave_chips:
+        raise ValueError('Invalid ttlock user or hash.')
     
-    #if not home_assistant_prefix:
-    #    raise ValueError('Invalid Homeassistant Prefix.')
+    if not home_assistant_prefix:
+        raise ValueError('Invalid Homeassistant Prefix.')
 
     if not max_threads:
         max_threads = 200
@@ -624,7 +622,7 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
             # Simulação de envio de mensagens
             data_to_publish = "Mensagem do LoRa simulada"
             client.send_message("lora2mqtt/dados", data_to_publish)
-            time.sleep(10000)  # Intervalo entre mensagens
+            time.sleep(10)  # Intervalo entre mensagens
     except KeyboardInterrupt:
         logging.info("Encerrando aplicação LoRa2MQTT...")
     finally:
