@@ -40,3 +40,4 @@ schema:
   maxthreads: "int?"
 devices:
   - "{serialport}:{serialport}"
+  - "/dev/ttyACM0:/dev/ttyACM0"
