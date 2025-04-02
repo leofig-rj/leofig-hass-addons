@@ -232,7 +232,7 @@ class LoRa2MQTTClient(mqtt.Client):
         payload.update({
             "~": self.bridge_topic,
             "name": "Conectividade",
-            "uniq_id": f"{self.channel}_{self.chip_mac}_conectividade",
+            "uniq_id": f"{self.channel}_{constants.UINQUE}_conectividade",
             "json_attr_t": "~/telemetry",
             "stat_t": "~/status",
             "dev_cla": "connectivity",
@@ -624,7 +624,7 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                              60, 
                              "LoRa2MQTT_123456")
 
-    logging.info("Serial: {serial_cfg}")
+    logging.info(f"Serial: {serial_cfg}")
 
     try:
         # Configurando conexão serial
