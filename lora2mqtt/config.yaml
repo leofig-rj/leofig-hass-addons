@@ -26,6 +26,7 @@ options:
   loraslavevers: "Ver_1.1,Ver_2.2"
   loraslavechips: "ESP32,ESP8266"
   loglevel: "INFO"
+  serialport: "/dev/ttyACM0"
 schema:
   homeassistantprefix: "str"
   chipmac: "str"
@@ -35,6 +36,7 @@ schema:
   loraslavevers: "str"
   loraslavechips: "str"
   loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
+  serialport: str
   maxthreads: "int?"
 devices:
-  - "/dev/ttyACM0:/dev/ttyACM0"
+  - "{serialport}:{serialport}"
