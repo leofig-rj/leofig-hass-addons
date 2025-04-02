@@ -1,0 +1,216 @@
+import time
+
+# Definições de índices e constantes
+INDEX_ELET = 0
+INDEX_LUZ = 1
+NUM_DESTINOS_CMD_LORA = 2
+NUM_SLAVES = 2
+LORA_FIFO_LEN = 10
+LORA_TEMPO_REFRESH = 5000
+LORA_NUM_TENTATIVAS_CMD = 3
+
+# Endereços dos slaves LoRa
+SLAVE_ELET_ADDR = 0x02
+SLAVE_LUZ_ADDR = 0x03
+loraSlaveAddr = [SLAVE_ELET_ADDR, SLAVE_LUZ_ADDR]
+
+# Variáveis globais
+online = False
+sentDiscovery = False
+
+lastMqttReconnect = 0
+lastTeleMillis = 0
+
+lastTensao = -1
+lastPotencia = -1
+lastCorrente = -1
+lastEnergia = -1
+lastEnergiaRam = -1
+lastLoraCom = [False] * NUM_SLAVES
+lastLampada1 = "NULL"
+lastInput1 = "NULL"
+
+loraCommandTime = 0
+loraTimeOut = [0] * NUM_SLAVES
+loraCom = [False] * NUM_SLAVES
+loraRSSI = [0] * NUM_SLAVES
+lastMsgSent = ""
+lastIdRec = 0
+lastIdSent = 0
+tentativasCmd = 0
+iTensao = 0
+iPotencia = 0
+iCorrente = 0
+iEnergia = 0
+iEnergiaRam = 0
+sLampada1 = "NULL"
+sInput1 = "NULL"
+
+loraFiFoPrimeiro = 0
+loraFiFoUltimo = 0
+loraFiFoMsgBuffer = [""] * LORA_FIFO_LEN
+loraFiFoDestinoBuffer = [0] * LORA_FIFO_LEN
+loraUltimoDestinoCmd = 0
+
+loraTimeOut = [0] * NUM_DESTINOS_CMD_LORA
+loraCom = [False] * NUM_DESTINOS_CMD_LORA
+
+def trata_mensagem(sMsg, index):
+    global loraFiFoPrimeiro, loraFiFoUltimo
+#    print(f"Tamanho da MSG: {len(sMsg)}")
+    
+    if loraFiFoPrimeiro != loraFiFoUltimo:
+#        print("FiFo não está vazia!")
+        return
+    
+    if index == INDEX_ELET:
+        trata_mensagem_gara(sMsg)
+        return
+    
+    if index == INDEX_LUZ:
+        trata_mensagem_fut(sMsg)
+        return
+
+def trata_mensagem_gara(sMsg):
+    global iTensao, iPotencia, iCorrente, iEnergia, iEnergiaRam, loraUltimoDestinoCmd, loraTimeOut, loraCom
+    
+    if len(sMsg) != 33:
+#        print("Erro no tamanho da mensagem!")
+        return
+    
+    partes = sMsg.split('#')
+    if len(partes) != 6:
+#        print("Erro ao dividir a mensagem!")
+        return
+    
+    if len(partes[0]) != 4 or len(partes[1]) != 6 or len(partes[2]) != 6 or len(partes[3]) != 6 or len(partes[4]) != 6:
+#        print("Erro no tamanho dos dados!")
+        return
+    
+    iTensao = int(partes[0])
+    iPotencia = int(partes[1])
+    iCorrente = int(partes[2])
+    iEnergia = int(partes[3])
+    iEnergiaRam = int(partes[4])
+    
+    loraTimeOut[INDEX_ELET] = millis()
+    loraCom[INDEX_ELET] = True
+    if loraUltimoDestinoCmd == INDEX_ELET:
+        lora_proximo_destino_cmd()
+
+def trata_mensagem_fut(sMsg):
+    global loraUltimoDestinoCmd, sLampada1, sInput1, loraTimeOut, loraCom
+    
+    if len(sMsg) != 4:
+#        print("Erro no tamanho da mensagem!")
+        return
+    
+    partes = sMsg.split('#')
+    if len(partes) != 3:
+#        print("Erro ao dividir a mensagem!")
+        return
+    
+    if len(partes[0]) != 1 or len(partes[1]) != 1:
+#        print("Erro no tamanho dos dados!")
+        return
+    
+    sLampada1 = char_to_state(partes[0])
+    sInput1 = char_to_on_off(partes[1])
+    
+    loraTimeOut[INDEX_LUZ] = millis()
+    loraCom[INDEX_LUZ] = True
+    if loraUltimoDestinoCmd == INDEX_LUZ:
+        lora_proximo_destino_cmd()
+
+def millis():
+    import time
+    return int(time.time() * 1000)
+
+def pega_delta_millis(tempo_anterior):
+    import time
+    auxMillis = int(time.time() * 1000)
+    if auxMillis < tempo_anterior:
+        return (auxMillis + 0xFFFFFFFF) - tempo_anterior
+    return auxMillis - tempo_anterior
+
+def char_to_byte(c):
+    return ord(c) - ord('0')
+
+def char_to_on_off(c):
+    return "ON" if c == '1' else "OFF"
+
+def char_to_state(c):
+    return {"state": "ON"} if c == '1' else {"state": "OFF"}
+
+def bool_to_on_off(b):
+    return "ON" if b else "OFF"
+
+def get_index_from_addr(addr):
+    return loraSlaveAddr.index(addr) if addr in loraSlaveAddr else 255
+
+def lora_fifo_tenta_enviar(sMsg, index):
+    global loraFiFoPrimeiro, loraFiFoUltimo, loraFiFoMsgBuffer, loraFiFoDestinoBuffer
+    
+    if loraFiFoPrimeiro == loraFiFoUltimo:
+        if lora_ultimo_cmd_retornou():
+            lora_envia_mensagem_index(sMsg, index)
+            return
+    
+    aux = (loraFiFoUltimo + 1) % LORA_FIFO_LEN
+    if aux == loraFiFoPrimeiro:
+        return
+    
+    loraFiFoMsgBuffer[loraFiFoUltimo] = sMsg
+    loraFiFoDestinoBuffer[loraFiFoUltimo] = index
+    loraFiFoUltimo = aux
+
+def lora_envia_mensagem_index(sMsg, index):
+    lora_envia_mensagem(sMsg, loraSlaveAddr[index])
+
+
+def lora_envia_mensagem(sMsg, para):
+    global loraCommandTime, tentativasCmd, lastIdSent, lastMsgSent
+    
+    loraCommandTime = int(time.time() * 1000)
+    tentativasCmd = 0
+    
+    lora_data = f"{sMsg}:{para}"
+    lastIdSent = hash(lora_data) % 256  # Simulação de ID único
+    lastMsgSent = lora_data
+
+def lora_reenvia_mensagem():
+    global loraCommandTime, tentativasCmd
+    
+    loraCommandTime = int(time.time() * 1000)
+    tentativasCmd += 1
+
+def lora_ultimo_cmd_retornou():
+    global lastIdRec, lastIdSent, loraCommandTime, tentativasCmd
+    
+    if lastIdRec == lastIdSent:
+        return True
+    
+    if pega_delta_millis(loraCommandTime) > LORA_TEMPO_REFRESH:
+        if tentativasCmd >= LORA_NUM_TENTATIVAS_CMD:
+            return True
+        lora_reenvia_mensagem()
+    return False
+
+def lora_fifo_verifica():
+    global loraFiFoPrimeiro, loraFiFoUltimo, loraFiFoMsgBuffer, loraFiFoDestinoBuffer
+    
+    if loraFiFoPrimeiro != loraFiFoUltimo:
+        if lora_ultimo_cmd_retornou():
+            lora_envia_mensagem_index(loraFiFoMsgBuffer[loraFiFoPrimeiro], loraFiFoDestinoBuffer[loraFiFoPrimeiro])
+            loraFiFoPrimeiro = (loraFiFoPrimeiro + 1) % LORA_FIFO_LEN
+
+def lora_proximo_destino_cmd():
+    global loraUltimoDestinoCmd
+    loraUltimoDestinoCmd = (loraUltimoDestinoCmd + 1) % NUM_DESTINOS_CMD_LORA
+
+#def lora_proximo_destino_cmd():
+#    global loraUltimoDestinoCmd
+#    loraUltimoDestinoCmd += 1
+#    if loraUltimoDestinoCmd >= NUM_DESTINOS_CMD_LORA:
+#        loraUltimoDestinoCmd = 0
+

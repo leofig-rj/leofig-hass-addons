@@ -6,6 +6,7 @@ import constants
 import time
 import getopt
 import sys
+import lflora
 class LoRa2MQTTClient(mqtt.Client):
     def __init__(self, lora, broker, port, usb_id, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, broker_user=None, broker_pass=None, keepalive=60, mqtt_client_id="LoRa2MQTT"):
         super().__init__(mqtt_client_id, clean_session=True)
@@ -611,6 +612,9 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                              broker_pass, 
                              60, 
                              "LoRa2MQTT_123456")
+    
+    lflorax = lflora.LFLoraClass()
+    lflorax.set_my_addr(1)
 
     try:
         # Configurando conexão serial
@@ -630,6 +634,8 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                 # Pegando o dado
                 serial_data = ser.readline().decode('utf-8').strip()
                 # Tratando o dado
+                result, de, para, out = lflorax.lora_check_msg_ini(serial_data.encode('utf-8'), len(serial_data))
+                logging.info(f"Recebido result: {result} de: {de} para: {para} msg: {out}")
                 data_to_publish = f"Dado recebido: {serial_data}"
                 # Publicando o dado
                 client.send_message("lora2mqtt/dados", data_to_publish)
