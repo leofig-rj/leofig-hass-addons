@@ -39,7 +39,7 @@ class LoRa2MQTTClient(mqtt.Client):
         self.broker_port = port
         self.channel = constants.CHANNEL
         self.dispname = constants.DISP_NAME
-        self.chip_mac = "123456789012"
+        self.chip_mac = chip_mac
         self.idhdwdisp = None
         self.lora_slave_addrs = [2]
         self.lora_slave_names = ["Eletricidade"]
@@ -47,7 +47,7 @@ class LoRa2MQTTClient(mqtt.Client):
         self.lora_slave_vers = ["Ver 1.1"]
         self.lora_slave_chips = ["ESP32"]
         self.num_slaves = None
-        self.home_assistant_prefix = "homeassistant"
+        self.home_assistant_prefix = home_assistant_prefix
         self.keepalive_mqtt = keepalive
         self.bridge_topic = None          # Definido em _setup_mqtt_topics
         self.bridge_set_topic = None      # Definido em _setup_mqtt_topics
@@ -68,7 +68,6 @@ class LoRa2MQTTClient(mqtt.Client):
         # Configurações de autenticação MQTT (se fornecidas)
         if broker_user and broker_pass:
             self.username_pw_set(broker_user, password=broker_pass)
-        #self.username_pw_set("mqtt_usr", "mqtt_psw")
 
         # Configura o LWT
         self.will_set(self.lwt_topic, self.lwt_message, qos=self.lwt_qos, retain=self.lwt_retain)
@@ -80,7 +79,6 @@ class LoRa2MQTTClient(mqtt.Client):
 
         # Logging informativo
         logging.info(f"Client {mqtt_client_id} LoRa2MQTT Created")
-        logging.info(f"MQTT broker {self.broker_host}:{self.broker_port} {broker_user} {broker_pass}")
 
     def _setup_vars(self):
         """Configura os tópicos MQTT."""
@@ -156,7 +154,7 @@ class LoRa2MQTTClient(mqtt.Client):
             client.connected_flag = True
             logging.info(f"Client {client._client_id.decode('utf-8')} connected successfully!")
             # Publica mensagem de "online" ao conectar
-            client.publish("lora2mqtt/status", "online", qos=0, retain=True)
+            client.publish(client.lwt_topic, "online", qos=0, retain=True)
             client.on_mqtt_connect()
         else:
             logging.error(f"Connection failed with return code {rc}")
