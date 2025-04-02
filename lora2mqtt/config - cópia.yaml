@@ -18,12 +18,12 @@ init: false
 map:
   - share:rw
 options:
-  home_assistant_prefix: "homeassistant"
-  chip_mac: "123456789012"
-  lora_slave_addrs:
+  homeassistantprefix: "homeassistant"
+  chipmac: "123456789012"
+  loraslaveaddrs:
     - 2
     - 3
-  lora_slave_names:
+  loraslavenames:
     - "Eletricidade"
     - "Luz"
   loraslavemacs:
@@ -37,8 +37,8 @@ options:
     - "ESP8266"
   loglevel: "INFO"
 schema:
-  home_assistant_prefix: "str"
-  chip_mac: "str"
+  homeassistantprefix: "str"
+  chipmac: "str"
   loraslaveaddrs: 
     - "int"
   loraslavenames: 

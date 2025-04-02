@@ -20,19 +20,34 @@ map:
 options:
   homeassistantprefix: "homeassistant"
   chipmac: "123456789012"
-  loraslaveaddrs: 2
-  loraslavenames: "Eletricidade"
-  loraslavemacs: "234567890123"
-  loraslavevers: "Ver 1.1"
-  loraslavechips: "ESP32"
+  loraslaveaddrs:
+    - 2
+    - 3
+  loraslavenames:
+    - "Eletricidade"
+    - "Luz"
+  loraslavemacs:
+    - "234567890123"
+    - "345678901234"
+  loraslavevers:
+    - "Ver 1.1"
+    - "Ver 2.2"
+  loraslavechips:
+    - "ESP32"
+    - "ESP8266"
   loglevel: "INFO"
 schema:
   homeassistantprefix: "str"
   chipmac: "str"
-  loraslaveaddrs: "int"
-  loraslavenames: "str"
-  loraslavemacs: "str"
-  loraslavevers: "str"
-  loraslavechips: "str"
+  loraslaveaddrs: 
+    - "int"
+  loraslavenames: 
+    - "str"
+  loraslavemacs:
+    - "str"
+  loraslavevers:
+    - "str"
+  loraslavechips:
+    - "str"
   loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
   maxthreads: "int?"
