@@ -33,26 +33,21 @@ schema:
     type: "list"
     items:
       type: "int"
-    multiple: true
   loraslavenames: 
     type: "list"
     items:
       type: "str"
-    multiple: true
   loraslavemacs:
     type: "list"
     items:
       type: "str"
-    multiple: true
   loraslavevers:
     type: "list"
     items:
       type: "str"
-    multiple: true
   loraslavechips:
     type: "list"
     items:
       type: "str"
-    multiple: true
   loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
   maxthreads: "int?"
