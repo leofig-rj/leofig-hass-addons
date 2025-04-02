@@ -683,9 +683,9 @@ if __name__ == '__main__':
         elif current_argument in ("-v", "--lvers"):
             lora_slave_vers = current_value
         elif current_argument in ("-", "--Chips"):
-            lora_slave_chips = int(current_value)
+            lora_slave_chips = current_value
         elif current_argument in ("-h", "--haprefix"):
-            home_assistant_prefix = int(current_value)
+            home_assistant_prefix = current_value
         elif current_argument in ("-l", "--log_level"):
             loglevel = int(current_value)
         elif current_argument in ("-M", "--Max_threads"):
