@@ -176,7 +176,7 @@ class LoRa2MQTTClient(mqtt.Client):
 
             # Subscrever aos tópicos dos slaves
             for i in range(self.num_slaves):
-                self.subscribe(self.set_topics[i], qos=1)
+                self.subscribe(self.set_topics[i-1], qos=1)
 
             # Atualiza status online
             self.online = False
