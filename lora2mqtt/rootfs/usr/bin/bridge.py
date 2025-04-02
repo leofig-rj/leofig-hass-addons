@@ -1,4 +1,4 @@
-#import serial
+import serial
 import paho.mqtt.client as mqtt
 import logging
 import json
@@ -222,7 +222,7 @@ class LoRa2MQTTClient(mqtt.Client):
  #       }
         payload = {
             "dev": {
-                "ids": [f"{self.channel}_{constants.VERSION}"],
+                "ids": [f"{self.channel}_{constants.UINQUE}"],
                 "name": f"{self.dispname} Bridge",
                 "sw": constants.VERSION,
                 "hw": "USB xxx",
@@ -649,17 +649,27 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                              "LoRa2MQTT_123456")
 
     try:
+        # Configurando conexão serial
+        ser = serial.Serial('/dev/ttyACM0', 115200)
+
         client.mqtt_connection()
         client.loop_start()  # Inicia o loop MQTT em uma thread separada
         client.send_connectivity_discovery()
         while True:
+            # Lendo dados da serial
+            serial_data = ser.readline().decode('utf-8').strip()
+            
+            # Tratando dados (exemplo simples)
+            data_to_publish = f"Dado recebido: {serial_data}"
+
             # Simulação de envio de mensagens
-            data_to_publish = "Mensagem do LoRa simulada"
+ #           data_to_publish = "Mensagem do LoRa simulada"
             client.send_message("lora2mqtt/dados", data_to_publish)
             time.sleep(10)  # Intervalo entre mensagens
     except KeyboardInterrupt:
         logging.info("Encerrando aplicação LoRa2MQTT...")
     finally:
+        ser.close()
         client.loop_stop()
         client.disconnect()
 
