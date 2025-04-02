@@ -630,7 +630,7 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
         # Configurando conexão serial
         serial_obj = json.loads(serial_cfg)
 #        ser = serial.Serial('/dev/ttyACM0', 115200)
-        ser = serial.Serial(serial_obj[port], 115200)
+        ser = serial.Serial(serial_obj["port"], 115200)
         ser.flush()
 
         client.mqtt_connection()
