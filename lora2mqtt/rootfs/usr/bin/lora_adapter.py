@@ -68,6 +68,8 @@ class LoRa2MQTTClient(mqtt.Client):
         # Configurações de autenticação MQTT (se fornecidas)
         if broker_user and broker_pass:
             self.username_pw_set(broker_user, password=broker_pass)
+        logging.info(f"MQTT Usr{broker_user}")
+        logging.info(f"MQTT Usr{broker_pass}")
 
         # Configura o LWT
         self.will_set(self.lwt_topic, self.lwt_message, qos=self.lwt_qos, retain=self.lwt_retain)
@@ -83,10 +85,11 @@ class LoRa2MQTTClient(mqtt.Client):
     def _setup_vars(self):
         """Configura os tópicos MQTT."""
         self.idhdwdisp = last4(self.chip_mac)
+        logging.info(f"Chip mac {self.chip_mac}")
+        logging.info(f"Slave names {self.lora_slave_names}")
 
     def _setup_mqtt_topics(self):
         """Configura os tópicos MQTT."""
-        logging.info(f"Slave names {self.lora_slave_names}")
         self.num_slaves = len(self.lora_slave_names)
         self.bridge_topic = f"{self.channel}/bridge"
         self.bridge_set_topic = f"{self.bridge_topic}/+/set"
@@ -617,7 +620,6 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
     try:
         client.mqtt_connection()
-        #client.loop_forever()
         client.loop_start()  # Inicia o loop MQTT em uma thread separada
         client.send_connectivity_discovery()
         while True:
