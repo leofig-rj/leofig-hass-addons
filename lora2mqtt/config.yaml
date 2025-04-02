@@ -19,12 +19,21 @@ map:
   - share:rw
 options:
   homeassistantprefix: "homeassistant"
-  chipmac: "123456789012"
-  loraslaveaddrs: [2,3]
-  loraslavenames: ["Eletricidade", "Luz"]
-  loraslavemacs: ["234567890123", "345678901234"]
-  loraslavevers: ["Ver 1.1", "Ver 2.2"]
-  loraslavechips: ["ESP32", "ESP8266"]
+  lora_slave_addrs:
+    - 2
+    - 3
+  lora_slave_names:
+    - "Eletricidade"
+    - "Luz"  chipmac: "123456789012"
+  loraslavemacs:
+    - "234567890123"
+    - "345678901234"
+  loraslavevers:
+    - "Ver 1.1"
+    - "Ver 2.2"
+  loraslavechips:
+    - "ESP32"
+    - "ESP8266"
   loglevel: "INFO"
 schema:
   homeassistantprefix: "str"
