@@ -14,6 +14,8 @@ startup: application
 boot: auto
 services:
   - mqtt:need
+uart: true
+udev: true
 init: false
 map:
   - share:rw
@@ -27,6 +29,7 @@ options:
   loraslavechips: "ESP32,ESP8266"
   loglevel: "INFO"
   serialport: "/dev/ttyACM0"
+  serial: {}
 schema:
   homeassistantprefix: "str"
   chipmac: "str"
@@ -37,7 +40,13 @@ schema:
   loraslavechips: "str"
   loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
   serialport: str
+  serial:
+    port: "str?"
+    adapter: "match(zstack|deconz|zigate|ezsp|ember|zboss)?"
+    baudrate: "int?"
+    rtscts": "bool?"
   maxthreads: "int?"
 devices:
+  - "{serial.port}:{serial.port}"
   - "{serialport}:{serialport}"
   - "/dev/ttyACM0:/dev/ttyACM0"
