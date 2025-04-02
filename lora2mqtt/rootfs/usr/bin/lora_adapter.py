@@ -101,7 +101,11 @@ class LoRa2MQTTClient(mqtt.Client):
         self.lora_slave_macs = self.lora_slave_macs_.split(",")
         self.lora_slave_vers = self.lora_slave_vers_.split(",")
         self.lora_slave_chips = self.lora_slave_chips_.split(",")
+        logging.info(f"Slave addrs depois {self.lora_slave_addrs}")
         logging.info(f"Slave names depois {self.lora_slave_names}")
+        logging.info(f"Slave macs depois {self.lora_slave_macs}")
+        logging.info(f"Slave vers depois {self.lora_slave_vers}")
+        logging.info(f"Slave chips depois {self.lora_slave_chips}")
 
 
     def _setup_mqtt_topics(self):
