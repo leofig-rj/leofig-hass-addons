@@ -2,7 +2,7 @@
 name: LoRa2MQTT
 version: "0.1"
 slug: lora2mqtt
-description: Connection between LoRa devices with Home Assistant using MQTT
+description: Connection between LoRa devices and Home Assistant using MQTT
 url: "https://github.com/leofig-rj/leofig-hass-addons"
 arch:
   - armhf

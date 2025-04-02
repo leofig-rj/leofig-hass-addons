@@ -11,13 +11,13 @@ ARG BUILD_ARCH
 
 # Labels
 LABEL \
-    io.hass.name="LoRa2MQTT - Integration of LoRa and Home Assistant using MQTT" \
-    io.hass.description="Integration of LoRa and Home Assistant using MQTT" \
+    io.hass.name="LoRa2MQTT - Integration of LoRa with Home Assistant using MQTT" \
+    io.hass.description="Integration of LoRa with Home Assistant using MQTT" \
     io.hass.arch="${BUILD_ARCH}" \
     io.hass.type="addon" \
     io.hass.version=${BUILD_VERSION} \
     maintainer="leofig_rj <leoagfig@gmail.com>" \
-    org.label-schema.description="Integration of LoRa and Home Assistant using MQTT" \
+    org.label-schema.description="Integration of LoRa with Home Assistant using MQTT" \
     org.label-schema.build-date=${BUILD_DATE} \
     org.label-schema.name="LoRa2MQTT" \
     org.label-schema.schema-version="0.1" \
