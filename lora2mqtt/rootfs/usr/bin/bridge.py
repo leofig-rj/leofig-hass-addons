@@ -7,7 +7,7 @@ import time
 import getopt
 import sys
 class LoRa2MQTTClient(mqtt.Client):
-    def __init__(self, lora, broker, port, chip_mac, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, broker_user=None, broker_pass=None, keepalive=60, mqtt_client_id="LoRa2MQTT"):
+    def __init__(self, lora, broker, port, usb_id, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, broker_user=None, broker_pass=None, keepalive=60, mqtt_client_id="LoRa2MQTT"):
         super().__init__(mqtt_client_id, clean_session=True)
         self.lora = lora
         self.connected_flag = False
@@ -15,8 +15,7 @@ class LoRa2MQTTClient(mqtt.Client):
         self.broker_port = port
         self.channel = constants.CHANNEL
         self.dispname = constants.DISP_NAME
-        self.chip_mac = chip_mac
-        self.idhdwdisp = None
+        self.usb_id = usb_id
         self.lora_slave_addrs_ = lora_slave_addrs
         self.lora_slave_names_ = lora_slave_names
         self.lora_slave_macs_ = lora_slave_macs
@@ -64,9 +63,7 @@ class LoRa2MQTTClient(mqtt.Client):
         logging.info(f"Client {mqtt_client_id} LoRa2MQTT Created")
 
     def _setup_vars(self):
-        """Configura os tópicos MQTT."""
-        self.idhdwdisp = last4(self.chip_mac)
-        logging.info(f"Chip mac {self.chip_mac}")
+        """Configura variáveis dependentes de parâmetros."""
         logging.info(f"Slave addrs antes {self.lora_slave_addrs_}")
         logging.info(f"Slave names antes {self.lora_slave_names_}")
         logging.info(f"Slave macs antes {self.lora_slave_macs_}")
@@ -186,22 +183,12 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Realiza a descoberta comum para o dispositivo principal.
         """
- #       payload = {
- #           "dev": {
- #               "ids": [f"{self.channel}_{self.chip_mac}"],
- #               "cns": [["mac", self.chip_mac]],
- #               "name": f"{self.dispname} {self.idhdwdisp}",
- #               "sw": constants.VERSION,
- #               "mf": "Leonardo Figueiró",
- #               "mdl": "Chip Model"  # Substituir por informações específicas do chip, se aplicável.
- #           }
- #       }
         payload = {
             "dev": {
                 "ids": [f"{self.channel}_{constants.UINQUE}"],
                 "name": f"{self.dispname} Bridge",
                 "sw": constants.VERSION,
-                "hw": "USB xxx",
+                "hw": self.usb_id,
                 "mf": "Leonardo Figueiró",
                 "mdl": "Bridge"
             }
@@ -486,7 +473,7 @@ class LoRa2MQTTClient(mqtt.Client):
         payload.update({
             "~": self.bridge_topic,
             "name": name,
-            "uniq_id": f"{self.channel}_{self.chip_mac}_{slug}",
+            "uniq_id": f"{self.channel}_{constants.UINQUE}_{slug}",
             "avty_t": "~/status",
             "stat_t": f"~/{slug}",
             "cmd_t": f"~/{slug}/set",
@@ -496,7 +483,7 @@ class LoRa2MQTTClient(mqtt.Client):
         if device_class:
             payload["dev_cla"] = device_class
 
-        topic = f"{self.home_assistant_prefix}/button/{self.channel}_{self.chip_mac}/{slug}/config"
+        topic = f"{self.home_assistant_prefix}/button/{self.channel}_{constants.UINQUE}/{slug}/config"
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
@@ -505,7 +492,7 @@ class LoRa2MQTTClient(mqtt.Client):
         Envia uma mensagem para deletar descoberta.
         """
         slug = slugify(name)
-        topic = f"{self.home_assistant_prefix}/{domain}/{self.channel}_{self.chip_mac}/{slug}/config"
+        topic = f"{self.home_assistant_prefix}/{domain}/{self.channel}_{constants.UINQUE}/{slug}/config"
         return self.pub(topic, 0, False, "")
 
     def send_delete_discovery_x(self, domain, name, index):
@@ -608,11 +595,12 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
         max_threads = 200
 
     #lora_device = "/dev/ttyUSB0"  # Dispositivo LoRa (substituir conforme necessário)
+    usb_id = "USB LoRa Ver 1.0"
 
     client = LoRa2MQTTClient("/dev/ttyUSB0", 
                              broker, 
                              port, 
-                             chip_mac, 
+                             usb_id, 
                              lora_slave_addrs, 
                              lora_slave_names, 
                              lora_slave_macs, 
@@ -623,8 +611,6 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                              broker_pass, 
                              60, 
                              "LoRa2MQTT_123456")
-
-    logging.info(f"Serial: {serial_cfg}")
 
     try:
         # Configurando conexão serial
