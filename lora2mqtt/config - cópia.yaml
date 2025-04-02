@@ -73,3 +73,8 @@ schema:
   loraslavechips: "str"
   loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
   maxthreads: "int?"
+
+devices:
+  - "{serial.port}:{serial.port}"
+  - "{serialport}:{serialport}"
+  - "/dev/ttyACM0:/dev/ttyACM0"

@@ -46,7 +46,3 @@ schema:
     baudrate: "int?"
     rtscts": "bool?"
   maxthreads: "int?"
-devices:
-  - "{serial.port}:{serial.port}"
-  - "{serialport}:{serialport}"
-  - "/dev/ttyACM0:/dev/ttyACM0"
