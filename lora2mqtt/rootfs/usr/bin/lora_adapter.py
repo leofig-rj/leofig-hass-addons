@@ -696,9 +696,9 @@ if __name__ == '__main__':
             lora_slave_names = current_value
         elif current_argument in ("-m", "--macs"):
             lora_slave_macs = current_value
-        elif current_argument in ("-v", "--lvers"):
+        elif current_argument in ("-v", "--vers"):
             lora_slave_vers = current_value
-        elif current_argument in ("-", "--Chips"):
+        elif current_argument in ("-C", "--Chips"):
             lora_slave_chips = current_value
         elif current_argument in ("-h", "--haprefix"):
             home_assistant_prefix = current_value

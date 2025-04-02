@@ -51,3 +51,25 @@ schema:
     - "str"
   loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
   maxthreads: "int?"
+
+
+
+options:
+  homeassistantprefix: "homeassistant"
+  chipmac: "123456789012"
+  loraslaveaddrs: 2
+  loraslavenames: "Eletricidade"
+  loraslavemacs: "234567890123"
+  loraslavevers: "Ver 1.1"
+  loraslavechips: "ESP32"
+  loglevel: "INFO"
+schema:
+  homeassistantprefix: "str"
+  chipmac: "str"
+  loraslaveaddrs: "int"
+  loraslavenames: "str"
+  loraslavemacs: "str"
+  loraslavevers: "str"
+  loraslavechips: "str"
+  loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
+  maxthreads: "int?"
