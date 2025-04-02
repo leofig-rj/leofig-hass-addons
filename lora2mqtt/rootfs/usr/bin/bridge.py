@@ -624,10 +624,12 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                              60, 
                              "LoRa2MQTT_123456")
 
+    logging.info("Serial: {serial_cfg}")
+
     try:
         # Configurando conexão serial
-#        ser = serial.Serial('/dev/ttyACM0', 115200)
-        ser = serial.Serial(serial_cfg.port, 15200)
+        ser = serial.Serial('/dev/ttyACM0', 115200)
+#        ser = serial.Serial(serial_cfg.port, 15200)
         ser.flush()
 
         client.mqtt_connection()
