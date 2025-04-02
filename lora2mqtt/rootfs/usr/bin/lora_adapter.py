@@ -172,7 +172,6 @@ class LoRa2MQTTClient(mqtt.Client):
             # Subscrever aos tópicos principais
             self.subscribe(self.todos_topic, qos=1)
             self.subscribe(self.bridge_set_topic, qos=1)
-            self.subscribe(self.config_topic, qos=1)
 
             # Subscrever aos tópicos dos slaves
             for i in range(self.num_slaves):
