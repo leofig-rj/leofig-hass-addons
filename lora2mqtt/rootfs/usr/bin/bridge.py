@@ -622,6 +622,8 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
         client.mqtt_connection()
         client.loop_start()  # Inicia o loop MQTT em uma thread separada
         client.send_connectivity_discovery()
+
+        contador = 0
         while True:
             # Verifico se tem dado na serial
             if ser.in_waiting > 0:
@@ -631,6 +633,13 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                 data_to_publish = f"Dado recebido: {serial_data}"
                 # Publicando o dado
                 client.send_message("lora2mqtt/dados", data_to_publish)
+            # Envio comando
+            serial_data = f"01020{contador}000D000\n"
+            ser.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
+            contador = contador + 1
+            if contador > 9:
+                contador = 0
+            time.sleep(5)  # Aguarda 5 segundos
     except KeyboardInterrupt:
         logging.info("Encerrando aplicação LoRa2MQTT...")
     finally:
