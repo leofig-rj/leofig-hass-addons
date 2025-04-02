@@ -222,8 +222,7 @@ class LoRa2MQTTClient(mqtt.Client):
  #       }
         payload = {
             "dev": {
-                "ids": [f"{self.channel}_{self.chip_mac}"],
-                "cns": [["mac", self.chip_mac]],
+                "ids": [f"{self.channel}_{constants.VERSION}"],
                 "name": f"{self.dispname} Bridge",
                 "sw": constants.VERSION,
                 "hw": "USB xxx",

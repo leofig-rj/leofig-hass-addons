@@ -2,6 +2,7 @@
 CHANNEL = "lora2mqtt"
 DISP_NAME = "LoRa2MQTT"
 VERSION = "0.0.1"
+UINQUE = "290146823516"
 
 # Constantes para Discovery
 EC_DIAGNOSTIC = "diagnostic"
