@@ -38,4 +38,3 @@ schema:
   maxthreads: "int?"
 devices:
   - "/dev/ttyACM0:/dev/ttyACM0"
-    privileged: true
