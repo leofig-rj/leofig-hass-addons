@@ -36,3 +36,6 @@ schema:
   loraslavechips: "str"
   loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
   maxthreads: "int?"
+devices:
+  - "/dev/ttyACM0:/dev/ttyACM0"
+privileged: true
