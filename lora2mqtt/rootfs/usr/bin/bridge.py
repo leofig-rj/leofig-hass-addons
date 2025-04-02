@@ -6,30 +6,6 @@ import constants
 import time
 import getopt
 import sys
-
-# Configurando conexão serial
-#ser = serial.Serial('/dev/ttyUSB0', 115200)
-
-# Configurando o cliente MQTT
-#mqtt_client = mqtt.Client()
-#mqtt_client.connect("broker.hivemq.com", 1883)
-
-#try:
-#    while True:
-#        # Lendo dados da serial
-#        serial_data = ser.readline().decode('utf-8').strip()
-#        
-#        # Tratando dados (exemplo simples)
-#        processed_data = f"Dado recebido: {serial_data}"
-#        
-#        # Publicando no MQTT
-#        mqtt_client.publish("meu_topico/dados", processed_data)
-#        print(f"Publicado: {processed_data}")
-
-#except KeyboardInterrupt:
-#    print("Encerrando aplicação...")
-#    ser.close()
-
 class LoRa2MQTTClient(mqtt.Client):
     def __init__(self, lora, broker, port, chip_mac, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, broker_user=None, broker_pass=None, keepalive=60, mqtt_client_id="LoRa2MQTT"):
         super().__init__(mqtt_client_id, clean_session=True)
@@ -651,21 +627,20 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
     try:
         # Configurando conexão serial
         ser = serial.Serial('/dev/ttyACM0', 115200)
+        ser.flush()
 
         client.mqtt_connection()
         client.loop_start()  # Inicia o loop MQTT em uma thread separada
         client.send_connectivity_discovery()
         while True:
-            # Lendo dados da serial
-            serial_data = ser.readline().decode('utf-8').strip()
-            
-            # Tratando dados (exemplo simples)
-            data_to_publish = f"Dado recebido: {serial_data}"
-
-            # Simulação de envio de mensagens
- #           data_to_publish = "Mensagem do LoRa simulada"
-            client.send_message("lora2mqtt/dados", data_to_publish)
-            time.sleep(10)  # Intervalo entre mensagens
+            # Verifico se tem dado na serial
+            if ser.in_waiting > 0:
+                # Pegando o dado
+                serial_data = ser.readline().decode('utf-8').strip()
+                # Tratando o dado
+                data_to_publish = f"Dado recebido: {serial_data}"
+                # Publicando o dado
+                client.send_message("lora2mqtt/dados", data_to_publish)
     except KeyboardInterrupt:
         logging.info("Encerrando aplicação LoRa2MQTT...")
     finally:
