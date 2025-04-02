@@ -39,25 +39,15 @@ options:
 schema:
   home_assistant_prefix: "str"
   chip_mac: "str"
-  lora_slave_addrs:
-    type: "list"
-    items:
-      type: "int"
-  lora_slave_names:
-    type: "list"
-    items:
-      type: "str"
-  lora_slave_macs:
-    type: "list"
-    items:
-      type: "str"
-  lora_slave_vers:
-    type: "list"
-    items:
-      type: "str"
-  lora_slave_chips:
-    type: "list"
-    items:
-      type: "str"  
+  loraslaveaddrs: 
+    - "int"
+  loraslavenames: 
+    - "str"
+  loraslavemacs:
+    - "str"
+  loraslavevers:
+    - "str"
+  loraslavechips:
+    - "str"
   loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
   maxthreads: "int?"

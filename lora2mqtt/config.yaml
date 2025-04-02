@@ -30,14 +30,29 @@ schema:
   homeassistantprefix: "str"
   chipmac: "str"
   loraslaveaddrs: 
-    - "int"
+    type: "list"
+    items:
+      type: "int"
+    multiple: true
   loraslavenames: 
-    - "str"
+    type: "list"
+    items:
+      type: "str"
+    multiple: true
   loraslavemacs:
-    - "str"
+    type: "list"
+    items:
+      type: "str"
+    multiple: true
   loraslavevers:
-    - "str"
+    type: "list"
+    items:
+      type: "str"
+    multiple: true
   loraslavechips:
-    - "str"
+    type: "list"
+    items:
+      type: "str"
+    multiple: true
   loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
   maxthreads: "int?"
