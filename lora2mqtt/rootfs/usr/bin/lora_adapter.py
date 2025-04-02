@@ -91,7 +91,11 @@ class LoRa2MQTTClient(mqtt.Client):
         """Configura os tópicos MQTT."""
         self.idhdwdisp = last4(self.chip_mac)
         logging.info(f"Chip mac {self.chip_mac}")
+        logging.info(f"Slave addrs antes {self.lora_slave_addrs_}")
         logging.info(f"Slave names antes {self.lora_slave_names_}")
+        logging.info(f"Slave macs antes {self.lora_slave_macs_}")
+        logging.info(f"Slave vers antes {self.lora_slave_vers_}")
+        logging.info(f"Slave chips antes {self.lora_slave_chips_}")
         self.lora_slave_addrs = [int(x) for x in self.lora_slave_addrs_.split(",")]
         self.lora_slave_names = self.lora_slave_names_.split(",")
         self.lora_slave_macs = self.lora_slave_macs_.split(",")
