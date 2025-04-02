@@ -604,13 +604,13 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
     client = LoRa2MQTTClient("/dev/ttyUSB0", 
                              broker, 
                              port, 
-                             "123456789012", 
+                             chip_mac, 
                              [2], 
                              ["Eletricidade"], 
                              ["234567890123"], 
                              ["Ver 1.1"], 
                              ["ESP32"], 
-                             "homeassistant", 
+                             home_assistant_prefix, 
                              broker_user, 
                              broker_pass, 
                              60, 
@@ -618,8 +618,8 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
     try:
         client.mqtt_connection()
-        client.loop_forever()
-        #client.loop_start()  # Inicia o loop MQTT em uma thread separada
+        #client.loop_forever()
+        client.loop_start()  # Inicia o loop MQTT em uma thread separada
         while True:
             # Simulação de envio de mensagens
             data_to_publish = "Mensagem do LoRa simulada"
