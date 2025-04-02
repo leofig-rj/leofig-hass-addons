@@ -703,7 +703,7 @@ if __name__ == '__main__':
         elif current_argument in ("-h", "--haprefix"):
             home_assistant_prefix = current_value
         elif current_argument in ("-l", "--log_level"):
-            loglevel = int(current_value)
+            loglevel = current_value
         elif current_argument in ("-M", "--Max_threads"):
             max_threads = int(current_value)
 
