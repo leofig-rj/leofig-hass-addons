@@ -66,9 +66,9 @@ class LoRa2MQTTClient(mqtt.Client):
         self._setup_mqtt_topics()
 
         # Configurações de autenticação MQTT (se fornecidas)
-        #if broker_user and broker_pass:
-        #    self.username_pw_set(broker_user, password=broker_pass)
-        self.username_pw_set("mqtt_usr", "mqtt_psw")
+        if broker_user and broker_pass:
+            self.username_pw_set(broker_user, password=broker_pass)
+        #self.username_pw_set("mqtt_usr", "mqtt_psw")
 
         # Configura o LWT
         self.will_set(self.lwt_topic, self.lwt_message, qos=self.lwt_qos, retain=self.lwt_retain)
@@ -621,6 +621,7 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
     try:
         client.mqtt_connection()
+        client.loop_forever()
         #client.loop_start()  # Inicia o loop MQTT em uma thread separada
         while True:
             # Simulação de envio de mensagens
