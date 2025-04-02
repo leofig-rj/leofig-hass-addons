@@ -593,7 +593,7 @@ def slug_com_lora(index):
 def isEmptyStr(s):
     return s == 'null' or len(s) == 0 or s.isspace()
 
-def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, max_threads):
+def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, serial_cfg, max_threads):
 
     if not chip_mac:
         raise ValueError('Invalid LoRa chip mac.')
@@ -626,7 +626,8 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
     try:
         # Configurando conexão serial
-        ser = serial.Serial('/dev/ttyACM0', 115200)
+#        ser = serial.Serial('/dev/ttyACM0', 115200)
+        ser = serial.Serial(serial_cfg.port, 15200)
         ser.flush()
 
         client.mqtt_connection()
@@ -660,16 +661,17 @@ if __name__ == '__main__':
     lora_slave_vers = None
     lora_slave_chips = None
     home_assistant_prefix = None
-    max_threads = None
+    serial_cfg = None
     loglevel = 'INFO'
+    max_threads = None
     full_cmd_arguments = sys.argv
     argument_list = full_cmd_arguments[1:]
-    short_options = 'b:p:u:P:c:a:n:m:v:C:h:l:M'
+    short_options = 'b:p:u:P:c:a:n:m:v:C:h:s:l:M'
     long_options = ['broker=', 'port=', 'user=',
                     'Pass=', 'chip=', 'addrs=',
                     'names=', 'macs=', 'vers=',
-                    'Chips=','haprefix=','log_level=',
-                    'Max_threads=']
+                    'Chips=','haprefix=','serial=',
+                    'log_level=','Max_threads=']
     try:
         arguments, values = getopt.getopt(
             argument_list, short_options, long_options)
@@ -701,6 +703,8 @@ if __name__ == '__main__':
             lora_slave_chips = current_value
         elif current_argument in ("-h", "--haprefix"):
             home_assistant_prefix = current_value
+        elif current_argument in ("-s", "--serial"):
+            serial_cfg = current_value
         elif current_argument in ("-l", "--log_level"):
             loglevel = current_value
         elif current_argument in ("-M", "--Max_threads"):
@@ -713,7 +717,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S',
                         format='%(asctime)-15s - [%(levelname)s] LoRa2MQTT: %(message)s', )
 
-    logging.debug("Options: {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(
-        chip_mac, home_assistant_prefix, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, broker, port, broker_user, broker_pass, loglevel, max_threads))
-    main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, max_threads)
+    logging.debug("Options: {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(
+        chip_mac, home_assistant_prefix, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, broker, port, broker_user, broker_pass, loglevel, serial_cfg, max_threads))
+    main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, serial_cfg, max_threads)
     

@@ -27,9 +27,9 @@ options:
   loraslavemacs: "234567890123,345678901234"
   loraslavevers: "Ver_1.1,Ver_2.2"
   loraslavechips: "ESP32,ESP8266"
+  serial:
+    port: "/dev/ttyACM0"
   loglevel: "INFO"
-  serialport: "/dev/ttyACM0"
-  serial: {}
 schema:
   homeassistantprefix: "str"
   chipmac: "str"
@@ -38,11 +38,10 @@ schema:
   loraslavemacs: "str"
   loraslavevers: "str"
   loraslavechips: "str"
-  loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
-  serialport: str
   serial:
     port: "str?"
     adapter: "match(zstack|deconz|zigate|ezsp|ember|zboss)?"
     baudrate: "int?"
     rtscts": "bool?"
+  loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
   maxthreads: "int?"
