@@ -40,4 +40,4 @@ mqttbrokerpass=$(bashio::services mqtt "password")
 bashio::log.info "Run application..."
 
 # Run application
-exec python3 /usr/bin/lora_adapter.py --haprefix=${homeassistantprefix} --chip=${chipmac} --addrs=${loraslaveaddrs} --names=${loraslavenames} --macs=${loraslavemacs} --vers=${loraslavevers} --Chips=${loraslavechips} --broker=${mqttbrokerhost} --port=${mqttbrokerport} --user=${mqttbrokeruser} --Pass=${mqttbrokerpass} --log_level=${loglevel} --Max_threads=${maxthreads}
+exec python3 /usr/bin/bridge.py --haprefix=${homeassistantprefix} --chip=${chipmac} --addrs=${loraslaveaddrs} --names=${loraslavenames} --macs=${loraslavemacs} --vers=${loraslavevers} --Chips=${loraslavechips} --broker=${mqttbrokerhost} --port=${mqttbrokerport} --user=${mqttbrokeruser} --Pass=${mqttbrokerpass} --log_level=${loglevel} --Max_threads=${maxthreads}
