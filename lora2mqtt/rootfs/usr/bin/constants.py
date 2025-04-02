@@ -1,7 +1,7 @@
 # Constantes de configuração
 CHANNEL = "lora2mqtt"
 DISP_NAME = "LoRa2MQTT"
-VERSION = "LoRa2MQTT Versão 1.0"
+VERSION = "0.0.1"
 
 # Constantes para Discovery
 EC_DIAGNOSTIC = "diagnostic"

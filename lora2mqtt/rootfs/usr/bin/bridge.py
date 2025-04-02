@@ -210,14 +210,25 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Realiza a descoberta comum para o dispositivo principal.
         """
+ #       payload = {
+ #           "dev": {
+ #               "ids": [f"{self.channel}_{self.chip_mac}"],
+ #               "cns": [["mac", self.chip_mac]],
+ #               "name": f"{self.dispname} {self.idhdwdisp}",
+ #               "sw": constants.VERSION,
+ #               "mf": "Leonardo Figueiró",
+ #               "mdl": "Chip Model"  # Substituir por informações específicas do chip, se aplicável.
+ #           }
+ #       }
         payload = {
             "dev": {
                 "ids": [f"{self.channel}_{self.chip_mac}"],
                 "cns": [["mac", self.chip_mac]],
-                "name": f"{self.dispname} {self.idhdwdisp}",
+                "name": f"{self.dispname} Bridge",
                 "sw": constants.VERSION,
+                "hw": "USB xxx",
                 "mf": "Leonardo Figueiró",
-                "mdl": "Chip Model"  # Substituir por informações específicas do chip, se aplicável.
+                "mdl": "Bridge"
             }
         }
         return payload
