@@ -21,7 +21,7 @@ homeassistant_api: true  # Habilita o acesso à API do Home Assistant
 host_network: true       # Permite o uso da rede do host
 map:
   share: true          # Permite acesso à pasta /share
-  coonfig: true        # Permite acesso à pasta /config
+  config: true        # Permite acesso à pasta /config
 options:
   homeassistantprefix: "homeassistant"
   chipmac: "123456789012"
