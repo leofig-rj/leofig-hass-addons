@@ -9,7 +9,6 @@ import sys
 import lflora
 import mensagens
 import os
-import pyudev
 
 from lflora import MSG_CHECK_OK, MSG_CHECK_NOT_MASTER, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR
 
@@ -622,16 +621,6 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
     except PermissionError:
         logging.info("Erro: Permissão negada para acessar a pasta.")
 
-
-    # Cria o contexto do udev
-    context = pyudev.Context()
-
-    logging.info("Dispositivos conectados atualmente:")
-    for device in context.list_devices(subsystem="tty"):
-        logging.info(f"Dispositivo: {device.device_node}")
-        logging.info(f" - Modelo: {device.get('ID_MODEL', 'Desconhecido')}")
-        logging.info(f" - Fabricante: {device.get('ID_VENDOR', 'Desconhecido')}")
-        logging.info(f" - Serial: {device.get('ID_SERIAL_SHORT', 'Desconhecido')}")
 
 
 
