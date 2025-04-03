@@ -622,6 +622,17 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
         logging.info("Erro: Permissão negada para acessar a pasta.")
 
 
+    # Cria o contexto do udev
+    context = pyudev.Context()
+
+    logging.info("Dispositivos conectados atualmente:")
+    for device in context.list_devices(subsystem="tty"):
+        logging.info(f"Dispositivo: {device.device_node}")
+        logging.info(f" - Modelo: {device.get('ID_MODEL', 'Desconhecido')}")
+        logging.info(f" - Fabricante: {device.get('ID_VENDOR', 'Desconhecido')}")
+        logging.info(f" - Serial: {device.get('ID_SERIAL_SHORT', 'Desconhecido')}")
+
+
 
 
     usb_id = "USB LoRa Ver 1.0"
