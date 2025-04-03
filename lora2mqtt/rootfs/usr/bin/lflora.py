@@ -105,15 +105,15 @@ class LFLoraClass:
         return True, ''.join(out)
 
     def lora_check_msg_ini(self, input_str, length):
-        out = ""
+        out = []
 
         for i in range(10):
             try:
                 char = input_str[i:i+1].decode('utf-8')  # Decodifica um único byte
                 if char not in "0123456789ABCDEFabcdef":
-                    return self.MSG_CHECK_ERROR, 0, 0, ''.join(out)
+                    return self.MSG_CHECK_ERROR, 0, 0, out
             except UnicodeDecodeError:
-                return self.MSG_CHECK_ERROR, 0, 0, ''.join(out)  # Caso o byte não seja um caractere válido
+                return self.MSG_CHECK_ERROR, 0, 0, out
 
         de = int(input_str[0:2].decode('utf-8'), 16)
         para = int(input_str[2:4].decode('utf-8'), 16)
@@ -121,7 +121,7 @@ class LFLoraClass:
         len_in_msg = int(input_str[6:10].decode('utf-8'), 16)
 
         if len_in_msg != length:
-            return self.MSG_CHECK_ERROR, 0, 0, ''.join(out)
+            return self.MSG_CHECK_ERROR, 0, 0, out
 
         out = input_str[10:]
         self._lastRegRec = RegRec(de, para, id)
@@ -131,7 +131,7 @@ class LFLoraClass:
             self.add_reg_rec(de, para, id)
         else:
             if self._regRecs[index].id == id:
-                return self.MSG_CHECK_ALREADY_REC, de, para, ''.join(out)
+                return self.MSG_CHECK_ALREADY_REC, de, para, out
             self._regRecs[index].id = id
 
         return self.MSG_CHECK_OK, de, para, out
