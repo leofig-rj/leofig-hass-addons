@@ -19,7 +19,6 @@ uart: true               # Habilita o acesso à uart do OS
 udev: true               # Habilita o acesso à udev do OS para monitorar USB
 homeassistant_api: true  # Habilita o acesso à API do Home Assistant
 host_network: true       # Permite o uso da rede do host
-full_access: true
 map:
   share: true          # Permite acesso à pasta /share
   config: true         # Permite acesso à pasta /config

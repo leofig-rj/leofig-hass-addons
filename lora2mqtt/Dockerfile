@@ -33,6 +33,9 @@ COPY rootfs /
 # Install requirements
 RUN pip3 install -r /tmp/requirements.txt
 
+# Define volumes para acesso no container
+VOLUME [ "/share", "/config" ]
+
 # Set execution permissions
 RUN chmod a+x /etc/services.d/lora2mqtt/run
 RUN chmod a+x /etc/services.d/lora2mqtt/finish
