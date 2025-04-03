@@ -612,7 +612,7 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
         arquivos = os.listdir(caminho_para_pasta)
         logging.info(f"Arquivos na pasta: {arquivos}")
     else:
-        logging.info((f"A pasta não existe: {caminho_para_pasta}")
+        logging.info(f"A pasta não existe: {caminho_para_pasta}")
 
 
 
