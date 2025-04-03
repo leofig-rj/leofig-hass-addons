@@ -5,32 +5,14 @@
 # ==============================================================================
 
 # Declare variables
-declare homeassistantprefix
-declare chipmac
-declare loraslaveaddrs
-declare loraslavenames
-declare loraslavemacs
-declare loraslavevers
-declare loraslavechips
-declare serial
 declare loglevel
-declare maxthreads
 declare mqttbrokerhost
 declare mqttbrokerport
 declare mqttbrokeruser
 declare mqttbrokerpass
 
 # Get the keys from the user config options.
-homeassistantprefix=$(bashio::config 'homeassistantprefix')
-chipmac=$(bashio::config 'chipmac')
-loraslaveaddrs=$(bashio::config 'loraslaveaddrs')
-loraslavenames=$(bashio::config 'loraslavenames')
-loraslavemacs=$(bashio::config 'loraslavemacs')
-loraslavevers=$(bashio::config 'loraslavevers')
-loraslavechips=$(bashio::config 'loraslavechips')
-serial=$(bashio::config 'serial')
 loglevel=$(bashio::config 'loglevel')
-maxthreads=$(bashio::config 'maxthreads')
 
 # Get the keys from the mqtt service.
 mqttbrokerhost=$(bashio::services mqtt "host")
@@ -42,4 +24,4 @@ mqttbrokerpass=$(bashio::services mqtt "password")
 bashio::log.info "Run application..."
 
 # Run application
-exec python3 /usr/bin/bridge.py --haprefix=${homeassistantprefix} --chip=${chipmac} --addrs=${loraslaveaddrs} --names=${loraslavenames} --macs=${loraslavemacs} --vers=${loraslavevers} --Chips=${loraslavechips} --broker=${mqttbrokerhost} --port=${mqttbrokerport} --user=${mqttbrokeruser} --Pass=${mqttbrokerpass} --serial=${serial} --log_level=${loglevel} --Max_threads=${maxthreads}
+exec python3 /usr/bin/bridge.py --broker=${mqttbrokerhost} --port=${mqttbrokerport} --user=${mqttbrokeruser} --Pass=${mqttbrokerpass} --log_level=${loglevel}
