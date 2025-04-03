@@ -1,4 +1,5 @@
 import time
+import logging
 
 # Definições de índices e constantes
 INDEX_ELET = 0
@@ -92,6 +93,8 @@ def trata_mensagem_gara(sMsg):
     iCorrente = int(partes[2])
     iEnergia = int(partes[3])
     iEnergiaRam = int(partes[4])
+
+    logging.info(f"Tensão: {iTensao} Potência: {iPotencia} Corrente: {iCorrente} Energia: {iEnergia}")
     
     loraTimeOut[INDEX_ELET] = millis()
     loraCom[INDEX_ELET] = True

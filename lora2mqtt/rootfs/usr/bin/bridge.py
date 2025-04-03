@@ -7,6 +7,7 @@ import time
 import getopt
 import sys
 import lflora
+import mensagens
 
 class LoRa2MQTTClient(mqtt.Client):
     def __init__(self, lora, broker, port, usb_id, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, broker_user=None, broker_pass=None, keepalive=60, mqtt_client_id="LoRa2MQTT"):
@@ -639,6 +640,9 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                 # Publicando o dado limpo
                 data_to_publish = f"Dado recebido: {result}"
                 client.send_message("lora2mqtt/dados", data_to_publish)
+                # Trato a mensagem
+                mensagens.trata_mensagem(result, de)
+
             # Envio comando de solicitação de estado
             serial_data = lf_lora.lora_add_header("000", 2)
             ser.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
