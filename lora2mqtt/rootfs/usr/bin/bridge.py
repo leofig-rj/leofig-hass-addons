@@ -2,13 +2,15 @@ import serial
 import paho.mqtt.client as mqtt
 import logging
 import json
-import constants
+import os
 import time
 import getopt
 import sys
+
+import constants
 import lflora
 import mensagens
-import os
+import config
 
 from lflora import MSG_CHECK_OK, MSG_CHECK_NOT_MASTER, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR
 
@@ -621,7 +623,47 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
     except PermissionError:
         logging.info("Erro: Permissão negada para acessar a pasta.")
 
+    gerenciador = config.DispositivoManager()
 
+    novo_dispositivo = {
+        "id": "12345",
+        "modelo": "PL2303",
+        "fabricante": "Prolific_Technology_Inc",
+        "serial": "ABC12345"
+    }
+    gerenciador.adicionar_dispositivo(novo_dispositivo)
+
+    novo_dispositivo = {
+        "id": "23456",
+        "modelo": "PL2304",
+        "fabricante": "Prolific_Technology_Inc",
+        "serial": "ABC23456"
+    }
+    gerenciador.adicionar_dispositivo(novo_dispositivo)
+
+    # Lista todos os dispositivos
+    logging.info("Dispositivos cadastrados:")
+    gerenciador.listar_dispositivos()
+
+    # Busca um dispositivo específico
+    id_para_buscar = "12345"
+    dispositivo = gerenciador.buscar_dispositivo_por_id(id_para_buscar)
+    if dispositivo:
+        logging.info(f"Dispositivo encontrado: {dispositivo}")
+    else:
+        logging.info(f"Dispositivo com ID '{id_para_buscar}' não encontrado.")
+
+    # Exclui um dispositivo
+    id_para_excluir = "12345"
+    gerenciador.excluir_dispositivo_por_id(id_para_excluir)   
+
+    # Busca um dispositivo específico
+    id_para_buscar = "12345"
+    dispositivo = gerenciador.buscar_dispositivo_por_id(id_para_buscar)
+    if dispositivo:
+        logging.info(f"Dispositivo encontrado: {dispositivo}")
+    else:
+        logging.info(f"Dispositivo com ID '{id_para_buscar}' não encontrado.")
 
 
 
