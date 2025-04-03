@@ -76,13 +76,12 @@ class LFLoraClass:
         return ''.join(out)
 
     def lora_add_header(self, input_str, length, para):
-        self._lastSendId += 1
+        self._lastSendId = (self._lastSendId + 1) % 16 
         return self.lora_add_header_ret(input_str, length, para, self._lastSendId)
 
     def lora_add_header_ret(self, input_str, length, para, msg_id):
         # Criação do buffer auxiliar com o cabeçalho
-        len = length + 10
-        aux = f"{self._myAddr:02X}{para:02X}{msg_id:02X}{len:04X}"
+        aux = f"{self._myAddr:02X}{para:02X}{msg_id:02X}{length + 10:04X}"
         # Completa com a mensagem de entrada
 #        aux += input_str.decode('utf-8')
         aux += input_str
