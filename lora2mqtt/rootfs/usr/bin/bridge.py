@@ -626,44 +626,10 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
 
 
-    # Define o caminho para a pasta no volume montado
-    caminho_para_pasta = "/share/lora2mqtt"
-    arquivo_config = os.path.join(caminho_para_pasta, "config.yaml")
-
-    # Cria a pasta, caso ela não exista
-    os.makedirs(caminho_para_pasta, exist_ok=True)
-
-    # Escreve um arquivo de exemplo config.yaml
-    with open(arquivo_config, "w") as arquivo:
-        arquivo.write("dispositivos:\n")
-        arquivo.write("- id: 12345\n")
-        arquivo.write("  modelo: PL2303\n")
-        arquivo.write("  fabricante: Prolific_Technology_Inc\n")
-        arquivo.write("  serial: ABC12345\n")
-
-    logging.info(f"Arquivo salvo em: {arquivo_config}")
-
-
 
 
 
     gerenciador = config.DispositivoManager()
-
-    novo_dispositivo = {
-        "id": "12345",
-        "modelo": "PL2303",
-        "fabricante": "Prolific_Technology_Inc",
-        "serial": "ABC12345"
-    }
-    gerenciador.adicionar_dispositivo(novo_dispositivo)
-
-    novo_dispositivo = {
-        "id": "23456",
-        "modelo": "PL2304",
-        "fabricante": "Prolific_Technology_Inc",
-        "serial": "ABC23456"
-    }
-    gerenciador.adicionar_dispositivo(novo_dispositivo)
 
     # Lista todos os dispositivos
     logging.info("Dispositivos cadastrados:")
@@ -678,8 +644,8 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
         logging.info(f"Dispositivo com ID '{id_para_buscar}' não encontrado.")
 
     # Exclui um dispositivo
-    id_para_excluir = "12345"
-    gerenciador.excluir_dispositivo_por_id(id_para_excluir)   
+#    id_para_excluir = "12345"
+#    gerenciador.excluir_dispositivo_por_id(id_para_excluir)   
 
     # Busca um dispositivo específico
     id_para_buscar = "12345"
