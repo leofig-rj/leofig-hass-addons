@@ -806,18 +806,10 @@ if __name__ == '__main__':
             home_assistant_prefix = current_value
         elif current_argument in ("-s", "--serial"):
             serial_cfg = current_value
- #       elif current_argument in ("-l", "--log_level"):
- #           loglevel = current_value
+        elif current_argument in ("-l", "--log_level"):
+            loglevel = current_value
         elif current_argument in ("-M", "--Max_threads"):
             max_threads = int(current_value)
-
-
-    # Carrega as opções configuradas no addon
-    with open("/data/options.json") as config_file:
-        options = json.load(config_file)
-
-    loglevel = options.get("loglevel", "INFO")
-    logging.info(f"max_threads: {loglevel}")
 
     numeric_level = getattr(logging, loglevel.upper(), None)
     if not isinstance(numeric_level, int):
