@@ -645,11 +645,11 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
     # Lista todos os dispositivos
     logging.info("Dispositivos cadastrados:")
-    gerenciador.listar_dispositivos()
+    gerenciador.list_devices()
 
     # Busca um dispositivo específico
     id_para_buscar = "12345"
-    dispositivo = gerenciador.buscar_dispositivo_por_id(id_para_buscar)
+    dispositivo = gerenciador.find_device_by_id(id_para_buscar)
     if dispositivo:
         logging.info(f"Dispositivo encontrado: {dispositivo}")
     else:
@@ -661,7 +661,7 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
     # Busca um dispositivo específico
     id_para_buscar = "23456"
-    dispositivo = gerenciador.buscar_dispositivo_por_id(id_para_buscar)
+    dispositivo = gerenciador.find_device_by_id(id_para_buscar)
     if dispositivo:
         logging.info(f"Dispositivo encontrado: {dispositivo}")
     else:
