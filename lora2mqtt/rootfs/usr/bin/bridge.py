@@ -764,10 +764,21 @@ if __name__ == '__main__':
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % loglevel)
 
-    logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S',
-                        format='%(asctime)-15s - [%(levelname)s] LoRa2MQTT: %(message)s', )
+#    logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S',
+#                        format='%(asctime)-15s - [%(levelname)s] LoRa2MQTT: %(message)s', )
+    
+    # Carregar as opções do add-on
+    with open('/data/options.json') as options_file:
+        options = json.load(options_file)
 
+    log_level = options.get('log_level', 'INFO').upper()
+
+    # Configurar o logger
+    logging.basicConfig(level=getattr(logging, log_level))
+    logger = logging.getLogger(__name__)
+
+    logger.info("Nível de logging configurado para: %s", log_level)   
     logging.debug("Options: {}, {}, {}, {}, {}".format(
         broker, port, broker_user, broker_pass, loglevel))
     main(broker, port, broker_user, broker_pass)
-    
+
