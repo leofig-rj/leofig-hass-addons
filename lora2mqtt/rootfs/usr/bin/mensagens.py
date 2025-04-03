@@ -86,6 +86,7 @@ def trata_mensagem_gara(sMsg):
     
     if len(partes[0]) != 4 or len(partes[1]) != 6 or len(partes[2]) != 6 or len(partes[3]) != 6 or len(partes[4]) != 6:
         logging.info("Erro no tamanho dos dados!")
+        logging.info(f"P0 {partes[0]} P1 {partes[1]} P2 {partes[2]} P3 {partes[3]} P4 {partes[4]} ")
         return
     
     iTensao = int(partes[0])
