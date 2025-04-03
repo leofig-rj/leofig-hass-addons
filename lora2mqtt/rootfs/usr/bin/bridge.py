@@ -641,7 +641,8 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                 data_to_publish = f"Dado recebido: {msg}"
                 client.send_message("lora2mqtt/dados", data_to_publish)
                 # Trato a mensagem
-                mensagens.trata_mensagem(msg, de)
+                index = mensagens.get_index_from_addr(de)
+                mensagens.trata_mensagem(msg, index)
 
             # Envio comando de solicitação de estado
             serial_data = lf_lora.lora_add_header("000", 2)

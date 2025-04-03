@@ -58,7 +58,7 @@ loraCom = [False] * NUM_DESTINOS_CMD_LORA
 
 def trata_mensagem(sMsg, index):
     global loraFiFoPrimeiro, loraFiFoUltimo
-    logging.info(f"Tamanho da MSG: {len(sMsg)}")
+    logging.info(f"Tamanho da MSG: {len(sMsg)} Índice {index}")
     
     if loraFiFoPrimeiro != loraFiFoUltimo:
         logging.info("FiFo não está vazia!")
