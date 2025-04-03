@@ -71,17 +71,7 @@ class LoRa2MQTTClient(mqtt.Client):
         logging.info(f"Client {mqtt_client_id} LoRa2MQTT Created")
 
     def _setup_vars(self):
-        """Configura variáveis dependentes de parâmetros."""
-#        logging.info(f"Slave addrs antes {self.lora_slave_addrs_}")
-#        logging.info(f"Slave names antes {self.lora_slave_names_}")
-#        logging.info(f"Slave macs antes {self.lora_slave_macs_}")
-#        logging.info(f"Slave vers antes {self.lora_slave_vers_}")
-#        logging.info(f"Slave chips antes {self.lora_slave_chips_}")
-#        self.lora_slave_addrs = [int(x) for x in self.lora_slave_addrs_.split(",")]
-#        self.lora_slave_names = self.lora_slave_names_.split(",")
-#        self.lora_slave_macs = self.lora_slave_macs_.split(",")
-#        self.lora_slave_vers = self.lora_slave_vers_.split(",")
-#        self.lora_slave_chips = self.lora_slave_chips_.split(",")
+        """Configura variáveis dependentes de parâmetros ou config."""
 
         manager = config.DeviceManager()
 
@@ -669,11 +659,23 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
 
 
-    usb_id = "USB LoRa Ver 1.0"
+    usb_id = "Desconhecido"
+
+    # Carrega as opções configuradas no addon
+    with open("/data/options.json") as config_file:
+        options = json.load(config_file)
+
+    # Acessa o caminho configurado
+    caminho_para_pasta = options.get("data_path", "/config/lora2mqtt")
+
 
     try:
         # Configurando conexão serial
-        serial_obj = json.loads(serial_cfg)
+#        serial_obj = json.loads(serial_cfg)
+        # Carrega as opções configuradas no addon
+        with open("/data/options.json") as config_file:
+            options = json.load(config_file)
+        serial_obj = options.get("serial", {"port": "/dev/ttyACM1"})
         ser = serial.Serial(serial_obj["port"], 115200)
         ser.flush()
 
@@ -693,9 +695,9 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                 # Pegando o dado e deixando como string
                 serial_data = ser.readline().decode('utf-8').strip()
                 # Tratando o dado
-                logging.info(f"Recebeu do adaptador: {serial_data}")
                 if serial_data[0] == '!':
                     usb_id = serial_data[1:]
+                    logging.info(f"Recebeu do adaptador: {usb_id}")
 
             client = LoRa2MQTTClient("/dev/ttyUSB0", 
                                     broker, 
