@@ -15,7 +15,7 @@ import config
 from lflora import MSG_CHECK_OK, MSG_CHECK_NOT_MASTER, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR
 
 class LoRa2MQTTClient(mqtt.Client):
-    def __init__(self, lora, broker, port, usb_id, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, broker_user=None, broker_pass=None, keepalive=60, mqtt_client_id="LoRa2MQTT"):
+    def __init__(self, lora, broker, port, usb_id, broker_user=None, broker_pass=None, keepalive=60, mqtt_client_id="LoRa2MQTT"):
         super().__init__(mqtt_client_id, clean_session=True)
         self.lora = lora
         self.connected_flag = False
@@ -24,11 +24,6 @@ class LoRa2MQTTClient(mqtt.Client):
         self.channel = constants.CHANNEL
         self.dispname = constants.DISP_NAME
         self.usb_id = usb_id
-        self.lora_slave_addrs_ = lora_slave_addrs
-        self.lora_slave_names_ = lora_slave_names
-        self.lora_slave_macs_ = lora_slave_macs
-        self.lora_slave_vers_ = lora_slave_vers
-        self.lora_slave_chips_ = lora_slave_chips
         self.lora_slave_addrs = []
         self.lora_slave_names = []
         self.lora_slave_macs = []
@@ -590,13 +585,9 @@ def slug_com_lora(index):
 def isEmptyStr(s):
     return s == 'null' or len(s) == 0 or s.isspace()
 
-def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, serial_cfg, max_threads):
-
-    if not chip_mac:
-        raise ValueError('Invalid LoRa chip mac.')
-
- #   if not max_threads:
- #       max_threads = 200
+########### MAIN ############
+def main(broker, port, broker_user, broker_pass):
+    usb_id = "Desconhecido"
 
     # Carrega as opções configuradas no addon
     with open("/data/options.json") as config_file:
@@ -604,7 +595,13 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
     max_threads = options.get("max_threads", 200)
     logging.info(f"max_threads: {max_threads}")
-    
+    serial_obj = options.get("serial", {"port": "/dev/ttyACM0"})
+    logging.info(f"serial_obj: {serial_obj}")
+
+
+
+
+
 
     # Acessa o caminho configurado
     caminho_para_pasta = options.get("data_path", "/config/lora2mqtt")
@@ -657,22 +654,9 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
 
 
-    usb_id = "Desconhecido"
-
-    # Carrega as opções configuradas no addon
-    with open("/data/options.json") as config_file:
-        options = json.load(config_file)
-
-    # Acessa o caminho configurado
-    caminho_para_pasta = options.get("data_path", "/config/lora2mqtt")
-
 
     try:
         # Configurando conexão serial
-        # Carrega as opções configuradas no addon
-        with open("/data/options.json") as config_file:
-            options = json.load(config_file)
-        serial_obj = options.get("serial", {"port": "/dev/ttyACM0"})
         ser = serial.Serial(serial_obj["port"], 115200)
         ser.flush()
 
@@ -700,12 +684,6 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                                     broker, 
                                     port, 
                                     usb_id, 
-                                    None, 
-                                    None, 
-                                    None, 
-                                    None, 
-                                    None, 
-                                    None, 
                                     broker_user, 
                                     broker_pass, 
                                     60, 
@@ -755,24 +733,13 @@ if __name__ == '__main__':
     port = 1883
     broker_user = None
     broker_pass = None
-    chip_mac = None
-    lora_slave_addrs = None
-    lora_slave_names = None
-    lora_slave_macs = None
-    lora_slave_vers = None
-    lora_slave_chips = None
-    home_assistant_prefix = None
-    serial_cfg = None
     loglevel = 'INFO'
-    max_threads = None
+
     full_cmd_arguments = sys.argv
     argument_list = full_cmd_arguments[1:]
-    short_options = 'b:p:u:P:c:a:n:m:v:C:h:s:l:M'
+    short_options = 'b:p:u:P:l'
     long_options = ['broker=', 'port=', 'user=',
-                    'Pass=', 'chip=', 'addrs=',
-                    'names=', 'macs=', 'vers=',
-                    'Chips=','haprefix=','serial=',
-                    'log_level=','Max_threads=']
+                    'Pass=', 'log_level=']
     try:
         arguments, values = getopt.getopt(
             argument_list, short_options, long_options)
@@ -790,26 +757,8 @@ if __name__ == '__main__':
             broker_user = current_value
         elif current_argument in ("-P", "--Pass"):
             broker_pass = current_value
-        elif current_argument in ("-c", "--chip"):
-            chip_mac = current_value
-        elif current_argument in ("-a", "--addrs"):
-            lora_slave_addrs = current_value
-        elif current_argument in ("-n", "--names"):
-            lora_slave_names = current_value
-        elif current_argument in ("-m", "--macs"):
-            lora_slave_macs = current_value
-        elif current_argument in ("-v", "--vers"):
-            lora_slave_vers = current_value
-        elif current_argument in ("-C", "--Chips"):
-            lora_slave_chips = current_value
-        elif current_argument in ("-h", "--haprefix"):
-            home_assistant_prefix = current_value
-        elif current_argument in ("-s", "--serial"):
-            serial_cfg = current_value
         elif current_argument in ("-l", "--log_level"):
             loglevel = current_value
-        elif current_argument in ("-M", "--Max_threads"):
-            max_threads = int(current_value)
 
     numeric_level = getattr(logging, loglevel.upper(), None)
     if not isinstance(numeric_level, int):
@@ -818,7 +767,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S',
                         format='%(asctime)-15s - [%(levelname)s] LoRa2MQTT: %(message)s', )
 
-    logging.debug("Options: {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(
-        chip_mac, home_assistant_prefix, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, broker, port, broker_user, broker_pass, loglevel, serial_cfg, max_threads))
-    main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, serial_cfg, max_threads)
+    logging.debug("Options: {}, {}, {}, {}, {}".format(
+        broker, port, broker_user, broker_pass, loglevel))
+    main(broker, port, broker_user, broker_pass)
     
