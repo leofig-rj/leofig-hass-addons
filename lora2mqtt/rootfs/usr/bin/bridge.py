@@ -635,13 +635,13 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                 # Pegando o dado e deixando como string
                 serial_data = ser.readline().decode('utf-8').strip()
                 # Tratando o dado
-                result, de, para, out = lf_lora.lora_check_msg_ini(serial_data)
-                logging.info(f"Recebido result: {result} de: {de} para: {para} msg: {out}")
+                result, de, para, msg = lf_lora.lora_check_msg_ini(serial_data)
+                logging.info(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
                 # Publicando o dado limpo
-                data_to_publish = f"Dado recebido: {result}"
+                data_to_publish = f"Dado recebido: {msg}"
                 client.send_message("lora2mqtt/dados", data_to_publish)
                 # Trato a mensagem
-                mensagens.trata_mensagem(result, de)
+                mensagens.trata_mensagem(msg, de)
 
             # Envio comando de solicitação de estado
             serial_data = lf_lora.lora_add_header("000", 2)
