@@ -47,15 +47,15 @@ class LFLoraClass:
         out = ""
 
         if input_str[0] != '#':
-            return MSG_CHECK_ERROR, 0, 0, out
+            return 5, 0, 0, out
 
         for i in range(10):
             try:
                 char = input_str[i+1:i+2]
                 if char not in "0123456789ABCDEFabcdef":
-                    return MSG_CHECK_ERROR, 0, 0, out
+                    return 6, 0, 0, out
             except UnicodeDecodeError:
-                return MSG_CHECK_ERROR, 0, 0, out
+                return 7, 0, 0, out
 
         de = int(input_str[1:3], 16)
         para = int(input_str[3:5], 16)
@@ -63,7 +63,7 @@ class LFLoraClass:
         len_in_msg = int(input_str[7:11], 16)
 
         if len_in_msg != len(input_str):
-            return MSG_CHECK_ERROR, 0, 0, out
+            return 8, 0, 0, out
 
         out = input_str[11:]
 
