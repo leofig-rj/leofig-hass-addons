@@ -5,14 +5,14 @@
 # ==============================================================================
 
 # Declare variables
-declare loglevel
+#declare loglevel
 declare mqttbrokerhost
 declare mqttbrokerport
 declare mqttbrokeruser
 declare mqttbrokerpass
 
 # Get the keys from the user config options.
-loglevel=$(bashio::config 'loglevel')
+#log_level=$(bashio::config 'log_level')
 
 # Get the keys from the mqtt service.
 mqttbrokerhost=$(bashio::services mqtt "host")
@@ -24,4 +24,4 @@ mqttbrokerpass=$(bashio::services mqtt "password")
 bashio::log.info "Run application..."
 
 # Run application
-exec python3 /usr/bin/bridge.py --broker=${mqttbrokerhost} --port=${mqttbrokerport} --user=${mqttbrokeruser} --Pass=${mqttbrokerpass} --log_level=${loglevel}
+exec python3 /usr/bin/bridge.py --broker=${mqttbrokerhost} --port=${mqttbrokerport} --user=${mqttbrokeruser} --Pass=${mqttbrokerpass}

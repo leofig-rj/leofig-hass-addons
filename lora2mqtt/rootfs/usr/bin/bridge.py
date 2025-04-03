@@ -737,9 +737,9 @@ if __name__ == '__main__':
 
     full_cmd_arguments = sys.argv
     argument_list = full_cmd_arguments[1:]
-    short_options = 'b:p:u:P:l'
+    short_options = 'b:p:u:P'
     long_options = ['broker=', 'port=', 'user=',
-                    'Pass=', 'log_level=']
+                    'Pass=']
     try:
         arguments, values = getopt.getopt(
             argument_list, short_options, long_options)
@@ -757,30 +757,20 @@ if __name__ == '__main__':
             broker_user = current_value
         elif current_argument in ("-P", "--Pass"):
             broker_pass = current_value
-        elif current_argument in ("-l", "--log_level"):
-            loglevel = current_value
 
-    numeric_level = getattr(logging, loglevel.upper(), None)
-    if not isinstance(numeric_level, int):
-        raise ValueError('Invalid log level: %s' % loglevel)
-
-#    logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S',
-#                        format='%(asctime)-15s - [%(levelname)s] LoRa2MQTT: %(message)s', )
-    
     # Carregar as opções do add-on
     with open('/data/options.json') as options_file:
         options = json.load(options_file)
 
-    log_level = options.get('loglevel', 'INFO').upper()
+    log_level = options.get('log_level', 'INFO').upper()
 
     # Configurar o logger
     logging.basicConfig(level=getattr(logging, log_level), datefmt='%Y-%m-%d %H:%M:%S',
                         format='%(asctime)-15s - [%(levelname)s] LoRa2MQTT: %(message)s', )
+    
     logger = logging.getLogger(__name__)
-
     logger.info("Nível de logging configurado para: %s", log_level)  
-
-    logger.debug(f"Options: {broker}, {port}, {broker_user}, {broker_pass}, {loglevel}")
+    logger.debug(f"Options: {broker}, {port}, {broker_user}, {broker_pass}")
     
     main(broker, port, broker_user, broker_pass)
 

@@ -25,12 +25,12 @@ map:
 options:
   serial:
     port: "/dev/ttyACM0"
-  loglevel: "INFO"
+  log_level: "INFO"
 schema:
   serial:
     port: "str"
     baudrate: "int?"
     rtscts": "bool?"
-  loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
+  log_level: "list(DEBUG|INFO|WARNING|ERROR)?"
   data_path: "str?"
-  maxthreads: "int?"
+  max_threads: "int?"
