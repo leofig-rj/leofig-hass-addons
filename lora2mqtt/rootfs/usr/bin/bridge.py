@@ -771,7 +771,7 @@ if __name__ == '__main__':
     with open('/data/options.json') as options_file:
         options = json.load(options_file)
 
-    log_level = options.get('log_level', 'INFO').upper()
+    log_level = options.get('loglevel', 'INFO').upper()
 
     # Configurar o logger
     logging.basicConfig(level=getattr(logging, log_level))
