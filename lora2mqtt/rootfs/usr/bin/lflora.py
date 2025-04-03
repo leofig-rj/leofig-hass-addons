@@ -123,7 +123,7 @@ class LFLoraClass:
         if len_in_msg != length:
             return self.MSG_CHECK_ERROR, 0, 0, ''.join(out)
 
-        out = input_str[10:].decode('utf-8')
+        out = input_str[10:]
         self._lastRegRec = RegRec(de, para, id)
 
         index = self.find_reg_rec(de, para)
@@ -134,7 +134,7 @@ class LFLoraClass:
                 return self.MSG_CHECK_ALREADY_REC, de, para, ''.join(out)
             self._regRecs[index].id = id
 
-        return self.MSG_CHECK_OK, de, para, ''.join(out)
+        return self.MSG_CHECK_OK, de, para, out
 
     def lora_check_msg_ini_old(self, input_str, length):
         out = []
