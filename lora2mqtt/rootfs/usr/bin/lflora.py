@@ -106,14 +106,19 @@ class LFLoraClass:
 
     def lora_check_msg_ini(self, input_str, length):
         out = []
-        for i in range(10):
-            if not input_str[i].isdigit() and not input_str[i].isalpha():
-                return self.MSG_CHECK_ERROR, 0, 0, ''.join(out)
 
-        de = int(input_str[0:2], 16)
-        para = int(input_str[2:4], 16)
-        id = int(input_str[4:6], 16)
-        len_in_msg = int(input_str[6:10], 16)
+        for i in range(10):
+            try:
+                char = input_str[i:i+1].decode('utf-8')  # Decodifica um único byte
+                if char not in "0123456789ABCDEFabcdef":
+                    return self.MSG_CHECK_ERROR, 0, 0, ''.join(out)
+            except UnicodeDecodeError:
+                return self.MSG_CHECK_ERROR, 0, 0, ''.join(out)  # Caso o byte não seja um caractere válido
+
+        de = int(input_str[0:2].decode('utf-8'), 16)
+        para = int(input_str[2:4].decode('utf-8'), 16)
+        id = int(input_str[4:6].decode('utf-8'), 16)
+        len_in_msg = int(input_str[6:10].decode('utf-8'), 16)
 
         if len_in_msg != length:
             return self.MSG_CHECK_ERROR, 0, 0, ''.join(out)
