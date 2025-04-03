@@ -84,16 +84,16 @@ def trata_mensagem_gara(sMsg):
         logging.info("Erro ao dividir a mensagem!")
         return
     
-    if len(partes[0]) != 4 or len(partes[1]) != 6 or len(partes[2]) != 6 or len(partes[3]) != 6 or len(partes[4]) != 6:
+    if len(partes[1]) != 4 or len(partes[2]) != 6 or len(partes[3]) != 6 or len(partes[4]) != 6 or len(partes[5]) != 6:
         logging.info("Erro no tamanho dos dados!")
-        logging.info(f"P0 {partes[0]} P1 {partes[1]} P2 {partes[2]} P3 {partes[3]} P4 {partes[4]} ")
+        logging.info(f"P1 {partes[1]} P2 {partes[2]} P3 {partes[3]} P4 {partes[4]} P5 {partes[5]} ")
         return
     
-    iTensao = int(partes[0])
-    iPotencia = int(partes[1])
-    iCorrente = int(partes[2])
-    iEnergia = int(partes[3])
-    iEnergiaRam = int(partes[4])
+    iTensao = int(partes[1])
+    iPotencia = int(partes[2])
+    iCorrente = int(partes[3])
+    iEnergia = int(partes[4])
+    iEnergiaRam = int(partes[5])
 
     logging.info(f"Tensão: {iTensao} Potência: {iPotencia} Corrente: {iCorrente} Energia: {iEnergia}")
     
@@ -114,12 +114,12 @@ def trata_mensagem_fut(sMsg):
         logging.info("Erro ao dividir a mensagem!")
         return
     
-    if len(partes[0]) != 1 or len(partes[1]) != 1:
+    if len(partes[1]) != 1 or len(partes[2]) != 1:
         logging.info("Erro no tamanho dos dados!")
         return
     
-    sLampada1 = char_to_state(partes[0])
-    sInput1 = char_to_on_off(partes[1])
+    sLampada1 = char_to_state(partes[1])
+    sInput1 = char_to_on_off(partes[2])
     
     logging.info(f"Lâmpada1: {sLampada1} Input1: {sInput1}")
     
