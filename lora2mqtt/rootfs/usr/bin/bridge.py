@@ -603,7 +603,7 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
         options = json.load(config_file)
 
     # Acessa o caminho configurado
-    caminho_para_pasta = options.get("data_path", "/config/lora2mqtt")
+    caminho_para_pasta = options.get("data_path", "/config/lora2mqttxxx")
 
     # Verifica se a pasta existe
     if os.path.exists(caminho_para_pasta):
