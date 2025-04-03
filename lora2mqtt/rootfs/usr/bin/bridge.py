@@ -648,7 +648,7 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 #    gerenciador.excluir_dispositivo_por_id(id_para_excluir)   
 
     # Busca um dispositivo específico
-    id_para_buscar = "12345"
+    id_para_buscar = "23456"
     dispositivo = gerenciador.buscar_dispositivo_por_id(id_para_buscar)
     if dispositivo:
         logging.info(f"Dispositivo encontrado: {dispositivo}")
