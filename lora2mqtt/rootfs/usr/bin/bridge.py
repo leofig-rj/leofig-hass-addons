@@ -595,18 +595,16 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
     if not chip_mac:
         raise ValueError('Invalid LoRa chip mac.')
 
-    #if not lora_slave_addrs or not lora_slave_names or not lora_slave_macs or not lora_slave_vers or not lora_slave_chips:
-    #    raise ValueError('Invalid arrays of slaves.')
-    
-    if not home_assistant_prefix:
-        raise ValueError('Invalid Homeassistant Prefix.')
-
-    if not max_threads:
-        max_threads = 200
+ #   if not max_threads:
+ #       max_threads = 200
 
     # Carrega as opções configuradas no addon
     with open("/data/options.json") as config_file:
         options = json.load(config_file)
+
+    max_threads = options.get("max_threads", 200)
+    logging.info(f"max_threads: {max_threads}")
+    
 
     # Acessa o caminho configurado
     caminho_para_pasta = options.get("data_path", "/config/lora2mqtt")
@@ -671,11 +669,10 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
     try:
         # Configurando conexão serial
-#        serial_obj = json.loads(serial_cfg)
         # Carrega as opções configuradas no addon
         with open("/data/options.json") as config_file:
             options = json.load(config_file)
-        serial_obj = options.get("serial", {"port": "/dev/ttyACM1"})
+        serial_obj = options.get("serial", {"port": "/dev/ttyACM0"})
         ser = serial.Serial(serial_obj["port"], 115200)
         ser.flush()
 
@@ -703,12 +700,12 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                                     broker, 
                                     port, 
                                     usb_id, 
-                                    lora_slave_addrs, 
-                                    lora_slave_names, 
-                                    lora_slave_macs, 
-                                    lora_slave_vers, 
-                                    lora_slave_chips, 
-                                    home_assistant_prefix, 
+                                    None, 
+                                    None, 
+                                    None, 
+                                    None, 
+                                    None, 
+                                    None, 
                                     broker_user, 
                                     broker_pass, 
                                     60, 
@@ -809,10 +806,18 @@ if __name__ == '__main__':
             home_assistant_prefix = current_value
         elif current_argument in ("-s", "--serial"):
             serial_cfg = current_value
-        elif current_argument in ("-l", "--log_level"):
-            loglevel = current_value
+ #       elif current_argument in ("-l", "--log_level"):
+ #           loglevel = current_value
         elif current_argument in ("-M", "--Max_threads"):
             max_threads = int(current_value)
+
+
+    # Carrega as opções configuradas no addon
+    with open("/data/options.json") as config_file:
+        options = json.load(config_file)
+
+    loglevel = options.get("loglevel", "INFO")
+    logging.info(f"max_threads: {loglevel}")
 
     numeric_level = getattr(logging, loglevel.upper(), None)
     if not isinstance(numeric_level, int):
