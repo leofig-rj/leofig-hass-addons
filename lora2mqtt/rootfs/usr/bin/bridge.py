@@ -607,7 +607,7 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
         options = json.load(config_file)
 
     # Acessa o caminho configurado
-    caminho_para_pasta = options.get("data_path", "/config/lora2mqttxxx")
+    caminho_para_pasta = options.get("data_path", "/config/lora2mqtt")
 
     # Verifica se a pasta existe
     try:
@@ -622,6 +622,30 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
             logging.info(f"O caminho não é uma pasta válida: {caminho_para_pasta}")
     except PermissionError:
         logging.info("Erro: Permissão negada para acessar a pasta.")
+
+
+
+
+    # Define o caminho para a pasta no volume montado
+    caminho_para_pasta = "/config/lora2mqtt"
+    arquivo_config = os.path.join(caminho_para_pasta, "config.yaml")
+
+    # Cria a pasta, caso ela não exista
+    os.makedirs(caminho_para_pasta, exist_ok=True)
+
+    # Escreve um arquivo de exemplo config.yaml
+    with open(arquivo_config, "w") as arquivo:
+        arquivo.write("dispositivos:\n")
+        arquivo.write("- id: 12345\n")
+        arquivo.write("  modelo: PL2303\n")
+        arquivo.write("  fabricante: Prolific_Technology_Inc\n")
+        arquivo.write("  serial: ABC12345\n")
+
+    logging.info(f"Arquivo salvo em: {arquivo_config}")
+
+
+
+
 
     gerenciador = config.DispositivoManager()
 
