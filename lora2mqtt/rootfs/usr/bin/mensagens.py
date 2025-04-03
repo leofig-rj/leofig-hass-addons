@@ -58,7 +58,7 @@ loraCom = [False] * NUM_DESTINOS_CMD_LORA
 
 def trata_mensagem(sMsg, index):
     global loraFiFoPrimeiro, loraFiFoUltimo
-    logging.info(f"Tamanho da MSG: {len(sMsg)} Índice {index}")
+#    logging.info(f"Tamanho da MSG: {len(sMsg)} Índice {index}")
     
     if loraFiFoPrimeiro != loraFiFoUltimo:
         logging.info("FiFo não está vazia!")
@@ -95,7 +95,7 @@ def trata_mensagem_gara(sMsg):
     iEnergia = int(partes[4])
     iEnergiaRam = int(partes[5])
 
-    logging.info(f"Tensão: {iTensao} Potência: {iPotencia} Corrente: {iCorrente} Energia: {iEnergia}")
+    logging.info(f"Tensão: {iTensao} Potência: {iPotencia} Corrente: {iCorrente} Energia: {iEnergia} EnergiaRam: {iEnergiaRam}")
     
     loraTimeOut[INDEX_ELET] = millis()
     loraCom[INDEX_ELET] = True
