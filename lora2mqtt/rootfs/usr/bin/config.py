@@ -20,7 +20,7 @@ class DispositivoManager:
         if not os.path.exists(self.config_file_path):
             try:
                 with open(self.config_file_path, "w") as arquivo_yaml:
-                    yaml.dump({"dispositivos": []}, arquivo_yaml)
+                    yaml.dump({"devices": []}, arquivo_yaml)
             except OSError as e:
                 logging.info(f"Erro ao criar o arquivo: {e}")
                 logging.info("Certifique-se de que o diretório possui permissões de gravação.")
@@ -29,12 +29,12 @@ class DispositivoManager:
     def carregar_dispositivos(self):
         """Carrega todos os dispositivos do arquivo config.yaml."""
         with open(self.config_file_path, "r") as arquivo_yaml:
-            return yaml.safe_load(arquivo_yaml).get("dispositivos", [])
+            return yaml.safe_load(arquivo_yaml).get("devices", [])
 
     def salvar_dispositivos(self, dispositivos):
         """Salva os dispositivos no arquivo config.yaml."""
         with open(self.config_file_path, "w") as arquivo_yaml:
-            yaml.dump({"dispositivos": dispositivos}, arquivo_yaml, default_flow_style=False)
+            yaml.dump({"devices": dispositivos}, arquivo_yaml, default_flow_style=False)
 
     def adicionar_dispositivo(self, dispositivo):
         """Adiciona um novo dispositivo ao arquivo."""
@@ -65,7 +65,9 @@ class DispositivoManager:
         dispositivos = self.carregar_dispositivos()
         if dispositivos:
             for dispositivo in dispositivos:
-                logging.info(f"ID: {dispositivo['id']}, Modelo: {dispositivo['modelo']}, "
-                      f"Fabricante: {dispositivo['fabricante']}, Serial: {dispositivo['serial']}")
+                logging.info(f"ID: {dispositivo['id']}, Modelo: {dispositivo['model']}, "
+                      f"Chip: {dispositivo['chip']}, Fabricante: {dispositivo['manufacturer']}, "
+                      f"Serial: {dispositivo['serial']}, Versão: {dispositivo['version']}, "
+                      f"Nome: {dispositivo['friendly_name']}, Endereço: {dispositivo['address']}")
         else:
             logging.info("Nenhum dispositivo cadastrado.")
