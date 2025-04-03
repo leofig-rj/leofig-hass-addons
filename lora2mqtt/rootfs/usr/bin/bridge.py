@@ -774,11 +774,13 @@ if __name__ == '__main__':
     log_level = options.get('loglevel', 'INFO').upper()
 
     # Configurar o logger
-    logging.basicConfig(level=getattr(logging, log_level))
+    logging.basicConfig(level=getattr(logging, log_level), datefmt='%Y-%m-%d %H:%M:%S',
+                        format='%(asctime)-15s - [%(levelname)s] LoRa2MQTT: %(message)s', )
     logger = logging.getLogger(__name__)
 
-    logger.info("Nível de logging configurado para: %s", log_level)   
-    logging.debug("Options: {}, {}, {}, {}, {}".format(
-        broker, port, broker_user, broker_pass, loglevel))
+    logger.info("Nível de logging configurado para: %s", log_level)  
+
+    logger.debug(f"Options: {broker}, {port}, {broker_user}, {broker_pass}, {loglevel}")
+    
     main(broker, port, broker_user, broker_pass)
 
