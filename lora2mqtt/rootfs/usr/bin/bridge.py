@@ -594,11 +594,11 @@ def main(broker, port, broker_user, broker_pass):
         options = json.load(config_file)
 
     max_threads = options.get("max_threads", 200)
-    logging.info(f"max_threads: {max_threads}")
+    logging.debug(f"max_threads: {max_threads}")
     serial_obj = options.get("serial", {"port": "/dev/ttyACM0"})
-    logging.info(f"serial_obj: {serial_obj}")
+    logging.debug(f"serial_obj: {serial_obj}")
     data_path = options.get("data_path", "/config/lora2mqtt")
-    logging.info(f"data_path: {data_path}")
+    logging.debug(f"data_path: {data_path}")
 
 
 
@@ -609,16 +609,16 @@ def main(broker, port, broker_user, broker_pass):
     # Verifica se a pasta existe
     try:
         if os.path.exists(data_path) and os.path.isdir(data_path):
-            logging.info(f"Pasta encontrada: {data_path}")
+            logging.debug(f"Pasta encontrada: {data_path}")
             # Listar arquivos, por exemplo:
             arquivos = os.listdir(data_path)
-            logging.info(f"Arquivos na pasta: {arquivos}")
+            logging.debug(f"Arquivos na pasta: {arquivos}")
             arquivos = [arquivo for arquivo in os.listdir(data_path) if arquivo.endswith(".py")]
-            logging.info(f"Arquivos Python encontrados: {arquivos}")
+            logging.debug(f"Arquivos Python encontrados: {arquivos}")
         else:
-            logging.info(f"O caminho não é uma pasta válida: {data_path}")
+            logging.debug(f"O caminho não é uma pasta válida: {data_path}")
     except PermissionError:
-        logging.info("Erro: Permissão negada para acessar a pasta.")
+        logging.debug("Erro: Permissão negada para acessar a pasta.")
 
 
 
@@ -636,9 +636,9 @@ def main(broker, port, broker_user, broker_pass):
     id_para_buscar = "12345"
     dispositivo = gerenciador.find_device_by_id(id_para_buscar)
     if dispositivo:
-        logging.info(f"Dispositivo encontrado: {dispositivo}")
+        logging.debug(f"Dispositivo encontrado: {dispositivo}")
     else:
-        logging.info(f"Dispositivo com ID '{id_para_buscar}' não encontrado.")
+        logging.debug(f"Dispositivo com ID '{id_para_buscar}' não encontrado.")
 
     # Exclui um dispositivo
 #    id_para_excluir = "12345"
@@ -648,9 +648,9 @@ def main(broker, port, broker_user, broker_pass):
     id_para_buscar = "234567890123"
     dispositivo = gerenciador.find_device_by_id(id_para_buscar)
     if dispositivo:
-        logging.info(f"Dispositivo encontrado: {dispositivo}")
+        logging.debug(f"Dispositivo encontrado: {dispositivo}")
     else:
-        logging.info(f"Dispositivo com ID '{id_para_buscar}' não encontrado.")
+        logging.debug(f"Dispositivo com ID '{id_para_buscar}' não encontrado.")
 
 
 
@@ -662,14 +662,14 @@ def main(broker, port, broker_user, broker_pass):
 
     except serial.SerialException as e:
         ser = None  # Define como None para evitar problemas futuros
-        logging.info(f"Erro {e} na configuração serial...")
+        logging.error(f"Erro {e} na configuração serial...")
 
     try:
         
        if ser:
             # Envio comando de solicitação de estado da dongue
             ser.write("!000".encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
-            logging.info("Enviado comando solicita estado do adaptador")
+            logging.error("Enviado comando solicita estado do adaptador")
             time.sleep(2)  # Aguarda 2 segundos
             # Verifico se tem dado na serial
             if ser.in_waiting > 0:
