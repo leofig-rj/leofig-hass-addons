@@ -58,10 +58,10 @@ loraCom = [False] * NUM_DESTINOS_CMD_LORA
 
 def trata_mensagem(sMsg, index):
     global loraFiFoPrimeiro, loraFiFoUltimo
-#    print(f"Tamanho da MSG: {len(sMsg)}")
+    logging.info(f"Tamanho da MSG: {len(sMsg)}")
     
     if loraFiFoPrimeiro != loraFiFoUltimo:
-#        print("FiFo não está vazia!")
+        logging.info("FiFo não está vazia!")
         return
     
     if index == INDEX_ELET:
@@ -76,16 +76,16 @@ def trata_mensagem_gara(sMsg):
     global iTensao, iPotencia, iCorrente, iEnergia, iEnergiaRam, loraUltimoDestinoCmd, loraTimeOut, loraCom
     
     if len(sMsg) != 33:
-#        print("Erro no tamanho da mensagem!")
+        logging.info(f"Erro no tamanho da mensagem! {len(sMsg)}")
         return
     
     partes = sMsg.split('#')
     if len(partes) != 6:
-#        print("Erro ao dividir a mensagem!")
+        logging.info("Erro ao dividir a mensagem!")
         return
     
     if len(partes[0]) != 4 or len(partes[1]) != 6 or len(partes[2]) != 6 or len(partes[3]) != 6 or len(partes[4]) != 6:
-#        print("Erro no tamanho dos dados!")
+        logging.info("Erro no tamanho dos dados!")
         return
     
     iTensao = int(partes[0])
@@ -105,20 +105,22 @@ def trata_mensagem_fut(sMsg):
     global loraUltimoDestinoCmd, sLampada1, sInput1, loraTimeOut, loraCom
     
     if len(sMsg) != 4:
-#        print("Erro no tamanho da mensagem!")
+        logging.info("Erro no tamanho da mensagem!")
         return
     
     partes = sMsg.split('#')
     if len(partes) != 3:
-#        print("Erro ao dividir a mensagem!")
+        logging.info("Erro ao dividir a mensagem!")
         return
     
     if len(partes[0]) != 1 or len(partes[1]) != 1:
-#        print("Erro no tamanho dos dados!")
+        logging.info("Erro no tamanho dos dados!")
         return
     
     sLampada1 = char_to_state(partes[0])
     sInput1 = char_to_on_off(partes[1])
+    
+    logging.info(f"Lâmpada1: {sLampada1} Input1: {sInput1}")
     
     loraTimeOut[INDEX_LUZ] = millis()
     loraCom[INDEX_LUZ] = True
