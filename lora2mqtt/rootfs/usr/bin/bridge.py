@@ -645,10 +645,11 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
             # Envio comando
 #            serial_data = f"01020{contador}000D000\n"
 #            serial_data = f"01020{contador}000D000"
-            if contador == 0:
-                serial_data = "010201000D000"
-            else:
-                serial_data = "010202000D000"
+            serial_data = lflorax.lora_add_header("000", len("000"), 2)
+#            if contador == 0:
+#                serial_data = "010201000D000"
+#            else:
+#                serial_data = "010202000D000"
             ser.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
             logging.info(f"Enviado {serial_data}")
 

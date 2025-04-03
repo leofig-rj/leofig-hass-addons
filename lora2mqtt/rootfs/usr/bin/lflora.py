@@ -83,9 +83,11 @@ class LFLoraClass:
         # Criação do buffer auxiliar com o cabeçalho
         aux = f"{self._myAddr:02X}{para:02X}{msg_id:02X}{length + 10:04X}"
         # Completa com a mensagem de entrada
+#        aux += input_str.decode('utf-8')
         aux += input_str
-        # Codifica a mensagem com o cabeçalho
-        return self.lora_encode(aux, length + 10)
+        # Retorna a mensagem com o cabeçalho
+#        return aux.encode('utf-8')
+        return aux
     
     def lora_decode(self, encoded_str, length):
         out = []
@@ -172,21 +174,21 @@ class LFLoraClass:
         out = []
         result, de, para, out = self.lora_check_msg_ini(input_str, length)
         if result != self.MSG_CHECK_OK:
-            return result, ''.join(out)
+            return result, out
         if para != self._myAddr:
-            return self.MSG_CHECK_NOT_ME, ''.join(out)
+            return self.MSG_CHECK_NOT_ME, out
         if de != self._myMasterAddr:
-            return self.MSG_CHECK_NOT_MASTER, ''.join(out)
-        return self.MSG_CHECK_OK, ''.join(out)
+            return self.MSG_CHECK_NOT_MASTER, out
+        return self.MSG_CHECK_OK, out
 
     def lora_check_msg_master(self, input_str, length):
         out = []
-        result, de, para, msg_out = self.lora_check_msg_ini(input_str, length)
+        result, de, para, out = self.lora_check_msg_ini(input_str, length)
         if result != self.MSG_CHECK_OK:
-            return result, ''.join(out)
+            return result, out
         if para != self._myAddr:
-            return self.MSG_CHECK_NOT_ME, ''.join(out)
-        return self.MSG_CHECK_OK, ''.join(out)
+            return self.MSG_CHECK_NOT_ME, out
+        return self.MSG_CHECK_OK, out
 
 
     def add_reg_rec(self, de, para, id):
