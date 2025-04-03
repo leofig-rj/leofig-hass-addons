@@ -597,26 +597,26 @@ def main(broker, port, broker_user, broker_pass):
     logging.info(f"max_threads: {max_threads}")
     serial_obj = options.get("serial", {"port": "/dev/ttyACM0"})
     logging.info(f"serial_obj: {serial_obj}")
+    data_path = options.get("data_path", "/config/lora2mqtt")
+    logging.info(f"data_path: {data_path}")
 
 
 
 
 
 
-    # Acessa o caminho configurado
-    caminho_para_pasta = options.get("data_path", "/config/lora2mqtt")
 
     # Verifica se a pasta existe
     try:
-        if os.path.exists(caminho_para_pasta) and os.path.isdir(caminho_para_pasta):
-            logging.info(f"Pasta encontrada: {caminho_para_pasta}")
+        if os.path.exists(data_path) and os.path.isdir(data_path):
+            logging.info(f"Pasta encontrada: {data_path}")
             # Listar arquivos, por exemplo:
-            arquivos = os.listdir(caminho_para_pasta)
+            arquivos = os.listdir(data_path)
             logging.info(f"Arquivos na pasta: {arquivos}")
-            arquivos = [arquivo for arquivo in os.listdir(caminho_para_pasta) if arquivo.endswith(".py")]
+            arquivos = [arquivo for arquivo in os.listdir(data_path) if arquivo.endswith(".py")]
             logging.info(f"Arquivos Python encontrados: {arquivos}")
         else:
-            logging.info(f"O caminho não é uma pasta válida: {caminho_para_pasta}")
+            logging.info(f"O caminho não é uma pasta válida: {data_path}")
     except PermissionError:
         logging.info("Erro: Permissão negada para acessar a pasta.")
 
@@ -645,7 +645,7 @@ def main(broker, port, broker_user, broker_pass):
 #    gerenciador.excluir_dispositivo_por_id(id_para_excluir)   
 
     # Busca um dispositivo específico
-    id_para_buscar = "23456"
+    id_para_buscar = "234567890123"
     dispositivo = gerenciador.find_device_by_id(id_para_buscar)
     if dispositivo:
         logging.info(f"Dispositivo encontrado: {dispositivo}")
