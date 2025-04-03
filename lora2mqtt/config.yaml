@@ -23,30 +23,15 @@ map:
   share: true          # Permite acesso à pasta /share
   config: true         # Permite acesso à pasta /config
 options:
-  homeassistantprefix: "homeassistant"
-  chipmac: "123456789012"
-  loraslaveaddrs: "2,3"
-  loraslavenames: "Eletricidade,Luz"
-  loraslavemacs: "234567890123,345678901234"
-  loraslavevers: "Ver_1.1,Ver_2.2"
-  loraslavechips: "ESP32,ESP8266"
   serial:
     port: "/dev/ttyACM0"
   loglevel: "INFO"
   data_path: "/config/lora2mqtt"
 schema:
-  homeassistantprefix: "str"
-  chipmac: "str"
-  loraslaveaddrs: "str"
-  loraslavenames: "str"
-  loraslavemacs: "str"
-  loraslavevers: "str"
-  loraslavechips: "str"
   serial:
-    port: "str?"
-    adapter: "match(zstack|deconz|zigate|ezsp|ember|zboss)?"
+    port: "str"
     baudrate: "int?"
     rtscts": "bool?"
   loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
-  data_path: "str"
+  data_path: "str?"
   maxthreads: "int?"
