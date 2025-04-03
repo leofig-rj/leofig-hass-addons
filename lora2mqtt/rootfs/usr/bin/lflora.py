@@ -1,6 +1,3 @@
-import random
-import string
-
 LFLORA_MAX_PACKET_SIZE = 255
 
 MSG_CHECK_OK = 0
@@ -31,13 +28,13 @@ class LFLoraClass:
     def last_reg_rec(self):
         return self._lastRegRec
 
-    def lora_add_header(self, input_str, length, para):
+    def lora_add_header(self, input_str, para):
         self._lastSendId = (self._lastSendId + 1) % 16 
-        return self.lora_add_header_to(input_str, length, para, self._lastSendId)
+        return self.lora_add_header_to(input_str, para, self._lastSendId)
 
-    def lora_add_header_to(self, input_str, length, para, msg_id):
+    def lora_add_header_to(self, input_str, para, msg_id):
         # Criação do buffer auxiliar com o cabeçalho
-        aux = f"{self._myAddr:02X}{para:02X}{msg_id:02X}{length + 10:04X}"
+        aux = f"#{self._myAddr:02X}{para:02X}{msg_id:02X}{len(input_str) + 10:04X}"
         # Completa com a mensagem de entrada
         aux += input_str
         # Retorna a mensagem com o cabeçalho
@@ -47,15 +44,15 @@ class LFLoraClass:
         out = ""
 
         if input_str[0] != '#':
-            return 5, 0, 0, out
+            return MSG_CHECK_ERROR, 0, 0, out
 
         for i in range(10):
             try:
                 char = input_str[i+1:i+2]
                 if char not in "0123456789ABCDEFabcdef":
-                    return 6, 0, 0, out
+                    return MSG_CHECK_ERROR, 0, 0, out
             except UnicodeDecodeError:
-                return 7, 0, 0, out
+                return MSG_CHECK_ERROR, 0, 0, out
 
         de = int(input_str[1:3], 16)
         para = int(input_str[3:5], 16)
@@ -64,42 +61,10 @@ class LFLoraClass:
 
         # input_str tem um caracter a maias (o # no início)
         if len_in_msg != len(input_str) - 1:
-            return 8, 0, 0, out
+            return MSG_CHECK_ERROR, 0, 0, out
 
         out = input_str[11:]
 
-        self._lastRegRec = RegRec(de, para, id)
-
-        index = self.find_reg_rec(de, para)
-        if index == -1:
-            self.add_reg_rec(de, para, id)
-        else:
-            if self._regRecs[index].id == id:
-                return MSG_CHECK_ALREADY_REC, de, para, out
-            self._regRecs[index].id = id
-
-        return MSG_CHECK_OK, de, para, out
-
-    def lora_check_msg_ini_old(self, input_str, length):
-        out = ""
-
-        for i in range(10):
-            try:
-                char = input_str[i:i+1].decode('utf-8')  # Decodifica um único byte
-                if char not in "0123456789ABCDEFabcdef":
-                    return MSG_CHECK_ERROR, 0, 0, out
-            except UnicodeDecodeError:
-                return MSG_CHECK_ERROR, 0, 0, out
-
-        de = int(input_str[0:2].decode('utf-8'), 16)
-        para = int(input_str[2:4].decode('utf-8'), 16)
-        id = int(input_str[4:6].decode('utf-8'), 16)
-        len_in_msg = int(input_str[6:10].decode('utf-8'), 16)
-
-        if len_in_msg != length:
-            return MSG_CHECK_ERROR, 0, 0, out
-
-        out = input_str[10:]
         self._lastRegRec = RegRec(de, para, id)
 
         index = self.find_reg_rec(de, para)
@@ -139,4 +104,3 @@ class LFLoraClass:
 
     def clear_reg_recs(self):
         self._regRecs.clear()  # Limpa a lista de registros
-

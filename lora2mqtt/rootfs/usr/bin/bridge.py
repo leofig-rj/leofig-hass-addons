@@ -614,8 +614,8 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                              60, 
                              "LoRa2MQTT_123456")
     
-    lflorax = lflora.LFLoraClass()
-    lflorax.set_my_addr(1)
+    lf_lora = lflora.LFLoraClass()
+    lf_lora.set_my_addr(1)
 
     try:
         # Configurando conexão serial
@@ -628,35 +628,22 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
         client.loop_start()  # Inicia o loop MQTT em uma thread separada
         client.send_connectivity_discovery()
 
-        contador = 0
         while True:
             # Verifico se tem dado na serial
             if ser.in_waiting > 0:
-                # Pegando o dado
+                # Pegando o dado e deixando como string
                 serial_data = ser.readline().decode('utf-8').strip()
                 # Tratando o dado
-#                lora_data = serial_data.encode('utf-8')[1:]
-#                logging.info(f"Recebido retirado inicial: {lora_data}")
-#                result, de, para, out = lflorax.lora_check_msg_ini(lora_data, len(lora_data))
-                result, de, para, out = lflorax.lora_check_msg_ini(serial_data)
+                result, de, para, out = lf_lora.lora_check_msg_ini(serial_data)
                 logging.info(f"Recebido result: {result} de: {de} para: {para} msg: {out}")
+                # Publicando o dado limpo
                 data_to_publish = f"Dado recebido: {result}"
-                # Publicando o dado
                 client.send_message("lora2mqtt/dados", data_to_publish)
-            # Envio comando
-#            serial_data = f"01020{contador}000D000\n"
-#            serial_data = f"01020{contador}000D000"
-            serial_data = lflorax.lora_add_header("000", len("000"), 2)
-#            if contador == 0:
-#                serial_data = "010201000D000"
-#            else:
-#                serial_data = "010202000D000"
+            # Envio comando de solicitação de estado
+            serial_data = lf_lora.lora_add_header("000", 2)
             ser.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
             logging.info(f"Enviado {serial_data}")
 
-            contador = contador + 1
-            if contador > 1:
-                contador = 0
             time.sleep(5)  # Aguarda 5 segundos
     except KeyboardInterrupt:
         logging.info("Encerrando aplicação LoRa2MQTT...")
