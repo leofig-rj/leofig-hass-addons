@@ -635,11 +635,12 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                 # Pegando o dado
                 serial_data = ser.readline().decode('utf-8').strip()
                 # Tratando o dado
-                lora_data = serial_data.encode('utf-8')[1:]
-                logging.info(f"Recebido retirado inicial: {lora_data}")
-                result, de, para, out = lflorax.lora_check_msg_ini(lora_data, len(lora_data))
+#                lora_data = serial_data.encode('utf-8')[1:]
+#                logging.info(f"Recebido retirado inicial: {lora_data}")
+#                result, de, para, out = lflorax.lora_check_msg_ini(lora_data, len(lora_data))
+                result, de, para, out = lflorax.lora_check_msg_ini(serial_data, len(serial_data))
                 logging.info(f"Recebido result: {result} de: {de} para: {para} msg: {out}")
-                data_to_publish = f"Dado recebido: {serial_data}"
+                data_to_publish = f"Dado recebido: {result}"
                 # Publicando o dado
                 client.send_message("lora2mqtt/dados", data_to_publish)
             # Envio comando
