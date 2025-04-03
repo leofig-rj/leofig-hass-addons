@@ -627,7 +627,7 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
 
     # Define o caminho para a pasta no volume montado
-    caminho_para_pasta = "/config/lora2mqtt"
+    caminho_para_pasta = "/shared/lora2mqtt"
     arquivo_config = os.path.join(caminho_para_pasta, "config.yaml")
 
     # Cria a pasta, caso ela não exista
