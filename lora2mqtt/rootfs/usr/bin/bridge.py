@@ -597,63 +597,84 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
     if not max_threads:
         max_threads = 200
 
-    #lora_device = "/dev/ttyUSB0"  # Dispositivo LoRa (substituir conforme necessário)
     usb_id = "USB LoRa Ver 1.0"
-
-    client = LoRa2MQTTClient("/dev/ttyUSB0", 
-                             broker, 
-                             port, 
-                             usb_id, 
-                             lora_slave_addrs, 
-                             lora_slave_names, 
-                             lora_slave_macs, 
-                             lora_slave_vers, 
-                             lora_slave_chips, 
-                             home_assistant_prefix, 
-                             broker_user, 
-                             broker_pass, 
-                             60, 
-                             "LoRa2MQTT_123456")
-    
-    lf_lora = lflora.LFLoraClass()
-    lf_lora.set_my_addr(1)
 
     try:
         # Configurando conexão serial
         serial_obj = json.loads(serial_cfg)
-#        ser = serial.Serial('/dev/ttyACM0', 115200)
         ser = serial.Serial(serial_obj["port"], 115200)
         ser.flush()
 
-        client.mqtt_connection()
-        client.loop_start()  # Inicia o loop MQTT em uma thread separada
-        client.send_connectivity_discovery()
+    except serial.SerialException as e:
+        ser = None  # Define como None para evitar problemas futuros
+        logging.info(f"Erro {e} na configuração serial...")
 
-        while True:
+    try:
+        
+       if ser:
+            # Envio comando de solicitação de estado da dongue
+            ser.write("!000".encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
+            logging.info("Enviado comando solicita estado do adaptador")
+            time.sleep(2)  # Aguarda 2 segundos
             # Verifico se tem dado na serial
             if ser.in_waiting > 0:
                 # Pegando o dado e deixando como string
                 serial_data = ser.readline().decode('utf-8').strip()
                 # Tratando o dado
-                result, de, para, msg = lf_lora.lora_check_msg_ini(serial_data)
-                logging.info(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
-                # Publicando o dado limpo
-                data_to_publish = f"Dado recebido: {msg}"
-                client.send_message("lora2mqtt/dados", data_to_publish)
-                # Trato a mensagem
-                if result == 0:
-                    index = mensagens.get_index_from_addr(de)
-                    mensagens.trata_mensagem(msg, index)
+                logging.info(f"Recebeu do adaptador: {serial_data}")
+                if serial_data[0] == '!':
+                    usb_id = serial_data[1:]
 
-            # Envio comando de solicitação de estado
-            serial_data = lf_lora.lora_add_header("000", 2)
-            ser.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
-            logging.info(f"Enviado {serial_data}")
+            client = LoRa2MQTTClient("/dev/ttyUSB0", 
+                                    broker, 
+                                    port, 
+                                    usb_id, 
+                                    lora_slave_addrs, 
+                                    lora_slave_names, 
+                                    lora_slave_macs, 
+                                    lora_slave_vers, 
+                                    lora_slave_chips, 
+                                    home_assistant_prefix, 
+                                    broker_user, 
+                                    broker_pass, 
+                                    60, 
+                                    "LoRa2MQTT_123456")
+            
+            lf_lora = lflora.LFLoraClass()
+            lf_lora.set_my_addr(1)
 
-            time.sleep(5)  # Aguarda 5 segundos
-    except KeyboardInterrupt:
-        logging.info("Encerrando aplicação LoRa2MQTT...")
+            client.mqtt_connection()
+            client.loop_start()  # Inicia o loop MQTT em uma thread separada
+            client.send_connectivity_discovery()
+
+            while True:
+                # Verifico se tem dado na serial
+                if ser.in_waiting > 0:
+                    # Pegando o dado e deixando como string
+                    serial_data = ser.readline().decode('utf-8').strip()
+                    # Tratando o dado
+                    result, de, para, msg = lf_lora.lora_check_msg_ini(serial_data)
+                    logging.info(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
+                    # Trato a mensagem
+                    if result == lf_lora.MSG_CHECK_OK:
+                        # Publicando a msg limpa
+                        data_to_publish = f"Dado recebido: {msg}"
+                        client.send_message("lora2mqtt/dados", data_to_publish)
+                        # Tratando a msg conforme remetente
+                        index = mensagens.get_index_from_addr(de)
+                        mensagens.trata_mensagem(msg, index)
+
+                # Envio comando de solicitação de estado
+                serial_data = lf_lora.lora_add_header("000", 2)
+                ser.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
+                logging.info(f"Enviado {serial_data}")
+
+                time.sleep(5)  # Aguarda 5 segundos
+
+    except Exception as e:
+        logging.info(f"Erro: {e}")
     finally:
+        logging.info("Encerrando aplicação LoRa2MQTT...")
         ser.close()
         client.loop_stop()
         client.disconnect()
