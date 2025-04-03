@@ -598,22 +598,6 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
     if not max_threads:
         max_threads = 200
 
-    # Carrega as opções configuradas no addon
-    with open("/data/options.json") as config_file:
-        options = json.load(config_file)
-
-    # Acessa o caminho configurado
-    caminho_para_pasta = options.get("data_path", "/config/lora2mqttxxx")
-
-    # Verifica se a pasta existe
-    if os.path.exists(caminho_para_pasta):
-        logging.info(f"Pasta encontrada: {caminho_para_pasta}")
-        # Listar arquivos, por exemplo:
-        arquivos = os.listdir(caminho_para_pasta)
-        logging.info(f"Arquivos na pasta: {arquivos}")
-    else:
-        logging.info(f"A pasta não existe: {caminho_para_pasta}")
-
 
 
 
