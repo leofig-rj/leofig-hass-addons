@@ -18,8 +18,12 @@ class DispositivoManager:
 
         # Verifica se o arquivo existe, caso contrário, cria um arquivo vazio
         if not os.path.exists(self.config_file_path):
-            with open(self.config_file_path, "w") as arquivo_yaml:
-                yaml.dump({"dispositivos": []}, arquivo_yaml)
+            try:
+                with open(self.config_file_path, "w") as arquivo_yaml:
+                    yaml.dump({"dispositivos": []}, arquivo_yaml)
+            except OSError as e:
+                logging.info(f"Erro ao criar o arquivo: {e}")
+                logging.info("Certifique-se de que o diretório possui permissões de gravação.")
 
 
     def carregar_dispositivos(self):
