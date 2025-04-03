@@ -29,11 +29,11 @@ class LoRa2MQTTClient(mqtt.Client):
         self.lora_slave_macs_ = lora_slave_macs
         self.lora_slave_vers_ = lora_slave_vers
         self.lora_slave_chips_ = lora_slave_chips
-        self.lora_slave_addrs = []]
-        self.lora_slave_names = []]
-        self.lora_slave_macs = []]
-        self.lora_slave_vers = []]
-        self.lora_slave_chips = []]
+        self.lora_slave_addrs = []
+        self.lora_slave_names = []
+        self.lora_slave_macs = []
+        self.lora_slave_vers = []
+        self.lora_slave_chips = []
         self.num_slaves = None
         self.home_assistant_prefix = "homeassistant"
         self.keepalive_mqtt = keepalive
