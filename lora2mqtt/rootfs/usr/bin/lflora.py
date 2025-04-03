@@ -105,7 +105,7 @@ class LFLoraClass:
         return True, ''.join(out)
 
     def lora_check_msg_ini(self, input_str, length):
-        out = []
+        out = ""
 
         for i in range(10):
             try:
@@ -123,7 +123,7 @@ class LFLoraClass:
         if len_in_msg != length:
             return self.MSG_CHECK_ERROR, 0, 0, ''.join(out)
 
-        out = input_str[10:]
+        out = input_str[10:].decode('utf-8')
         self._lastRegRec = RegRec(de, para, id)
 
         index = self.find_reg_rec(de, para)
