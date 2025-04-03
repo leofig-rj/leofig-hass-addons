@@ -608,14 +608,18 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
     caminho_para_pasta = options.get("data_path", "/config/lora2mqttxxx")
 
     # Verifica se a pasta existe
-    if os.path.exists(caminho_para_pasta):
-        logging.info(f"Pasta encontrada: {caminho_para_pasta}")
-        # Listar arquivos, por exemplo:
-        arquivos = os.listdir(caminho_para_pasta)
-        logging.info(f"Arquivos na pasta: {arquivos}")
-    else:
-        logging.info(f"A pasta não existe: {caminho_para_pasta}")
-
+    try:
+        if os.path.exists(caminho_para_pasta) and os.path.isdir(caminho_para_pasta):
+            logging.info(f"Pasta encontrada: {caminho_para_pasta}")
+            # Listar arquivos, por exemplo:
+            arquivos = os.listdir(caminho_para_pasta)
+            logging.info(f"Arquivos na pasta: {arquivos}")
+            arquivos = [arquivo for arquivo in os.listdir(caminho_para_pasta) if arquivo.endswith(".py")]
+            logging.info(f"Arquivos Python encontrados: {arquivos}")
+        else:
+            logging.info(f"O caminho não é uma pasta válida: {caminho_para_pasta}")
+    except PermissionError:
+        logging.info("Erro: Permissão negada para acessar a pasta.")
 
 
 
