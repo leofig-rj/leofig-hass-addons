@@ -62,7 +62,8 @@ class LFLoraClass:
         id = int(input_str[5:7], 16)
         len_in_msg = int(input_str[7:11], 16)
 
-        if len_in_msg != len(input_str):
+        # input_str tem um caracter a maias (o # no início)
+        if len_in_msg != len(input_str) - 1:
             return 8, 0, 0, out
 
         out = input_str[11:]
