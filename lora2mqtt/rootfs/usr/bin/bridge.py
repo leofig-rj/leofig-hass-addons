@@ -29,13 +29,13 @@ class LoRa2MQTTClient(mqtt.Client):
         self.lora_slave_macs_ = lora_slave_macs
         self.lora_slave_vers_ = lora_slave_vers
         self.lora_slave_chips_ = lora_slave_chips
-        self.lora_slave_addrs = None
-        self.lora_slave_names = None
-        self.lora_slave_macs = None
-        self.lora_slave_vers = None
-        self.lora_slave_chips = None
+        self.lora_slave_addrs = []]
+        self.lora_slave_names = []]
+        self.lora_slave_macs = []]
+        self.lora_slave_vers = []]
+        self.lora_slave_chips = []]
         self.num_slaves = None
-        self.home_assistant_prefix = home_assistant_prefix
+        self.home_assistant_prefix = "homeassistant"
         self.keepalive_mqtt = keepalive
         self.bridge_topic = None          # Definido em _setup_mqtt_topics
         self.bridge_set_topic = None      # Definido em _setup_mqtt_topics
@@ -72,16 +72,28 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def _setup_vars(self):
         """Configura variáveis dependentes de parâmetros."""
-        logging.info(f"Slave addrs antes {self.lora_slave_addrs_}")
-        logging.info(f"Slave names antes {self.lora_slave_names_}")
-        logging.info(f"Slave macs antes {self.lora_slave_macs_}")
-        logging.info(f"Slave vers antes {self.lora_slave_vers_}")
-        logging.info(f"Slave chips antes {self.lora_slave_chips_}")
-        self.lora_slave_addrs = [int(x) for x in self.lora_slave_addrs_.split(",")]
-        self.lora_slave_names = self.lora_slave_names_.split(",")
-        self.lora_slave_macs = self.lora_slave_macs_.split(",")
-        self.lora_slave_vers = self.lora_slave_vers_.split(",")
-        self.lora_slave_chips = self.lora_slave_chips_.split(",")
+#        logging.info(f"Slave addrs antes {self.lora_slave_addrs_}")
+#        logging.info(f"Slave names antes {self.lora_slave_names_}")
+#        logging.info(f"Slave macs antes {self.lora_slave_macs_}")
+#        logging.info(f"Slave vers antes {self.lora_slave_vers_}")
+#        logging.info(f"Slave chips antes {self.lora_slave_chips_}")
+#        self.lora_slave_addrs = [int(x) for x in self.lora_slave_addrs_.split(",")]
+#        self.lora_slave_names = self.lora_slave_names_.split(",")
+#        self.lora_slave_macs = self.lora_slave_macs_.split(",")
+#        self.lora_slave_vers = self.lora_slave_vers_.split(",")
+#        self.lora_slave_chips = self.lora_slave_chips_.split(",")
+
+        manager = config.DeviceManager()
+
+        devices = manager.load_devices()
+        if devices:
+            for device in devices:
+                self.lora_slave_addrs.append(device['address'])
+                self.lora_slave_names.append(device['friendly_name'])
+                self.lora_slave_macs.append(device['id'])
+                self.lora_slave_vers.append(device['version'])
+                self.lora_slave_chips.append(device['chip'])
+                
         logging.info(f"Slave addrs depois {self.lora_slave_addrs}")
         logging.info(f"Slave names depois {self.lora_slave_names}")
         logging.info(f"Slave macs depois {self.lora_slave_macs}")
@@ -629,7 +641,7 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
 
 
-    gerenciador = config.DispositivoManager()
+    gerenciador = config.DeviceManager()
 
     # Lista todos os dispositivos
     logging.info("Dispositivos cadastrados:")
