@@ -10,6 +10,8 @@ import lflora
 import mensagens
 import os
 
+from lflora import MSG_CHECK_OK, MSG_CHECK_NOT_MASTER, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR
+
 class LoRa2MQTTClient(mqtt.Client):
     def __init__(self, lora, broker, port, usb_id, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, broker_user=None, broker_pass=None, keepalive=60, mqtt_client_id="LoRa2MQTT"):
         super().__init__(mqtt_client_id, clean_session=True)
@@ -598,6 +600,22 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
     if not max_threads:
         max_threads = 200
 
+    # Carrega as opções configuradas no addon
+    with open("/data/options.json") as config_file:
+        options = json.load(config_file)
+
+    # Acessa o caminho configurado
+    caminho_para_pasta = options.get("data_path", "/config/lora2mqttxxx")
+
+    # Verifica se a pasta existe
+    if os.path.exists(caminho_para_pasta):
+        logging.info(f"Pasta encontrada: {caminho_para_pasta}")
+        # Listar arquivos, por exemplo:
+        arquivos = os.listdir(caminho_para_pasta)
+        logging.info(f"Arquivos na pasta: {arquivos}")
+    else:
+        logging.info(f"A pasta não existe: {caminho_para_pasta}")
+
 
 
 
@@ -661,7 +679,7 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
                     result, de, para, msg = lf_lora.lora_check_msg_ini(serial_data)
                     logging.info(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
                     # Trato a mensagem
-                    if result == lf_lora.MSG_CHECK_OK:
+                    if result == MSG_CHECK_OK:
                         # Publicando a msg limpa
                         data_to_publish = f"Dado recebido: {msg}"
                         client.send_message("lora2mqtt/dados", data_to_publish)
