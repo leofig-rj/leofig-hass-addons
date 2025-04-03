@@ -12,13 +12,16 @@ arch:
   - i386
 startup: application
 boot: auto
+init: false
 services:
   - mqtt:need
-uart: true
-udev: true
-init: false
+uart: true               # Habilita o acesso à uart do OS
+udev: true               # Habilita o acesso à udev do OS para monitorar USB
+homeassistant_api: true  # Habilita o acesso à API do Home Assistant
+host_network: true       # Permite o uso da rede do host
 map:
-  - share:rw
+  - share:rw             # Permite acesso à pasta /share
+  - coonfig:rw           # Permite acesso à pasta /config
 options:
   homeassistantprefix: "homeassistant"
   chipmac: "123456789012"
@@ -30,6 +33,7 @@ options:
   serial:
     port: "/dev/ttyACM0"
   loglevel: "INFO"
+  data_path: "/config/lora2mqtt"
 schema:
   homeassistantprefix: "str"
   chipmac: "str"
@@ -44,4 +48,5 @@ schema:
     baudrate: "int?"
     rtscts": "bool?"
   loglevel: "list(DEBUG|INFO|WARNING|ERROR)?"
+  data_path: "str"
   maxthreads: "int?"

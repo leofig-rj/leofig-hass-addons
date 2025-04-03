@@ -8,6 +8,7 @@ import getopt
 import sys
 import lflora
 import mensagens
+import os
 
 class LoRa2MQTTClient(mqtt.Client):
     def __init__(self, lora, broker, port, usb_id, lora_slave_addrs, lora_slave_names, lora_slave_macs, lora_slave_vers, lora_slave_chips, home_assistant_prefix, broker_user=None, broker_pass=None, keepalive=60, mqtt_client_id="LoRa2MQTT"):
@@ -596,6 +597,26 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 
     if not max_threads:
         max_threads = 200
+
+    # Carrega as opções configuradas no addon
+    with open("/data/options.json") as config_file:
+        options = json.load(config_file)
+
+    # Acessa o caminho configurado
+    caminho_para_pasta = options.get("data_path", "/config/lora2mqtt")
+
+    # Verifica se a pasta existe
+    if os.path.exists(caminho_para_pasta):
+        logging.info(f"Pasta encontrada: {caminho_para_pasta}")
+        # Listar arquivos, por exemplo:
+        arquivos = os.listdir(caminho_para_pasta)
+        logging.info(f"Arquivos na pasta: {arquivos}")
+    else:
+        logging.info((f"A pasta não existe: {caminho_para_pasta}")
+
+
+
+
 
     usb_id = "USB LoRa Ver 1.0"
 
