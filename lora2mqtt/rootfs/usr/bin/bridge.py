@@ -9,6 +9,7 @@ import sys
 import lflora
 import mensagens
 import os
+import pyudev
 
 from lflora import MSG_CHECK_OK, MSG_CHECK_NOT_MASTER, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR
 
