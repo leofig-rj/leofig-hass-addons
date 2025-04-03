@@ -638,7 +638,7 @@ def main(broker, port, broker_user, broker_pass, chip_mac, lora_slave_addrs, lor
 #                lora_data = serial_data.encode('utf-8')[1:]
 #                logging.info(f"Recebido retirado inicial: {lora_data}")
 #                result, de, para, out = lflorax.lora_check_msg_ini(lora_data, len(lora_data))
-                result, de, para, out = lflorax.lora_check_msg_ini(serial_data, len(serial_data))
+                result, de, para, out = lflorax.lora_check_msg_ini(serial_data)
                 logging.info(f"Recebido result: {result} de: {de} para: {para} msg: {out}")
                 data_to_publish = f"Dado recebido: {result}"
                 # Publicando o dado
