@@ -29,7 +29,7 @@ class LFLoraClass:
         return self._lastRegRec
 
     def lora_add_header(self, input_str, para):
-        self._lastSendId = (self._lastSendId + 1) % 16 
+        self._lastSendId = (self._lastSendId + 1) % 256 
         return self.lora_add_header_to(input_str, para, self._lastSendId)
 
     def lora_add_header_to(self, input_str, para, msg_id):
