@@ -731,6 +731,8 @@ def main(broker, port, broker_user, broker_pass):
             client.loop_start()  # Inicia o loop MQTT em uma thread separada
             client.send_connectivity_discovery()
 
+            contador = 0
+
             while True:
                 # Verifico se tem dado na serial
                 if ser.in_waiting > 0:
@@ -749,9 +751,11 @@ def main(broker, port, broker_user, broker_pass):
                         mensagens.trata_mensagem(msg, index)
 
                 # Envio comando de solicitação de estado
-                serial_data = lf_lora.lora_add_header("000", 2)
+                serial_data = lf_lora.lora_add_header("000", contador + 2)
                 ser.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
                 logging.debug(f"Enviado {serial_data}")
+
+                contador = (contador + 1) % 2
 
                 time.sleep(5)  # Aguarda 5 segundos
 
