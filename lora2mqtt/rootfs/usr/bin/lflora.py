@@ -1,10 +1,5 @@
-LFLORA_MAX_PACKET_SIZE = 255
+from consts import MSG_CHECK_OK, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR
 
-MSG_CHECK_OK = 0
-MSG_CHECK_NOT_MASTER = 1
-MSG_CHECK_NOT_ME = 2
-MSG_CHECK_ALREADY_REC = 3
-MSG_CHECK_ERROR = 4
 class RegRec:
     def __init__(self, de=0, para=0, id=0):
         self.de = de

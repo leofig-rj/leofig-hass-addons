@@ -1,6 +1,6 @@
 import time
 
-import mensagens
+import msgs
 
 # Funções Auxiliares
 def last4(s):
@@ -49,4 +49,4 @@ def is_empty_str(string):
     return string == ""
 
 def get_index_from_addr(addr):
-    return mensagens.loraSlaveAddr.index(addr) if addr in mensagens.loraSlaveAddr else 255
+    return msgs.loraSlaveAddr.index(addr) if addr in msgs.loraSlaveAddr else 255

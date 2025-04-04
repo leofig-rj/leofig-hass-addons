@@ -1,9 +1,9 @@
 import logging
-import config
+import devs
 
 ##### TESTE DE DeviceManager ######
 # Apenas como referência não está no sistema
-gerenciador = config.DeviceManager()
+gerenciador = devs.DeviceManager()
 
 # Lista todos os dispositivos
 logging.debug("Dispositivos cadastrados:")

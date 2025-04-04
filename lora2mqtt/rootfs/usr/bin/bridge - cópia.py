@@ -15,11 +15,10 @@ import devs
 import funcs
 import globals
 
-from consts import MSG_CHECK_OK, ADDON_NAME, ADDON_SLUG, VERSION, UINQUE, OWNER, HA_PREFIX, LWT_MSG, LWT_QOS, LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID
-
+from consts import MSG_CHECK_OK, ADDON_NAME, ADDON_SLUG, VERSION, UINQUE, OWNER
 class LoRa2MQTTClient(mqtt.Client):
-    def __init__(self, lora, broker, port, usb_id, broker_user=None, broker_pass=None):
-        super().__init__(MQTT_CLIENT_ID, clean_session=True)
+    def __init__(self, lora, broker, port, usb_id, broker_user=None, broker_pass=None, keepalive=60, mqtt_client_id="LoRa2MQTT"):
+        super().__init__(mqtt_client_id, clean_session=True)
         self.lora = lora
         self.connected_flag = False
         self.broker_host = broker
@@ -27,8 +26,14 @@ class LoRa2MQTTClient(mqtt.Client):
         self.addon_slug = ADDON_SLUG
         self.addon_name = ADDON_NAME
         self.usb_id = usb_id
-        self.ram_devs = globals.devices.ram_devs()
+        self.lora_slave_addrs = []
+        self.lora_slave_names = []
+        self.lora_slave_macs = []
+        self.lora_slave_vers = []
+        self.lora_slave_chips = []
         self.num_slaves = None
+        self.home_assistant_prefix = "homeassistant"
+        self.keepalive_mqtt = keepalive
         self.bridge_topic = None          # Definido em _setup_mqtt_topics
         self.bridge_set_topic = None      # Definido em _setup_mqtt_topics
         self.bridge_status_topic = None   # Definido em _setup_mqtt_topics
@@ -39,6 +44,10 @@ class LoRa2MQTTClient(mqtt.Client):
         self.masc_uniq_topics = []        # Definido em _setup_mqtt_topics
         self.masc_disc_topics = []        # Definido em _setup_mqtt_topics
         self.lwt_topic = None             # Definido em _setup_mqtt_topics
+        self.lwt_message = "offline"  # Mensagem enviada no LWT
+        self.lwt_qos = 0
+        self.lwt_retain = True
+        self._setup_vars()
         self._setup_mqtt_topics()
 
         # Configurações de autenticação MQTT (se fornecidas)
@@ -48,7 +57,7 @@ class LoRa2MQTTClient(mqtt.Client):
         logging.debug(f"MQTT Usr {broker_pass}")
 
         # Configura o LWT
-        self.will_set(self.lwt_topic, LWT_MSG, qos=LWT_QOS, retain=LWT_REATAIN)
+        self.will_set(self.lwt_topic, self.lwt_message, qos=self.lwt_qos, retain=self.lwt_retain)
 
         # Callback para eventos MQTT
         self.on_connect = LoRa2MQTTClient.cb_on_connect
@@ -58,9 +67,28 @@ class LoRa2MQTTClient(mqtt.Client):
         # Logging informativo
         logging.info(f"Client {mqtt_client_id} LoRa2MQTT Created")
 
+    def _setup_vars(self):
+        """Configura variáveis dependentes de parâmetros ou config."""
+
+        ram_devs = globals.devices.ram_devs()
+        if ram_devs:
+            for device in ram_devs:
+                self.lora_slave_addrs.append(device['slaveAddr'])
+                self.lora_slave_names.append(device['slaveName'])
+                self.lora_slave_macs.append(device['slaveMac'])
+                self.lora_slave_vers.append(device['slaveVer'])
+                self.lora_slave_chips.append(device['slaveChip'])
+                
+        logging.debug(f"Slave addrs depois {self.lora_slave_addrs}")
+        logging.debug(f"Slave names depois {self.lora_slave_names}")
+        logging.debug(f"Slave macs depois {self.lora_slave_macs}")
+        logging.debug(f"Slave vers depois {self.lora_slave_vers}")
+        logging.debug(f"Slave chips depois {self.lora_slave_chips}")
+
+
     def _setup_mqtt_topics(self):
         """Configura os tópicos MQTT."""
-        self.num_slaves = len(self.ram_devs)
+        self.num_slaves = len(self.lora_slave_names)
         self.bridge_topic = f"{self.addon_slug}/bridge"
         self.bridge_set_topic = f"{self.bridge_topic}/+/set"
         self.bridge_status_topic = f"{self.addon_slug}/bridge/status"
@@ -69,11 +97,11 @@ class LoRa2MQTTClient(mqtt.Client):
 
         # Configura os tópicos para cada slave
         for i in range(self.num_slaves):
-            work_topic = f"{self.addon_slug}/{self.ram_devs[i-1]['slaveName']}"
+            work_topic = f"{self.addon_slug}/{self.lora_slave_names[i-1]}"
             tele_topic = f"{work_topic}/telemetry"
             set_topic = f"{work_topic}/+/set"
-            masc_uniq_topic = f"{self.addon_slug}_{self.ram_devs[i-1]['slaveMac']}_%s"
-            masc_disc_topic = f"{HA_PREFIX}/%s/{self.addon_slug}_{self.ram_devs[i-1]['slaveMac']}/%s/config"
+            masc_uniq_topic = f"{self.addon_slug}_{self.lora_slave_macs[i-1]}_%s"
+            masc_disc_topic = f"{self.home_assistant_prefix}/%s/{self.addon_slug}_{self.lora_slave_macs[i-1]}/%s/config"
 
             self.work_topics.append(work_topic)
             self.tele_topics.append(tele_topic)
@@ -100,7 +128,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """Tenta conectar ao broker MQTT."""
         try:
             logging.debug(f"Connecting to MQTT broker {self.broker_host}:{self.broker_port}")
-            self.connect(self.broker_host, self.broker_port, MQTT_KEEP_ALIVE)
+            self.connect(self.broker_host, self.broker_port, self.keepalive_mqtt)
         except Exception as e:
             logging.error(f"Failed to connect to MQTT broker: {e}")
 
@@ -174,16 +202,16 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def common_discovery_ind(self, index):
         """
-        Realiza a descoberta individual para um slave LoRa. 
+        Realiza a descoberta individual para um slave LoRa.
         """
         payload = {
             "dev": {
-                "ids": [f"{self.addon_slug}_{self.ram_devs[index]['slaveMac']}"],
-                "cns": [["mac", self.ram_devs[index]['slaveMac']]],
-                "name": f"{self.ram_devs[index]['slaveName']} {funcs.last4(self.ram_devs[index]['slaveMac'])}",
-                "sw": self.ram_devs[index]['slaveVer'],
-                "mf": self.ram_devs[index]['slaveMan'],
-                "mdl": self.ram_devs[index]['slaveModel']
+                "ids": [f"{self.addon_slug}_{self.lora_slave_macs[index]}"],
+                "cns": [["mac", self.lora_slave_macs[index]]],
+                "name": f"{self.lora_slave_names[index]} {funcs.last4(self.lora_slave_macs[index])}",
+                "sw": self.lora_slave_vers[index],
+                "mf": "Leonardo Figueiró",
+                "mdl": self.lora_slave_chips[index]
             }
         }
         return payload
@@ -204,7 +232,7 @@ class LoRa2MQTTClient(mqtt.Client):
             "pl_off": "offline"
         })
 
-        topic = f"{HA_PREFIX}/binary_sensor/{self.addon_slug}_{UINQUE}/conectividade/config"
+        topic = f"{self.home_assistant_prefix}/binary_sensor/{self.addon_slug}_{UINQUE}/conectividade/config"
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
@@ -460,7 +488,7 @@ class LoRa2MQTTClient(mqtt.Client):
         if device_class:
             payload["dev_cla"] = device_class
 
-        topic = f"{HA_PREFIX}/button/{self.addon_slug}_{UINQUE}/{slug}/config"
+        topic = f"{self.home_assistant_prefix}/button/{self.addon_slug}_{UINQUE}/{slug}/config"
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
@@ -469,7 +497,7 @@ class LoRa2MQTTClient(mqtt.Client):
         Envia uma mensagem para deletar descoberta.
         """
         slug = funcs.slugify(name)
-        topic = f"{HA_PREFIX}/{domain}/{self.addon_slug}_{UINQUE}/{slug}/config"
+        topic = f"{self.home_assistant_prefix}/{domain}/{self.addon_slug}_{UINQUE}/{slug}/config"
         return self.pub(topic, 0, False, "")
 
     def send_delete_discovery_x(self, domain, name, index):
@@ -477,7 +505,7 @@ class LoRa2MQTTClient(mqtt.Client):
         Envia uma mensagem para deletar descoberta de um slave LoRa.
         """
         slug = funcs.slugify(name)
-        topic = f"{HA_PREFIX}/{domain}/{self.addon_slug}_{self.ram_devs[index]['slaveMac']}/{slug}/config"
+        topic = f"{self.home_assistant_prefix}/{domain}/{self.addon_slug}_{self.lora_slave_macs[index]}/{slug}/config"
         return self.pub(topic, 0, False, "")
 
     def send_online(self):
@@ -613,7 +641,9 @@ def main(broker, port, broker_user, broker_pass):
                                     port, 
                                     usb_id, 
                                     broker_user, 
-                                    broker_pass) 
+                                    broker_pass, 
+                                    60, 
+                                    "LoRa2MQTT_123456")
             
             lf_lora = lflora.LFLoraClass()
             lf_lora.set_my_addr(1)

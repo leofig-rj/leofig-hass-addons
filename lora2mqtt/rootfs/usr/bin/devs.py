@@ -3,10 +3,73 @@ import yaml
 import logging
 import json
 
+import funcs
+
+class DeviceRamManager:
+    def __init__(self):
+        # Inicializa a lista vazia
+        self.list = []
+
+    def add(self, item):
+        """Adiciona um novo item à lista."""
+        self.list.append(item)
+        print(f"Item '{item}' adicionado!")
+
+    def delete(self, item):
+        """Exclui um item específico da lista."""
+        if item in self.list:
+            self.list.remove(item)
+            print(f"Item '{item}' excluído!")
+        else:
+            print(f"Item '{item}' não encontrado na lista.")
+
+    def listar(self):
+        """Lista todos os itens da lista."""
+        if self.list:
+            print("Itens na lista:")
+            for i, item in enumerate(self.list, 1):
+                print(f"{i}. {item}")
+        else:
+            print("A lista está vazia.")
+
+    def buscar(self, item):
+        """Busca um item específico na lista."""
+        if item in self.list:
+            print(f"Item '{item}' encontrado!")
+            return item
+        else:
+            print(f"Item '{item}' não encontrado.")
+            return None
+    def clear(self):
+        """Remove todos os itens da lista."""
+        self.list.clear()
+        print("A lista foi limpa com sucesso!")
+
+class DeviceRAM:
+    def __init__(self, slaveAddr=0, slaveName="", slaveMac="", slaveVer="", slaveChip="", slaveModel="", slaveMan=""):
+        self.slaveAddr = slaveAddr
+        self.slaveName = slaveName
+        self.slaveMac = slaveMac
+        self.slaveVer = slaveVer
+        self.slaveChip = slaveChip
+        self.slaveModel = slaveModel
+        self.slaveMan = slaveMan
+        self.slaveEntities = []
+        self.loraTimeOut = 0
+        self.loraCom = False
+        self.loraRSSI = 0
+        self.loraLastTimeOut = 0
+        self.loraLastCom = False
+        logging.debug(f"Addr: {self.slaveAddr}, Name: {self.slaveName}, "
+                      f"Mac: {self.slaveMac}, Vesion: {self.slaveVer}, "
+                      f"Chip: {self.slaveChip}, Model: {self.slaveModel}, "
+                      f"Manuf: {self.slaveMan}")
+
 class DeviceManager:
     def __init__(self):
         self.data_path = None
         self.config_file_path = None
+        self.dev_rams = []
 
         # Carrega as opções configuradas no addon
         with open("/data/options.json") as config_file:
@@ -21,6 +84,8 @@ class DeviceManager:
             try:
                 with open(self.config_file_path, "w") as arquivo_yaml:
                     yaml.dump({"devices": []}, arquivo_yaml)
+                self.load_devices_to_ram
+
             except OSError as e:
                 logging.error(f"Erro ao criar o arquivo: {e}")
                 logging.error("Certifique-se de que o diretório possui permissões de gravação.")
@@ -71,3 +136,18 @@ class DeviceManager:
                       f"Nome: {device['friendly_name']}, Endereço: {device['address']}")
         else:
             logging.debug("Nenhum dispositivo cadastrado.")
+
+    def load_devices_to_ram(self):
+        """Carrega todos os dispositivos cadastrados na DeviceRAM."""
+        devices = self.load_devices()
+        if devices:
+            for device in devices:
+                name = device['friendly_name']
+                if funcs.is_empty_str(name):
+                    name = device['id']
+                self.devRam.append(DeviceRAM(device['address'], name, device['id'], device['version'], device['chip'], device['model'], device['manufacturer']))
+        else:
+            logging.debug("Nenhum dispositivo cadastrado.")
+
+    def dev_rams(self):
+        return self.dev_rams

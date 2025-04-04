@@ -1,8 +1,33 @@
-# Constantes de configuração
-CHANNEL = "lora2mqtt"
-DISP_NAME = "LoRa2MQTT"
+# Constantes de configuração do AddOn
+ADDON_SLUG = "lora2mqtt"
+ADDON_NAME = "LoRa2MQTT"
 VERSION = "0.0.1"
 UINQUE = "290146823516"
+OWNER = "Leonardo Figueiró"
+HA_PREFIX = "homeassistant"
+
+# Constantes para LFLoRa
+LFLORA_MAX_PACKET_SIZE = 255
+MSG_CHECK_OK = 0
+MSG_CHECK_NOT_MASTER = 1
+MSG_CHECK_NOT_ME = 2
+MSG_CHECK_ALREADY_REC = 3
+MSG_CHECK_ERROR = 4
+
+# Constantes para mensagens
+LORA_FIFO_LEN = 10
+LORA_TEMPO_REFRESH = 5000
+LORA_NUM_TENTATIVAS_CMD = 3
+
+##### Constantes para MQTT
+# Constantes para inicialização
+MQTT_KEEP_ALIVE = 60
+MQTT_CLIENT_ID = "LoRa2MQTT_123456"
+
+# Constantes para LWT
+LWT_MSG = "offline"      # Mensagem enviada no LWT
+LWT_QOS = 0
+LWT_REATAIN = True
 
 # Constantes para Discovery
 EC_DIAGNOSTIC = "diagnostic"

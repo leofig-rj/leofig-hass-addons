@@ -2,14 +2,13 @@ import time
 import logging
 import funcs
 
+from consts import LORA_FIFO_LEN, LORA_TEMPO_REFRESH, LORA_NUM_TENTATIVAS_CMD
+
 # Definições de índices e constantes
 INDEX_ELET = 0
 INDEX_LUZ = 1
 NUM_DESTINOS_CMD_LORA = 2
 NUM_SLAVES = 2
-LORA_FIFO_LEN = 10
-LORA_TEMPO_REFRESH = 5000
-LORA_NUM_TENTATIVAS_CMD = 3
 
 # Endereços dos slaves LoRa
 SLAVE_ELET_ADDR = 0x02
@@ -146,7 +145,7 @@ def lora_fifo_tenta_enviar(sMsg, index):
     loraFiFoUltimo = aux
 
 def lora_envia_mensagem_index(sMsg, index):
-    lora_envia_mensagem(sMsg, loraSlaveAddr[index])
+    lora_envia_mensagem(sMsg, dsvs.devRAM.[index])
 
 
 def lora_envia_mensagem(sMsg, para):
