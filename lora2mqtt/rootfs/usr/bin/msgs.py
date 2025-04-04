@@ -10,31 +10,16 @@ INDEX_LUZ = 1
 NUM_DESTINOS_CMD_LORA = 2
 NUM_SLAVES = 2
 
-# Endereços dos slaves LoRa
-SLAVE_ELET_ADDR = 0x02
-SLAVE_LUZ_ADDR = 0x03
-loraSlaveAddr = [SLAVE_ELET_ADDR, SLAVE_LUZ_ADDR]
-
 # Variáveis globais
-online = False
-sentDiscovery = False
-
-lastMqttReconnect = 0
-lastTeleMillis = 0
-
 lastTensao = -1
 lastPotencia = -1
 lastCorrente = -1
 lastEnergia = -1
 lastEnergiaRam = -1
-lastLoraCom = [False] * NUM_SLAVES
 lastLampada1 = "NULL"
 lastInput1 = "NULL"
 
 loraCommandTime = 0
-loraTimeOut = [0] * NUM_SLAVES
-loraCom = [False] * NUM_SLAVES
-loraRSSI = [0] * NUM_SLAVES
 lastMsgSent = ""
 lastIdRec = 0
 lastIdSent = 0
@@ -53,9 +38,6 @@ loraFiFoMsgBuffer = [""] * LORA_FIFO_LEN
 loraFiFoDestinoBuffer = [0] * LORA_FIFO_LEN
 loraUltimoDestinoCmd = 0
 
-loraTimeOut = [0] * NUM_DESTINOS_CMD_LORA
-loraCom = [False] * NUM_DESTINOS_CMD_LORA
-
 def trata_mensagem(sMsg, index):
     global loraFiFoPrimeiro, loraFiFoUltimo
     logging.debug(f"Tamanho da MSG: {len(sMsg)} Índice {index}")
@@ -73,7 +55,8 @@ def trata_mensagem(sMsg, index):
         return
 
 def trata_mensagem_gara(sMsg):
-    global iTensao, iPotencia, iCorrente, iEnergia, iEnergiaRam, loraUltimoDestinoCmd, loraTimeOut, loraCom
+    global iTensao, iPotencia, iCorrente, iEnergia, iEnergiaRam, loraUltimoDestinoCmd
+    ram_dev = globals.devices.get_dev_rams()[INDEX_ELET]
     
     if len(sMsg) != 33:
         logging.info(f"Erro no tamanho da mensagem! {len(sMsg)}")
@@ -97,13 +80,14 @@ def trata_mensagem_gara(sMsg):
 
     logging.debug(f"Tensão: {iTensao} Potência: {iPotencia} Corrente: {iCorrente} Energia: {iEnergia} EnergiaRam: {iEnergiaRam}")
     
-    loraTimeOut[INDEX_ELET] = funcs.millis()
-    loraCom[INDEX_ELET] = True
+    ram_dev.loraTimeOut = funcs.millis()
+    ram_dev.loraCom = True
     if loraUltimoDestinoCmd == INDEX_ELET:
         lora_proximo_destino_cmd()
 
 def trata_mensagem_fut(sMsg):
-    global loraUltimoDestinoCmd, sLampada1, sInput1, loraTimeOut, loraCom
+    global loraUltimoDestinoCmd, sLampada1, sInput1
+    ram_dev = globals.devices.get_dev_rams()[INDEX_LUZ]
     
     if len(sMsg) != 4:
         logging.info("Erro no tamanho da mensagem!")
@@ -123,8 +107,8 @@ def trata_mensagem_fut(sMsg):
     
     logging.debug(f"Lâmpada1: {sLampada1} Input1: {sInput1}")
     
-    loraTimeOut[INDEX_LUZ] = funcs.millis()
-    loraCom[INDEX_LUZ] = True
+    ram_dev.loraTimeOut = funcs.millis()
+    ram_dev.loraCom = True
     if loraUltimoDestinoCmd == INDEX_LUZ:
         lora_proximo_destino_cmd()
 

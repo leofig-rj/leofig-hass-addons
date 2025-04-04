@@ -1,6 +1,6 @@
 import time
 
-import msgs
+import globals
 
 # Funções Auxiliares
 def last4(s):
@@ -49,4 +49,8 @@ def is_empty_str(string):
     return string == ""
 
 def get_index_from_addr(addr):
-    return msgs.loraSlaveAddr.index(addr) if addr in msgs.loraSlaveAddr else 255
+    ram_devs = globals.devices.get_dev_rams()
+    for i in range(len(ram_devs)):
+        if ram_devs[i].slaveAddr == addr:
+            return i
+    return 255
