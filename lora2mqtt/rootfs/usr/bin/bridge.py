@@ -654,9 +654,31 @@ def main(broker, port, broker_user, broker_pass):
     else:
         logging.debug(f"Dispositivo com ID '{id_para_buscar}' não encontrado.")
 
+    novo_dispositivo = {
+        "id": "12345",
+        "model": "ZX-900",
+        "chip": "ESP32",
+        "manufacturer": "TechCorp",
+        "serial": "SN-0012345",
+        "version": "1.0.0",
+        "friendly_name": "Sensor de Temperatura",
+        "address": 4
+    }
+
+    # Adicionando o novo dispositivo
+    gerenciador.add_device(novo_dispositivo)
+
+    # Lista todos os dispositivos
+    logging.debug("Dispositivos cadastrados:")
+    gerenciador.list_devices()
+
     # Exclui um dispositivo
-#    id_para_excluir = "12345"
-#    gerenciador.excluir_dispositivo_por_id(id_para_excluir)   
+    id_para_excluir = "12345"
+    gerenciador.excluir_dispositivo_por_id(id_para_excluir)   
+
+    # Lista todos os dispositivos
+    logging.debug("Dispositivos cadastrados:")
+    gerenciador.list_devices()
 
     # Busca um dispositivo específico
     id_para_buscar = "234567890123"
