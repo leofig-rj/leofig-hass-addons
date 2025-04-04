@@ -20,7 +20,7 @@ udev: true               # Habilita o acesso à udev do OS para monitorar USB
 homeassistant_api: true  # Habilita o acesso à API do Home Assistant
 host_network: true       # Permite o uso da rede do host
 map:
-  config: false           # Permite acesso à pasta /config
+  config: true           # Permite acesso à pasta /config
 map:
   - type: share
     read_only: false
