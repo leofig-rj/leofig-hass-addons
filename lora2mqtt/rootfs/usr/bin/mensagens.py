@@ -129,9 +129,6 @@ def trata_mensagem_fut(sMsg):
     if loraUltimoDestinoCmd == INDEX_LUZ:
         lora_proximo_destino_cmd()
 
-def get_index_from_addr(addr):
-    return loraSlaveAddr.index(addr) if addr in loraSlaveAddr else 255
-
 def lora_fifo_tenta_enviar(sMsg, index):
     global loraFiFoPrimeiro, loraFiFoUltimo, loraFiFoMsgBuffer, loraFiFoDestinoBuffer
     
