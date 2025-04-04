@@ -22,8 +22,8 @@ class DeviceManager:
                 with open(self.config_file_path, "w") as arquivo_yaml:
                     yaml.dump({"devices": []}, arquivo_yaml)
             except OSError as e:
-                logging.info(f"Erro ao criar o arquivo: {e}")
-                logging.info("Certifique-se de que o diretório possui permissões de gravação.")
+                logging.error(f"Erro ao criar o arquivo: {e}")
+                logging.error("Certifique-se de que o diretório possui permissões de gravação.")
 
 
     def load_devices(self):
@@ -41,7 +41,7 @@ class DeviceManager:
         devices = self.load_devices()
         devices.append(device)
         self.save_devices(devices)
-        logging.info(f"Dispositivo adicionado: {device}")
+        logging.debug(f"Dispositivo adicionado: {device}")
 
     def find_device_by_id(self, id_device):
         """Busca um dispositivo específico pelo ID."""
@@ -58,7 +58,7 @@ class DeviceManager:
             device for device in devices if device["id"] != id_device
         ]
         self.save_devices(devices_filtered)
-        logging.info(f"Dispositivo com ID '{id_device}' excluído com sucesso!")
+        logging.debug(f"Dispositivo com ID '{id_device}' excluído com sucesso!")
 
     def list_devices(self):
         """Lista todos os dispositivos cadastrados."""

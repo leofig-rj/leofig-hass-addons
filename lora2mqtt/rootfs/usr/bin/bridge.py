@@ -79,11 +79,11 @@ class LoRa2MQTTClient(mqtt.Client):
                 self.lora_slave_vers.append(device['version'])
                 self.lora_slave_chips.append(device['chip'])
                 
-        logging.info(f"Slave addrs depois {self.lora_slave_addrs}")
-        logging.info(f"Slave names depois {self.lora_slave_names}")
-        logging.info(f"Slave macs depois {self.lora_slave_macs}")
-        logging.info(f"Slave vers depois {self.lora_slave_vers}")
-        logging.info(f"Slave chips depois {self.lora_slave_chips}")
+        logging.debug(f"Slave addrs depois {self.lora_slave_addrs}")
+        logging.debug(f"Slave names depois {self.lora_slave_names}")
+        logging.debug(f"Slave macs depois {self.lora_slave_macs}")
+        logging.debug(f"Slave vers depois {self.lora_slave_vers}")
+        logging.debug(f"Slave chips depois {self.lora_slave_chips}")
 
 
     def _setup_mqtt_topics(self):
@@ -110,11 +110,11 @@ class LoRa2MQTTClient(mqtt.Client):
             self.masc_disc_topics.append(masc_disc_topic)
 
         # Logging para verificar se os tópicos foram configurados
-        logging.info("MQTT topics successfully configured.")
-        logging.info(f"Bridge Topic: {self.bridge_topic}")
-        logging.info(f"Telemetry Topics: {self.tele_topics}")
-        logging.info(f"Set Topics: {self.set_topics}")
-        logging.info(f"Masc Disc Topics: {self.masc_disc_topics}")
+        logging.debug("MQTT topics successfully configured.")
+        logging.debug(f"Bridge Topic: {self.bridge_topic}")
+        logging.debug(f"Telemetry Topics: {self.tele_topics}")
+        logging.debug(f"Set Topics: {self.set_topics}")
+        logging.debug(f"Masc Disc Topics: {self.masc_disc_topics}")
 
     def send_message(self, topic, msg, retain=False):
         """Envia uma mensagem para um tópico MQTT."""
@@ -127,7 +127,7 @@ class LoRa2MQTTClient(mqtt.Client):
     def mqtt_connection(self):
         """Tenta conectar ao broker MQTT."""
         try:
-            logging.info(f"Connecting to MQTT broker {self.broker_host}:{self.broker_port}")
+            logging.debug(f"Connecting to MQTT broker {self.broker_host}:{self.broker_port}")
             self.connect(self.broker_host, self.broker_port, self.keepalive_mqtt)
         except Exception as e:
             logging.error(f"Failed to connect to MQTT broker: {e}")
@@ -163,7 +163,7 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def handle_message(self, message):
         """Processa mensagens específicas (substituir pela lógica necessária)."""
-        logging.info(f"Processing message from topic {message.topic}: {message.payload.decode('utf-8')}")
+        logging.debug(f"Processing message from topic {message.topic}: {message.payload.decode('utf-8')}")
 
 
     def on_mqtt_connect(self):
@@ -616,9 +616,9 @@ def main(broker, port, broker_user, broker_pass):
             arquivos = [arquivo for arquivo in os.listdir(data_path) if arquivo.endswith(".py")]
             logging.debug(f"Arquivos Python encontrados: {arquivos}")
         else:
-            logging.debug(f"O caminho não é uma pasta válida: {data_path}")
+            logging.info(f"O caminho não é uma pasta válida: {data_path}")
     except PermissionError:
-        logging.debug("Erro: Permissão negada para acessar a pasta.")
+        logging.error("Erro: Permissão negada para acessar a pasta.")
 
 
 
@@ -669,7 +669,7 @@ def main(broker, port, broker_user, broker_pass):
        if ser:
             # Envio comando de solicitação de estado da dongue
             ser.write("!000".encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
-            logging.error("Enviado comando solicita estado do adaptador")
+            logging.debug("Enviado comando solicita estado do adaptador")
             time.sleep(2)  # Aguarda 2 segundos
             # Verifico se tem dado na serial
             if ser.in_waiting > 0:
@@ -678,7 +678,7 @@ def main(broker, port, broker_user, broker_pass):
                 # Tratando o dado
                 if serial_data[0] == '!':
                     usb_id = serial_data[1:]
-                    logging.info(f"Recebeu do adaptador: {usb_id}")
+                    logging.debug(f"Recebeu do adaptador: {usb_id}")
 
             client = LoRa2MQTTClient("/dev/ttyUSB0", 
                                     broker, 
@@ -703,7 +703,7 @@ def main(broker, port, broker_user, broker_pass):
                     serial_data = ser.readline().decode('utf-8').strip()
                     # Tratando o dado
                     result, de, para, msg = lf_lora.lora_check_msg_ini(serial_data)
-                    logging.info(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
+                    logging.debug(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
                     # Trato a mensagem
                     if result == MSG_CHECK_OK:
                         # Publicando a msg limpa
@@ -716,14 +716,14 @@ def main(broker, port, broker_user, broker_pass):
                 # Envio comando de solicitação de estado
                 serial_data = lf_lora.lora_add_header("000", 2)
                 ser.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
-                logging.info(f"Enviado {serial_data}")
+                logging.debug(f"Enviado {serial_data}")
 
                 time.sleep(5)  # Aguarda 5 segundos
 
     except Exception as e:
-        logging.info(f"Erro: {e}")
+        logging.error(f"Erro: {e}")
     finally:
-        logging.info("Encerrando aplicação LoRa2MQTT...")
+        logging.error("Encerrando aplicação LoRa2MQTT...")
         ser.close()
         client.loop_stop()
         client.disconnect()
