@@ -1,6 +1,8 @@
 import time
 import logging
+
 import funcs
+import globals
 
 from consts import LORA_FIFO_LEN, LORA_TEMPO_REFRESH, LORA_NUM_TENTATIVAS_CMD
 
