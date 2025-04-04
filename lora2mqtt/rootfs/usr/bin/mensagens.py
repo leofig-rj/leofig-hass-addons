@@ -1,5 +1,6 @@
 import time
 import logging
+import funcs
 
 # Definições de índices e constantes
 INDEX_ELET = 0
@@ -97,7 +98,7 @@ def trata_mensagem_gara(sMsg):
 
     logging.debug(f"Tensão: {iTensao} Potência: {iPotencia} Corrente: {iCorrente} Energia: {iEnergia} EnergiaRam: {iEnergiaRam}")
     
-    loraTimeOut[INDEX_ELET] = millis()
+    loraTimeOut[INDEX_ELET] = funcs.millis()
     loraCom[INDEX_ELET] = True
     if loraUltimoDestinoCmd == INDEX_ELET:
         lora_proximo_destino_cmd()
@@ -118,36 +119,15 @@ def trata_mensagem_fut(sMsg):
         logging.info("Erro no tamanho dos dados!")
         return
     
-    sLampada1 = char_to_state(partes[1])
-    sInput1 = char_to_on_off(partes[2])
+    sLampada1 = funcs.char_to_state(partes[1])
+    sInput1 = funcs.char_to_on_off(partes[2])
     
     logging.debug(f"Lâmpada1: {sLampada1} Input1: {sInput1}")
     
-    loraTimeOut[INDEX_LUZ] = millis()
+    loraTimeOut[INDEX_LUZ] = funcs.millis()
     loraCom[INDEX_LUZ] = True
     if loraUltimoDestinoCmd == INDEX_LUZ:
         lora_proximo_destino_cmd()
-
-def millis():
-    return int(time.time() * 1000)
-
-def pega_delta_millis(tempo_anterior):
-    auxMillis = int(time.time() * 1000)
-    if auxMillis < tempo_anterior:
-        return (auxMillis + 0xFFFFFFFF) - tempo_anterior
-    return auxMillis - tempo_anterior
-
-def char_to_byte(c):
-    return ord(c) - ord('0')
-
-def char_to_on_off(c):
-    return "ON" if c == '1' else "OFF"
-
-def char_to_state(c):
-    return {"state": "ON"} if c == '1' else {"state": "OFF"}
-
-def bool_to_on_off(b):
-    return "ON" if b else "OFF"
 
 def get_index_from_addr(addr):
     return loraSlaveAddr.index(addr) if addr in loraSlaveAddr else 255
@@ -194,7 +174,7 @@ def lora_ultimo_cmd_retornou():
     if lastIdRec == lastIdSent:
         return True
     
-    if pega_delta_millis(loraCommandTime) > LORA_TEMPO_REFRESH:
+    if funcs.pega_delta_millis(loraCommandTime) > LORA_TEMPO_REFRESH:
         if tentativasCmd >= LORA_NUM_TENTATIVAS_CMD:
             return True
         lora_reenvia_mensagem()

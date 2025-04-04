@@ -13,6 +13,7 @@ import constants
 import lflora
 import mensagens
 import config
+import funcs
 
 from lflora import MSG_CHECK_OK, MSG_CHECK_NOT_MASTER, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR
 
@@ -210,7 +211,7 @@ class LoRa2MQTTClient(mqtt.Client):
             "dev": {
                 "ids": [f"{self.channel}_{self.lora_slave_macs[index]}"],
                 "cns": [["mac", self.lora_slave_macs[index]]],
-                "name": f"{self.lora_slave_names[index]} {last4(self.lora_slave_macs[index])}",
+                "name": f"{self.lora_slave_names[index]} {funcs.last4(self.lora_slave_macs[index])}",
                 "sw": self.lora_slave_vers[index],
                 "mf": "Leonardo Figueiró",
                 "mdl": self.lora_slave_chips[index]
@@ -243,7 +244,7 @@ class LoRa2MQTTClient(mqtt.Client):
         Envia a descoberta auxiliar de conectividade para um slave LoRa.
         """
         name = "Com Lora"
-        slug = slugify(name)
+        slug = funcs.slugify(name)
         payload = self.common_discovery_ind(index)
         payload.update({
             "~": self.work_topics[index],
@@ -264,7 +265,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Envia a descoberta de um sensor binário de telemetria via MQTT.
         """
-        slug = slugify(name)
+        slug = funcs.slugify(name)
         payload = self.common_discovery_ind(index)
         payload.update({
             "~": self.work_topics[index],
@@ -287,7 +288,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Envia a descoberta de um sensor de telemetria via MQTT.
         """
-        slug = slugify(name)
+        slug = funcs.slugify(name)
         payload = self.common_discovery_ind(index)
         payload.update({
             "~": self.work_topics[index],
@@ -312,7 +313,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Envia a descoberta de um sensor MQTT com estado específico.
         """
-        slug = slugify(name)
+        slug = funcs.slugify(name)
         payload = self.common_discovery_ind(index)
         payload.update({
             "~": self.work_topics[index],
@@ -339,7 +340,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Envia a descoberta de um sensor binário via MQTT.
         """
-        slug = slugify(name)
+        slug = funcs.slugify(name)
         payload = self.common_discovery_ind(index)
         payload.update({
             "~": self.work_topics[index],
@@ -361,7 +362,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Envia a descoberta de um botão via MQTT.
         """
-        slug = slugify(name)
+        slug = funcs.slugify(name)
         payload = self.common_discovery_ind(index)
         payload.update({
             "~": self.work_topics[index],
@@ -384,7 +385,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Envia a descoberta de um interruptor via MQTT.
         """
-        slug = slugify(name)
+        slug = funcs.slugify(name)
         payload = self.common_discovery_ind(index)
         payload.update({
             "~": self.work_topics[index],
@@ -404,7 +405,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Envia a descoberta de um número via MQTT.
         """
-        slug = slugify(name)
+        slug = funcs.slugify(name)
         payload = self.common_discovery_ind(index)
         payload.update({
             "~": self.work_topics[index],
@@ -427,7 +428,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Envia a descoberta de luz via MQTT.
         """
-        slug = slugify(name)
+        slug = funcs.slugify(name)
         payload = self.common_discovery_ind(index)
         payload.update({
             "~": self.work_topics[index],
@@ -451,7 +452,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Envia a descoberta de interruptor de luz via MQTT.
         """
-        slug = slugify(name)
+        slug = funcs.slugify(name)
         payload = self.common_discovery_ind(index)
         payload.update({
             "~": self.work_topics[index],
@@ -475,7 +476,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Envia a descoberta de botão para a ponte via MQTT.
         """
-        slug = slugify(name)
+        slug = funcs.slugify(name)
         payload = self.common_discovery()
         payload.update({
             "~": self.bridge_topic,
@@ -498,7 +499,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Envia uma mensagem para deletar descoberta.
         """
-        slug = slugify(name)
+        slug = funcs.slugify(name)
         topic = f"{self.home_assistant_prefix}/{domain}/{self.channel}_{constants.UINQUE}/{slug}/config"
         return self.pub(topic, 0, False, "")
 
@@ -506,7 +507,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Envia uma mensagem para deletar descoberta de um slave LoRa.
         """
-        slug = slugify(name)
+        slug = funcs.slugify(name)
         topic = f"{self.home_assistant_prefix}/{domain}/{self.channel}_{self.lora_slave_macs[index]}/{slug}/config"
         return self.pub(topic, 0, False, "")
 
@@ -533,7 +534,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Envia telemetria dos dispositivos LoRa.
         """
-        tempo_loop = mensagens.pega_delta_millis(self.last_tele_millis)
+        tempo_loop = funcs.pega_delta_millis(self.last_tele_millis)
         if tempo_loop < self.refresh_telemetry:
             return
 
@@ -564,28 +565,6 @@ class LoRa2MQTTClient(mqtt.Client):
                 return True
             time.sleep(0.025)  # Espera 25ms entre as tentativas
         return False
-
-# Funções Auxiliares
-def last4(s):
-    """
-    Retorna os últimos 4 caracteres de uma string, começando do índice 8.
-    """
-    return s[8:]
-
-def slugify(text):
-    """Converte um texto em formato 'slug' (substitui espaços por _ e coloca tudo em minúsculas)."""
-    return text.lower().replace(' ', '_')
-
-def nome_com_lora(index):
-    """Retorna o nome básico para um dispositivo LoRa."""
-    return "Com LoRa"  # Pode ser expandido com nomes individuais, se necessário.
-
-def slug_com_lora(index):
-    """Retorna o nome slugificado de um dispositivo LoRa."""
-    return slugify(nome_com_lora(index))
-
-def isEmptyStr(s):
-    return s == 'null' or len(s) == 0 or s.isspace()
 
 ########### MAIN ############
 def main(broker, port, broker_user, broker_pass):
@@ -635,60 +614,6 @@ def main(broker, port, broker_user, broker_pass):
         except OSError as e:
             logging.error(f"Erro ao criar o arquivo: {e}")
             logging.error("Certifique-se de que o diretório possui permissões de gravação.")
-
-
-    ##### TESTE DE DeviceManager ######
-
-    gerenciador = config.DeviceManager()
-
-    # Lista todos os dispositivos
-    logging.debug("Dispositivos cadastrados:")
-    gerenciador.list_devices()
-
-    # Busca um dispositivo específico
-    id_para_buscar = "12345"
-    dispositivo = gerenciador.find_device_by_id(id_para_buscar)
-    if dispositivo:
-        logging.debug(f"Dispositivo encontrado: {dispositivo}")
-    else:
-        logging.debug(f"Dispositivo com ID '{id_para_buscar}' não encontrado.")
-
-    novo_dispositivo = {
-        "id": "12345",
-        "model": "ZX-900",
-        "chip": "ESP32",
-        "manufacturer": "TechCorp",
-        "serial": "SN-0012345",
-        "version": "1.0.0",
-        "friendly_name": "Sensor de Temperatura",
-        "address": 4
-    }
-
-    # Adicionando o novo dispositivo
-    gerenciador.add_device(novo_dispositivo)
-
-    # Lista todos os dispositivos
-    logging.debug("Dispositivos cadastrados:")
-    gerenciador.list_devices()
-
-    # Exclui um dispositivo
-    id_para_excluir = "12345"
-    gerenciador.delete_device_by_id(id_para_excluir)   
-
-    # Lista todos os dispositivos
-    logging.debug("Dispositivos cadastrados:")
-    gerenciador.list_devices()
-
-    # Busca um dispositivo específico
-    id_para_buscar = "234567890123"
-    dispositivo = gerenciador.find_device_by_id(id_para_buscar)
-    if dispositivo:
-        logging.debug(f"Dispositivo encontrado: {dispositivo}")
-    else:
-        logging.debug(f"Dispositivo com ID '{id_para_buscar}' não encontrado.")
-
-    ##### FIM  - TESTE DE DeviceManager ######
-
 
     try:
         # Configurando conexão serial
@@ -747,11 +672,11 @@ def main(broker, port, broker_user, broker_pass):
                         data_to_publish = f"Dado recebido: {msg}"
                         client.send_message("lora2mqtt/dados", data_to_publish)
                         # Tratando a msg conforme remetente
-                        index = mensagens.get_index_from_addr(de)
+                        index = funcs.get_index_from_addr(de)
                         mensagens.trata_mensagem(msg, index)
 
     
-                if mensagens.pega_delta_millis(mensagens.loraCommandTime) > mensagens.LORA_TEMPO_REFRESH:
+                if funcs.pega_delta_millis(mensagens.loraCommandTime) > mensagens.LORA_TEMPO_REFRESH:
                     mensagens.loraCommandTime = int(time.time() * 1000)
 
                     # Envio comando de solicitação de estado
@@ -760,8 +685,6 @@ def main(broker, port, broker_user, broker_pass):
                     logging.debug(f"Enviado {serial_data}")
 
                     contador = (contador + 1) % 2
-
-#                    time.sleep(5)  # Aguarda 5 segundos
 
     except Exception as e:
         logging.error(f"Erro: {e}")
@@ -790,7 +713,7 @@ if __name__ == '__main__':
         raise ValueError('Invalid parameters!')
 
     for current_argument, current_value in arguments:
-        if isEmptyStr(current_value):
+        if funcs.is_empty_str(current_value):
             pass
         elif current_argument in ("-b", "--broker"):
             broker = current_value
