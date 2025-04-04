@@ -674,7 +674,7 @@ def main(broker, port, broker_user, broker_pass):
 
     # Exclui um dispositivo
     id_para_excluir = "12345"
-    gerenciador.excluir_dispositivo_por_id(id_para_excluir)   
+    gerenciador.delete_device_by_id(id_para_excluir)   
 
     # Lista todos os dispositivos
     logging.debug("Dispositivos cadastrados:")
