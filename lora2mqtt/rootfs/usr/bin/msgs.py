@@ -145,7 +145,7 @@ def lora_fifo_tenta_enviar(sMsg, index):
     loraFiFoUltimo = aux
 
 def lora_envia_mensagem_index(sMsg, index):
-    lora_envia_mensagem(sMsg, dsvs.devRAM.[index])
+    lora_envia_mensagem(sMsg, globals.devices.ram_devs()[index]["slaveAddr"])
 
 
 def lora_envia_mensagem(sMsg, para):
