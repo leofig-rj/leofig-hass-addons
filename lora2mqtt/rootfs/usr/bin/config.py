@@ -65,9 +65,9 @@ class DeviceManager:
         devices = self.load_devices()
         if devices:
             for device in devices:
-                logging.info(f"ID: {device['id']}, Modelo: {device['model']}, "
+                logging.debug(f"ID: {device['id']}, Modelo: {device['model']}, "
                       f"Chip: {device['chip']}, Fabricante: {device['manufacturer']}, "
                       f"Serial: {device['serial']}, Versão: {device['version']}, "
                       f"Nome: {device['friendly_name']}, Endereço: {device['address']}")
         else:
-            logging.info("Nenhum dispositivo cadastrado.")
+            logging.debug("Nenhum dispositivo cadastrado.")

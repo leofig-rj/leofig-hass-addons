@@ -637,8 +637,7 @@ def main(broker, port, broker_user, broker_pass):
             logging.error("Certifique-se de que o diretório possui permissões de gravação.")
 
 
-
-
+    ##### TESTE DE DeviceManager ######
 
     gerenciador = config.DeviceManager()
 
@@ -688,7 +687,7 @@ def main(broker, port, broker_user, broker_pass):
     else:
         logging.debug(f"Dispositivo com ID '{id_para_buscar}' não encontrado.")
 
-
+    ##### FIM  - TESTE DE DeviceManager ######
 
 
     try:
