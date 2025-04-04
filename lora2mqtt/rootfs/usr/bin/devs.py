@@ -148,3 +148,6 @@ class DeviceManager:
                 self.dev_rams.append(DeviceRAM(device['address'], name, device['id'], device['version'], device['chip'], device['model'], device['manufacturer']))
         else:
             logging.debug("Nenhum dispositivo cadastrado.")
+    
+    def get_dev_rams(self):
+        return self.dev_rams

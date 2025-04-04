@@ -27,7 +27,7 @@ class LoRa2MQTTClient(mqtt.Client):
         self.addon_slug = ADDON_SLUG
         self.addon_name = ADDON_NAME
         self.usb_id = usb_id
-        self.ram_devs = globals.devices.dev_rams
+        self.ram_devs = globals.devices.get_dev_rams()
         self.num_slaves = None
         self.bridge_topic = None          # Definido em _setup_mqtt_topics
         self.bridge_set_topic = None      # Definido em _setup_mqtt_topics
@@ -56,7 +56,7 @@ class LoRa2MQTTClient(mqtt.Client):
         self.on_message = LoRa2MQTTClient.cb_on_message
 
         # Logging informativo
-        logging.info(f"Client {mqtt_client_id} LoRa2MQTT Created")
+        logging.info(f"Client {MQTT_CLIENT_ID} LoRa2MQTT Created")
 
     def _setup_mqtt_topics(self):
         """Configura os tópicos MQTT."""
