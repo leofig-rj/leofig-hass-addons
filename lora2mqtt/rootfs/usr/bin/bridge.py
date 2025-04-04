@@ -7,6 +7,8 @@ import time
 import getopt
 import sys
 
+import yaml
+
 import constants
 import lflora
 import mensagens
@@ -621,6 +623,18 @@ def main(broker, port, broker_user, broker_pass):
         logging.error("Erro: Permissão negada para acessar a pasta.")
 
 
+
+
+    config_file_path = "/config/lora2mqtt/teste.yaml"
+
+    # Verifica se o arquivo existe, caso contrário, cria um arquivo vazio
+    if not os.path.exists(config_file_path):
+        try:
+            with open(config_file_path, "w") as arquivo_yaml:
+                yaml.dump({"devices": []}, arquivo_yaml)
+        except OSError as e:
+            logging.error(f"Erro ao criar o arquivo: {e}")
+            logging.error("Certifique-se de que o diretório possui permissões de gravação.")
 
 
 

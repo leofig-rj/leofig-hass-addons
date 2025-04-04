@@ -20,8 +20,14 @@ udev: true               # Habilita o acesso à udev do OS para monitorar USB
 homeassistant_api: true  # Habilita o acesso à API do Home Assistant
 host_network: true       # Permite o uso da rede do host
 map:
-  share: true          # Permite acesso à pasta /share
-  config: true         # Permite acesso à pasta /config
+  - type: share
+    read_only: false
+  - type: homeassistant_config
+    read_only: false
+    path: /config
+  - type: addon_config
+    read_only: false
+    path: /addon_config
 options:
   serial:
     port: "/dev/ttyACM0"
@@ -34,3 +40,6 @@ schema:
   log_level: "list(DEBUG|INFO|WARNING|ERROR)?"
   data_path: "str?"
   max_threads: "int?"
+      "type": "homeassistant_config",
+      "read_only": false,
+      "path": "/config"
