@@ -533,7 +533,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         Envia telemetria dos dispositivos LoRa.
         """
-        tempo_loop = self.pega_delta_millis(self.last_tele_millis)
+        tempo_loop = mensagens.pega_delta_millis(self.last_tele_millis)
         if tempo_loop < self.refresh_telemetry:
             return
 
@@ -750,14 +750,18 @@ def main(broker, port, broker_user, broker_pass):
                         index = mensagens.get_index_from_addr(de)
                         mensagens.trata_mensagem(msg, index)
 
-                # Envio comando de solicitação de estado
-                serial_data = lf_lora.lora_add_header("000", contador + 2)
-                ser.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
-                logging.debug(f"Enviado {serial_data}")
+    
+                if mensagens.pega_delta_millis(mensagens.loraCommandTime) > mensagens.LORA_TEMPO_REFRESH:
+                    mensagens.loraCommandTime = int(time.time() * 1000)
 
-                contador = (contador + 1) % 2
+                    # Envio comando de solicitação de estado
+                    serial_data = lf_lora.lora_add_header("000", contador + 2)
+                    ser.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
+                    logging.debug(f"Enviado {serial_data}")
 
-                time.sleep(5)  # Aguarda 5 segundos
+                    contador = (contador + 1) % 2
+
+#                    time.sleep(5)  # Aguarda 5 segundos
 
     except Exception as e:
         logging.error(f"Erro: {e}")

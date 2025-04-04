@@ -129,11 +129,9 @@ def trata_mensagem_fut(sMsg):
         lora_proximo_destino_cmd()
 
 def millis():
-    import time
     return int(time.time() * 1000)
 
 def pega_delta_millis(tempo_anterior):
-    import time
     auxMillis = int(time.time() * 1000)
     if auxMillis < tempo_anterior:
         return (auxMillis + 0xFFFFFFFF) - tempo_anterior
