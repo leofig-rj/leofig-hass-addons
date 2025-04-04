@@ -51,8 +51,8 @@ class LoRa2MQTTClient(mqtt.Client):
         # Configurações de autenticação MQTT (se fornecidas)
         if broker_user and broker_pass:
             self.username_pw_set(broker_user, password=broker_pass)
-        logging.info(f"MQTT Usr {broker_user}")
-        logging.info(f"MQTT Usr {broker_pass}")
+        logging.debug(f"MQTT Usr {broker_user}")
+        logging.debug(f"MQTT Usr {broker_pass}")
 
         # Configura o LWT
         self.will_set(self.lwt_topic, self.lwt_message, qos=self.lwt_qos, retain=self.lwt_retain)
@@ -119,7 +119,7 @@ class LoRa2MQTTClient(mqtt.Client):
     def send_message(self, topic, msg, retain=False):
         """Envia uma mensagem para um tópico MQTT."""
         try:
-#            logging.info(f'Sending message "{msg}" to topic "{topic}" with retain={retain}')
+            logging.debug(f'Sending message "{msg}" to topic "{topic}" with retain={retain}')
             self.publish(topic, msg, qos=0, retain=retain)
         except Exception as e:
             logging.error(f"Failed to send message: {e}")
@@ -616,7 +616,7 @@ def main(broker, port, broker_user, broker_pass):
             arquivos = [arquivo for arquivo in os.listdir(data_path) if arquivo.endswith(".py")]
             logging.debug(f"Arquivos Python encontrados: {arquivos}")
         else:
-            logging.info(f"O caminho não é uma pasta válida: {data_path}")
+            logging.error(f"O caminho não é uma pasta válida: {data_path}")
     except PermissionError:
         logging.error("Erro: Permissão negada para acessar a pasta.")
 
@@ -629,7 +629,7 @@ def main(broker, port, broker_user, broker_pass):
     gerenciador = config.DeviceManager()
 
     # Lista todos os dispositivos
-    logging.info("Dispositivos cadastrados:")
+    logging.debug("Dispositivos cadastrados:")
     gerenciador.list_devices()
 
     # Busca um dispositivo específico
