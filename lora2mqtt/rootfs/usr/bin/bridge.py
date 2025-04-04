@@ -60,6 +60,7 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def _setup_mqtt_topics(self):
         """Configura os tópicos MQTT."""
+        logging.info("Cheguei aqui: _setup_mqtt_topics início")
         self.num_slaves = len(self.ram_devs)
         self.bridge_topic = f"{self.addon_slug}/bridge"
         self.bridge_set_topic = f"{self.bridge_topic}/+/set"
@@ -67,13 +68,14 @@ class LoRa2MQTTClient(mqtt.Client):
         self.todos_topic = f"{self.addon_slug}/*/+/set"
         self.lwt_topic = self.bridge_status_topic
 
+        logging.info(f"Testando ram_devs: {self.ram_devs[i-1].slaveName}")
         # Configura os tópicos para cada slave
         for i in range(self.num_slaves):
-            work_topic = f"{self.addon_slug}/{self.ram_devs[i-1]['slaveName']}"
+            work_topic = f"{self.addon_slug}/{self.ram_devs[i-1].slaveName}"
             tele_topic = f"{work_topic}/telemetry"
             set_topic = f"{work_topic}/+/set"
-            masc_uniq_topic = f"{self.addon_slug}_{self.ram_devs[i-1]['slaveMac']}_%s"
-            masc_disc_topic = f"{HA_PREFIX}/%s/{self.addon_slug}_{self.ram_devs[i-1]['slaveMac']}/%s/config"
+            masc_uniq_topic = f"{self.addon_slug}_{self.ram_devs[i-1].slaveMac}_%s"
+            masc_disc_topic = f"{HA_PREFIX}/%s/{self.addon_slug}_{self.ram_devs[i-1].slaveMac}/%s/config"
 
             self.work_topics.append(work_topic)
             self.tele_topics.append(tele_topic)
@@ -178,12 +180,12 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         payload = {
             "dev": {
-                "ids": [f"{self.addon_slug}_{self.ram_devs[index]['slaveMac']}"],
-                "cns": [["mac", self.ram_devs[index]['slaveMac']]],
-                "name": f"{self.ram_devs[index]['slaveName']} {funcs.last4(self.ram_devs[index]['slaveMac'])}",
-                "sw": self.ram_devs[index]['slaveVer'],
-                "mf": self.ram_devs[index]['slaveMan'],
-                "mdl": self.ram_devs[index]['slaveModel']
+                "ids": [f"{self.addon_slug}_{self.ram_devs[index].slaveMac}"],
+                "cns": [["mac", self.ram_devs[index].slaveMac]],
+                "name": f"{self.ram_devs[index].slaveName} {funcs.last4(self.ram_devs[index].slaveMac)}",
+                "sw": self.ram_devs[index].slaveVer,
+                "mf": self.ram_devs[index].slaveMan,
+                "mdl": self.ram_devs[index].slaveModel
             }
         }
         return payload
@@ -477,7 +479,7 @@ class LoRa2MQTTClient(mqtt.Client):
         Envia uma mensagem para deletar descoberta de um slave LoRa.
         """
         slug = funcs.slugify(name)
-        topic = f"{HA_PREFIX}/{domain}/{self.addon_slug}_{self.ram_devs[index]['slaveMac']}/{slug}/config"
+        topic = f"{HA_PREFIX}/{domain}/{self.addon_slug}_{self.ram_devs[index].slaveMac}/{slug}/config"
         return self.pub(topic, 0, False, "")
 
     def send_online(self):
