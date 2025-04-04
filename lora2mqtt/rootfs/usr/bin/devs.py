@@ -145,9 +145,6 @@ class DeviceManager:
                 name = device['friendly_name']
                 if funcs.is_empty_str(name):
                     name = device['id']
-                self.devRam.append(DeviceRAM(device['address'], name, device['id'], device['version'], device['chip'], device['model'], device['manufacturer']))
+                self.dev_rams.append(DeviceRAM(device['address'], name, device['id'], device['version'], device['chip'], device['model'], device['manufacturer']))
         else:
             logging.debug("Nenhum dispositivo cadastrado.")
-
-    def dev_rams(self):
-        return self.dev_rams

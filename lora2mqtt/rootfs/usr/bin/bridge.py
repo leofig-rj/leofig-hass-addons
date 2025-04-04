@@ -27,7 +27,7 @@ class LoRa2MQTTClient(mqtt.Client):
         self.addon_slug = ADDON_SLUG
         self.addon_name = ADDON_NAME
         self.usb_id = usb_id
-        self.ram_devs = globals.devices.ram_devs()
+        self.ram_devs = globals.devices.dev_rams
         self.num_slaves = None
         self.bridge_topic = None          # Definido em _setup_mqtt_topics
         self.bridge_set_topic = None      # Definido em _setup_mqtt_topics
