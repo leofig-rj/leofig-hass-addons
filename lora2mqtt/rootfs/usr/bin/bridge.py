@@ -60,7 +60,6 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def _setup_mqtt_topics(self):
         """Configura os tópicos MQTT."""
-        logging.info("Cheguei aqui: _setup_mqtt_topics início")
         self.num_slaves = len(self.ram_devs)
         self.bridge_topic = f"{self.addon_slug}/bridge"
         self.bridge_set_topic = f"{self.bridge_topic}/+/set"
@@ -68,7 +67,6 @@ class LoRa2MQTTClient(mqtt.Client):
         self.todos_topic = f"{self.addon_slug}/*/+/set"
         self.lwt_topic = self.bridge_status_topic
 
-        logging.info(f"Testando ram_devs: {self.ram_devs[i-1].slaveName}")
         # Configura os tópicos para cada slave
         for i in range(self.num_slaves):
             work_topic = f"{self.addon_slug}/{self.ram_devs[i-1].slaveName}"
