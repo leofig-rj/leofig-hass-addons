@@ -57,7 +57,7 @@ class DevicePW01:
         
         ram_dev.loraTimeOut = funcs.millis()
         ram_dev.loraCom = True
-        if globals.loraUltimoDestinoCmd == self.index:
+        if msgs.get_loraUltimoDestinoCmd() == self.index:
             msgs.lora_proximo_destino_cmd()
 
     def proc_command(self, entity, pay):

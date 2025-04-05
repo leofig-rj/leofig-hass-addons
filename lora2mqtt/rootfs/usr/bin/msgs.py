@@ -173,3 +173,7 @@ def lora_proximo_destino_cmd():
 
     loraUltimoDestinoCmd = (loraUltimoDestinoCmd + 1) % len(globals.devices.get_dev_rams())
 
+def get_loraUltimoDestinoCmd():
+    global loraUltimoDestinoCmd
+    return loraUltimoDestinoCmd
+
