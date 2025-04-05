@@ -64,8 +64,11 @@ class DevicePW01:
 
         if entity == self.entitySlugs[5]:
             msgs.loraFiFoTentaEnviar("100", self.index)
+            return True
         if entity == self.entitySlugs[6]:
             msgs.loraFiFoTentaEnviar("110", self.index)
+            return True
+        return False
  
     def proc_publish(self):
 

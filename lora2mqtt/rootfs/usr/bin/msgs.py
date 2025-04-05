@@ -42,6 +42,10 @@ def trata_mensagem(sMsg, index):
         logging.info("FiFo não está vazia!")
         return
     
+    ram_dev = globals.devices.get_dev_rams()[index]
+    ram_dev.slaveObj.proc_rec_msg(sMsg)
+    return
+
     if index == INDEX_ELET:
 #        trata_mensagem_gara(sMsg)
         ram_dev = globals.devices.get_dev_rams()[INDEX_ELET]

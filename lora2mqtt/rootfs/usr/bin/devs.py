@@ -5,6 +5,7 @@ import json
 
 import funcs
 import pw01
+import lz01
 
 class DeviceRamManager:
     def __init__(self):
@@ -64,6 +65,8 @@ class DeviceRAM:
         self.loraLastCom = False
         if self.slaveIndex == 0:
             self.slaveObj = pw01.DevicePW01(self.slaveMac, self.slaveAddr, self.slaveIndex)
+        if self.slaveIndex == 1:
+            self.slaveObj = lz01.DevicePW01(self.slaveMac, self.slaveAddr, self.slaveIndex)
         logging.debug(f"Addr: {self.slaveAddr}, Name: {self.slaveName}, "
                       f"Mac: {self.slaveMac}, Vesion: {self.slaveVer}, "
                       f"Chip: {self.slaveChip}, Model: {self.slaveModel}, "
