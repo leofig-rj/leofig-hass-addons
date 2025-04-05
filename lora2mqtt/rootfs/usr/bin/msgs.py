@@ -4,28 +4,28 @@ import logging
 import funcs
 import globals
 
+from . devices import pw01
+
 from consts import LORA_FIFO_LEN, LORA_TEMPO_REFRESH, LORA_NUM_TENTATIVAS_CMD
 
 # Definições de índices e constantes
 INDEX_ELET = 0
 INDEX_LUZ = 1
-NUM_DESTINOS_CMD_LORA = 2
-NUM_SLAVES = 2
 
 # Variáveis globais
-lastTensao = -1
-lastPotencia = -1
-lastCorrente = -1
-lastEnergia = -1
-lastEnergiaRam = -1
-lastLampada1 = "NULL"
-lastInput1 = "NULL"
-
 loraCommandTime = 0
 lastMsgSent = ""
 lastIdRec = 0
 lastIdSent = 0
 tentativasCmd = 0
+
+
+loraFiFoPrimeiro = 0
+loraFiFoUltimo = 0
+loraFiFoMsgBuffer = [""] * LORA_FIFO_LEN
+loraFiFoDestinoBuffer = [0] * LORA_FIFO_LEN
+loraUltimoDestinoCmd = 0
+
 iTensao = 0
 iPotencia = 0
 iCorrente = 0
@@ -33,12 +33,6 @@ iEnergia = 0
 iEnergiaRam = 0
 sLampada1 = "NULL"
 sInput1 = "NULL"
-
-loraFiFoPrimeiro = 0
-loraFiFoUltimo = 0
-loraFiFoMsgBuffer = [""] * LORA_FIFO_LEN
-loraFiFoDestinoBuffer = [0] * LORA_FIFO_LEN
-loraUltimoDestinoCmd = 0
 
 def trata_mensagem(sMsg, index):
     global loraFiFoPrimeiro, loraFiFoUltimo
@@ -49,7 +43,10 @@ def trata_mensagem(sMsg, index):
         return
     
     if index == INDEX_ELET:
-        trata_mensagem_gara(sMsg)
+#        trata_mensagem_gara(sMsg)
+        ram_dev = globals.devices.get_dev_rams()[INDEX_ELET]
+        ram_dev.slaveObj.proc_rec_msg(sMsg)
+        
         return
     
     if index == INDEX_LUZ:
@@ -167,16 +164,12 @@ def lora_fifo_verifica():
     
     if loraFiFoPrimeiro != loraFiFoUltimo:
         if lora_ultimo_cmd_retornou():
-            lora_envia_mensagem_index(loraFiFoMsgBuffer[loraFiFoPrimeiro], loraFiFoDestinoBuffer[loraFiFoPrimeiro])
+            lora_envia_mensagem_index(loraFiFoMsgBuffer[loraFiFoPrimeiro], \
+                                      loraFiFoDestinoBuffer[loraFiFoPrimeiro])
             loraFiFoPrimeiro = (loraFiFoPrimeiro + 1) % LORA_FIFO_LEN
 
 def lora_proximo_destino_cmd():
     global loraUltimoDestinoCmd
-    loraUltimoDestinoCmd = (loraUltimoDestinoCmd + 1) % NUM_DESTINOS_CMD_LORA
 
-#def lora_proximo_destino_cmd():
-#    global loraUltimoDestinoCmd
-#    loraUltimoDestinoCmd += 1
-#    if loraUltimoDestinoCmd >= NUM_DESTINOS_CMD_LORA:
-#        loraUltimoDestinoCmd = 0
+    loraUltimoDestinoCmd = (loraUltimoDestinoCmd + 1) % len(globals.devices.get_dev_rams())
 

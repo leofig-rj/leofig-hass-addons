@@ -4,6 +4,7 @@ import logging
 import json
 
 import funcs
+from . devices import pw01
 
 class DeviceRamManager:
     def __init__(self):
@@ -46,7 +47,8 @@ class DeviceRamManager:
         print("A lista foi limpa com sucesso!")
 
 class DeviceRAM:
-    def __init__(self, slaveAddr=0, slaveName="", slaveMac="", slaveVer="", slaveChip="", slaveModel="", slaveMan=""):
+    def __init__(self, slaveIndex=0, slaveAddr=0, slaveName="", slaveMac="", slaveVer="", slaveChip="", slaveModel="", slaveMan=""):
+        self.slaveIndex = slaveIndex
         self.slaveAddr = slaveAddr
         self.slaveName = slaveName
         self.slaveMac = slaveMac
@@ -54,12 +56,14 @@ class DeviceRAM:
         self.slaveChip = slaveChip
         self.slaveModel = slaveModel
         self.slaveMan = slaveMan
-        self.slaveEntities = []
+        self.slaveObj = None
         self.loraTimeOut = 0
         self.loraCom = False
         self.loraRSSI = 0
         self.loraLastTimeOut = 0
         self.loraLastCom = False
+        if self.slaveIndex == 0:
+            self.slaveObj = pw01.DevicePW01(self.slaveMac, self.slaveAddr, self.slaveIndex)
         logging.debug(f"Addr: {self.slaveAddr}, Name: {self.slaveName}, "
                       f"Mac: {self.slaveMac}, Vesion: {self.slaveVer}, "
                       f"Chip: {self.slaveChip}, Model: {self.slaveModel}, "
@@ -140,12 +144,16 @@ class DeviceManager:
     def load_devices_to_ram(self):
         """Carrega todos os dispositivos cadastrados na DeviceRAM."""
         devices = self.load_devices()
+        self.dev_rams.clear()
+        i = 0
         if devices:
             for device in devices:
                 name = device['friendly_name']
                 if funcs.is_empty_str(name):
                     name = device['id']
-                self.dev_rams.append(DeviceRAM(device['address'], name, device['id'], device['version'], device['chip'], device['model'], device['manufacturer']))
+                self.dev_rams.append(DeviceRAM(i, device['address'], name, device['id'], device['version'], \
+                                               device['chip'], device['model'], device['manufacturer']))
+                i = i + 1
         else:
             logging.debug("Nenhum dispositivo cadastrado.")
     

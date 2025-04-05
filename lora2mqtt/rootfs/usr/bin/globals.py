@@ -1,4 +1,3 @@
-import devs
-
+client_mqtt = None
 devices = None
 

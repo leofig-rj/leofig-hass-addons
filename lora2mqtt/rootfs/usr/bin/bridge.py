@@ -15,7 +15,8 @@ import devs
 import funcs
 import globals
 
-from consts import MSG_CHECK_OK, ADDON_NAME, ADDON_SLUG, VERSION, UINQUE, OWNER, HA_PREFIX, LWT_MSG, LWT_QOS, LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID
+from consts import MSG_CHECK_OK, ADDON_NAME, ADDON_SLUG, VERSION, UINQUE, OWNER, HA_PREFIX, LWT_MSG, LWT_QOS, \
+    LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID
 
 class LoRa2MQTTClient(mqtt.Client):
     def __init__(self, lora, broker, port, usb_id, broker_user=None, broker_pass=None):
@@ -28,7 +29,7 @@ class LoRa2MQTTClient(mqtt.Client):
         self.addon_name = ADDON_NAME
         self.usb_id = usb_id
         self.ram_devs = globals.devices.get_dev_rams()
-        self.num_slaves = None
+        self.num_slaves = len(self.ram_devs)
         self.bridge_topic = None          # Definido em _setup_mqtt_topics
         self.bridge_set_topic = None      # Definido em _setup_mqtt_topics
         self.bridge_status_topic = None   # Definido em _setup_mqtt_topics
@@ -60,7 +61,6 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def _setup_mqtt_topics(self):
         """Configura os tópicos MQTT."""
-        self.num_slaves = len(self.ram_devs)
         self.bridge_topic = f"{self.addon_slug}/bridge"
         self.bridge_set_topic = f"{self.bridge_topic}/+/set"
         self.bridge_status_topic = f"{self.addon_slug}/bridge/status"
@@ -614,6 +614,9 @@ def main(broker, port, broker_user, broker_pass):
                                     usb_id, 
                                     broker_user, 
                                     broker_pass) 
+            
+            # Torno o cliente global
+            globals.client_mqtt = client
             
             lf_lora = lflora.LFLoraClass()
             lf_lora.set_my_addr(1)
