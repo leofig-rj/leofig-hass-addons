@@ -48,12 +48,17 @@ def on_mqtt_message(topic, payload):
         device = top[device_pos + 1:entity_pos]
         logging.debug(f"Dispositivo {device}")
 
-        index = devs.DeviceRAM.find_device_by_slug(device)
-        if index:
-            ram_dev = globals.devices.get_dev_rams()[index]
-            ram_dev.proc_command(entity, pay)
+        if device == 'bridge':
+            # Trata comandoa de Bridge
+            globals.client_mqtt.proc_command(entity, pay)
         else:
-            logging.debug(f"Não encontrado dispositivo {device}")
+            # Procura nos dispositivo
+            index = devs.DeviceRAM.find_device_by_slug(device)
+            if index:
+                ram_dev = globals.devices.get_dev_rams()[index]
+                ram_dev.proc_command(entity, pay)
+            else:
+                logging.debug(f"Não encontrado dispositivo {device}")
     else:
         logging.error(f"A msg recebida de MQTT não foi tratada: | {top} para {pay}")
 
