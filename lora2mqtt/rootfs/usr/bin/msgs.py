@@ -50,7 +50,7 @@ def on_mqtt_message(topic, payload):
 
         if device == 'bridge':
             # Trata comandoa de Bridge
-            globals.client_mqtt.proc_command(entity, pay)
+            bridge_proc_command(entity, pay)
         else:
             # Procura nos dispositivo
             index = devs.DeviceRAM.find_device_by_slug(device)
@@ -73,6 +73,11 @@ def on_lora_message(sMsg, index):
     ram_dev = globals.devices.get_dev_rams()[index]
     ram_dev.slaveObj.proc_rec_msg(sMsg)
     return
+
+def bridge_proc_command(entity, pay):
+    """Processa comando para Bridge recebidas do MQTT)."""
+    logging.debug(f"Processando comando para Bridge {entity}: {pay}")
+
 
 def lora_fifo_tenta_enviar(sMsg, index):
     global loraFiFoPrimeiro, loraFiFoUltimo, loraFiFoMsgBuffer, loraFiFoDestinoBuffer

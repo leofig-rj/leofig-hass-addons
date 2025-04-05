@@ -14,6 +14,7 @@ import msgs
 import devs
 import funcs
 import globals
+import broker
 
 from consts import MSG_CHECK_OK, ADDON_NAME, ADDON_SLUG, VERSION, UINQUE, OWNER, HA_PREFIX, LWT_MSG, LWT_QOS, \
     LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID, EC_DIAGNOSTIC, DEVICE_CLASS_RESTART
@@ -83,7 +84,7 @@ class LoRa2MQTTClient(mqtt.Client):
             self.masc_disc_topics.append(masc_disc_topic)
 
         # Logging para verificar se os tópicos foram configurados
-        logging.debug("MQTT topics successfully configured.")
+        logging.debug("Topicos MQTT configurado com sucesso.")
         logging.debug(f"Bridge Topic: {self.bridge_topic}")
         logging.debug(f"Telemetry Topics: {self.tele_topics}")
         logging.debug(f"Set Topics: {self.set_topics}")
@@ -92,10 +93,10 @@ class LoRa2MQTTClient(mqtt.Client):
     def send_message(self, topic, msg, retain=False):
         """Envia uma mensagem para um tópico MQTT."""
         try:
-            logging.debug(f'Sending message "{msg}" to topic "{topic}" with retain={retain}')
+            logging.debug(f'Enviando messagem "{msg}" to topic "{topic}" with retain={retain}')
             self.publish(topic, msg, qos=0, retain=retain)
         except Exception as e:
-            logging.error(f"Failed to send message: {e}")
+            logging.error(f"Falha em enviar mensagem: {e}")
 
     def mqtt_connection(self):
         """Tenta conectar ao broker MQTT."""
@@ -103,46 +104,42 @@ class LoRa2MQTTClient(mqtt.Client):
             logging.debug(f"Connecting to MQTT broker {self.broker_host}:{self.broker_port}")
             self.connect(self.broker_host, self.broker_port, MQTT_KEEP_ALIVE)
         except Exception as e:
-            logging.error(f"Failed to connect to MQTT broker: {e}")
+            logging.error(f"Falha em conectar ao MQTT broker: {e}")
 
     @classmethod
     def cb_on_message(cls, client, userdata, message):
         """Callback para mensagens recebidas."""
         try:
             payload = message.payload.decode("utf-8")
-            logging.debug(f"Message received on topic {message.topic}: {payload}")
+            logging.debug(f"Mensagem recebida no topico {message.topic}: {payload}")
             # Processa a mensagem aqui, se necessário
             client.handle_message(message)
         except Exception as e:
-            logging.error(f"Error processing received message: {e}")
+            logging.error(f"Erro processando msg recebida: {e}")
 
     @classmethod
     def cb_on_disconnect(cls, client, userdata, rc):
         """Callback para desconexões."""
         client.connected_flag = False
-        logging.info(f"Client {client._client_id.decode('utf-8')} disconnected!")
+        logging.info(f"Cliente {client._client_id.decode('utf-8')} desconectado!")
 
     @classmethod
     def cb_on_connect(cls, client, userdata, flags, rc):
         """Callback para conexões."""
         if rc == 0:
             client.connected_flag = True
-            logging.info(f"Client {client._client_id.decode('utf-8')} connected successfully!")
+            logging.info(f"Cliente {client._client_id.decode('utf-8')} conectado com sucesso!")
             # Publica mensagem de "online" ao conectar
             client.publish(client.lwt_topic, "online", qos=0, retain=True)
             client.on_mqtt_connect()
         else:
-            logging.error(f"Connection failed with return code {rc}")
+            logging.error(f"Falha ao conectar co código {rc}")
 
     def handle_message(self, message):
         """Processa mensagens recebidas do MQTT)."""
         logging.debug(f"Processando msg do topico {message.topic}: {message.payload.decode('utf-8')}")
         msgs.on_mqtt_message(message.topic, message.payload)
     
-    def proc_command(self, entity, pay):
-        """Processa comando para Bridge recebidas do MQTT)."""
-        logging.debug(f"Processando comando para Bridge {entity}: {pay}")
-
     def on_mqtt_connect(self):
         """Assina os tópicos MQTT necessários ao conectar."""
         try:
@@ -156,10 +153,10 @@ class LoRa2MQTTClient(mqtt.Client):
 
             # Atualiza status online
             self.online = False
-            logging.info("Successfully subscribed to all relevant topics.")
+            logging.info("Subscrevido com sucesso a todos os topicos relevantes.")
 
         except Exception as e:
-            logging.error(f"Error during MQTT topic subscription: {e}")
+            logging.error(f"Erro na subscrição de topico MQTT: {e}")
 
     def common_discovery(self):
         """
@@ -613,12 +610,12 @@ def main(broker, port, broker_user, broker_pass):
                     usb_id = serial_data[1:]
                     logging.debug(f"Recebeu do adaptador: {usb_id}")
 
-            client = LoRa2MQTTClient("/dev/ttyUSB0", 
-                                    broker, 
-                                    port, 
-                                    usb_id, 
-                                    broker_user, 
-                                    broker_pass) 
+            client = broker.LoRa2MQTTClient("/dev/ttyUSB0", 
+                                            broker, 
+                                            port, 
+                                            usb_id, 
+                                            broker_user, 
+                                            broker_pass) 
             
             # Torno o cliente global
             globals.client_mqtt = client
