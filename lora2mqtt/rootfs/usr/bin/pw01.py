@@ -1,8 +1,8 @@
 import logging
 
-from .. import msgs
-from .. import funcs
-from .. import globals
+import msgs
+import funcs
+import globals
 
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_CLASS_VOLTAGE, \
     DEVICE_CLASS_POWER, DEVICE_CLASS_CURRENT, DEVICE_CLASS_ENERGY, DEVICE_CLASS_RESTART, \
