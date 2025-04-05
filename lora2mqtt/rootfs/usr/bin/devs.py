@@ -13,14 +13,14 @@ class Model:
         self.model_name = model_name
         self.model_obj = model_obj
 
-    def pega_obj(self, name):
+    def pega_obj(name):
         try:
             # Importa dinamicamente o módulo correspondente em dispositivos
             module_name = f"models.{name}"
             module = importlib.import_module(module_name)
 
             # Obtém a classe com o nome esperado (DeviceXX)
-            class_name = f"Device{self.dev_name}"
+            class_name = f"Device{name}"
             obj = getattr(module, class_name)
 
             return obj
