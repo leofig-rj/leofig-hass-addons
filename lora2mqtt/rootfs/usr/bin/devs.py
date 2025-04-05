@@ -26,10 +26,10 @@ class Model:
             return obj
 
         except ModuleNotFoundError:
-            logging.error(f"Erro: O módulo '{self.dev_name}' não foi encontrado.")
+            logging.error(f"Erro: O módulo '{name}' não foi encontrado.")
             return None
         except AttributeError:
-            logging.error(f"Erro: A classe 'Dev{self.dev_name}' não foi encontrada no módulo.")
+            logging.error(f"Erro: A classe 'Dev{name}' não foi encontrada no módulo.")
             return None
         except Exception as e:
             logging.error(f"Erro inesperado: {e}") 
