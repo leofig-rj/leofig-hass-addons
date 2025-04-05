@@ -21,7 +21,10 @@ class Model:
 
             # Obtém a classe com o nome esperado (DeviceXX)
             class_name = f"Device{name}"
-            obj = getattr(module, class_name)
+            cls = getattr(module, class_name)
+
+            # Crio uma instância
+            obj = cls()
 
             return obj
 

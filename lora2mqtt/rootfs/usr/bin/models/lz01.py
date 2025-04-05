@@ -6,7 +6,7 @@ from msgs import get_loraUltimoDestinoCmd, lora_proximo_destino_cmd, lora_fifo_t
 
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH
 
-class DevicePW01:
+class DeviceLZ01:
     def __init__(self, mac=0, addr=0, index=0):
         self.model = "LZ01"
         self.mac = mac
