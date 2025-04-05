@@ -1,6 +1,6 @@
 import time
 
-import globals
+import bridge
 
 # Funções Auxiliares
 def last4(s):
@@ -49,7 +49,7 @@ def is_empty_str(string):
     return string == ""
 
 def get_index_from_addr(addr):
-    ram_devs = globals.devices.get_dev_rams()
+    ram_devs = bridge.devices.get_dev_rams()
     for i in range(len(ram_devs)):
         if ram_devs[i].slaveAddr == addr:
             return i

@@ -13,15 +13,20 @@ import lflora
 import msgs
 import devs
 import funcs
-import globals
 
 from broker import LoRa2MQTTClient
 
-from consts import MSG_CHECK_OK, ADDON_NAME, ADDON_SLUG, VERSION, UINQUE, OWNER, HA_PREFIX, LWT_MSG, LWT_QOS, \
-    LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID, EC_DIAGNOSTIC, DEVICE_CLASS_RESTART
+from consts import MSG_CHECK_OK, EC_DIAGNOSTIC, DEVICE_CLASS_RESTART
+
+# Variáveis Globais
+client_mqtt = None
+devices = None
+
 
 ########### MAIN ############
 def main(broker, port, broker_user, broker_pass):
+    global client_mqtt, devices
+
     usb_id = "Desconhecido"
 
     # Carrega as opções configuradas no addon
@@ -36,8 +41,8 @@ def main(broker, port, broker_user, broker_pass):
     logging.debug(f"data_path: {data_path}")
 
     # Inicializa variáveis globais
-    globals.devices = devs.DeviceManager()
-    globals.devices.load_devices_to_ram()
+    devices = devs.DeviceManager()
+    devices.load_devices_to_ram()
 
 
     # Verifica se a pasta existe
@@ -101,7 +106,7 @@ def main(broker, port, broker_user, broker_pass):
                                         broker_pass) 
             
             # Torno o cliente global
-            globals.client_mqtt = client
+            client_mqtt = client
             
             lf_lora = lflora.LFLoraClass()
             lf_lora.set_my_addr(1)
