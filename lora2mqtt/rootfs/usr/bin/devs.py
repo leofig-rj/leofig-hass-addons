@@ -4,7 +4,7 @@ import logging
 import json
 
 import funcs
-from .devices import pw01 as device_pw01
+import pw01
 
 class DeviceRamManager:
     def __init__(self):
@@ -63,7 +63,7 @@ class DeviceRAM:
         self.loraLastTimeOut = 0
         self.loraLastCom = False
         if self.slaveIndex == 0:
-            self.slaveObj = device_pw01.DevicePW01(self.slaveMac, self.slaveAddr, self.slaveIndex)
+            self.slaveObj = pw01.DevicePW01(self.slaveMac, self.slaveAddr, self.slaveIndex)
         logging.debug(f"Addr: {self.slaveAddr}, Name: {self.slaveName}, "
                       f"Mac: {self.slaveMac}, Vesion: {self.slaveVer}, "
                       f"Chip: {self.slaveChip}, Model: {self.slaveModel}, "
