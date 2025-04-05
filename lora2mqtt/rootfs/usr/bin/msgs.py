@@ -2,11 +2,12 @@ import time
 import logging
 
 import funcs
+import devs
 import globals
 
 #from .devices import pw01
 
-from consts import LORA_FIFO_LEN, LORA_TEMPO_REFRESH, LORA_NUM_TENTATIVAS_CMD
+from consts import LORA_FIFO_LEN, LORA_TEMPO_REFRESH, LORA_NUM_TENTATIVAS_CMD, LFLORA_MAX_PACKET_SIZE
 
 # Variáveis globais
 loraCommandTime = 0
@@ -22,7 +23,41 @@ loraFiFoMsgBuffer = [""] * LORA_FIFO_LEN
 loraFiFoDestinoBuffer = [0] * LORA_FIFO_LEN
 loraUltimoDestinoCmd = 0
 
-def trata_mensagem(sMsg, index):
+def on_mqtt_message(topic, payload):
+
+    # Converte o payload de byte para string
+    payload_char = payload.decode('utf-8')[:LFLORA_MAX_PACKET_SIZE]
+
+    top = topic
+    pay = payload_char
+
+    if "/set" in top:
+        set_pos = top.rfind("/set")
+        entity_pos = top.rfind("/", 0, set_pos)
+        if entity_pos == -1:
+            logging.error(f"Na msg recebida de MQTT não encontrado /set: | {top} para {pay}")
+            return
+        entity = top[entity_pos + 1:set_pos]
+        logging.debug(f"Set | {entity} para {pay}")
+        
+        # Para pegar o dispositivo que enviou o comando
+        device_pos = top.rfind("/", 0, entity_pos)
+        if device_pos == -1:
+            logging.error(f"Na msg recebida de MQTT não encontrado o dispositivo: | {top} para {pay}")
+            return
+        device = top[device_pos + 1:entity_pos]
+        logging.debug(f"Dispositivo {device}")
+
+        index = devs.DeviceRAM.find_device_by_slug(device)
+        if index:
+            ram_dev = globals.devices.get_dev_rams()[index]
+            ram_dev.proc_command(entity, pay)
+        else:
+            logging.debug(f"Não encontrado dispositivo {device}")
+    else:
+        logging.error(f"A msg recebida de MQTT não foi tratada: | {top} para {pay}")
+
+def on_lora_message(sMsg, index):
     global loraFiFoPrimeiro, loraFiFoUltimo
     logging.debug(f"Tamanho da MSG: {len(sMsg)} Índice {index}")
     

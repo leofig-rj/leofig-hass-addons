@@ -29,7 +29,7 @@ class LoRa2MQTTClient(mqtt.Client):
         self.addon_name = ADDON_NAME
         self.usb_id = usb_id
         self.ram_devs = globals.devices.get_dev_rams()
-        self.num_slaves = len(self.ram_devs)
+        self.num_slaves = None            # Definido em _setup_mqtt_topics
         self.bridge_topic = None          # Definido em _setup_mqtt_topics
         self.bridge_set_topic = None      # Definido em _setup_mqtt_topics
         self.bridge_status_topic = None   # Definido em _setup_mqtt_topics
@@ -61,6 +61,7 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def _setup_mqtt_topics(self):
         """Configura os tópicos MQTT."""
+        self.num_slaves = len(self.ram_devs)
         self.bridge_topic = f"{self.addon_slug}/bridge"
         self.bridge_set_topic = f"{self.bridge_topic}/+/set"
         self.bridge_status_topic = f"{self.addon_slug}/bridge/status"
@@ -135,7 +136,8 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def handle_message(self, message):
         """Processa mensagens específicas (substituir pela lógica necessária)."""
-        logging.debug(f"Processing message from topic {message.topic}: {message.payload.decode('utf-8')}")
+        logging.debug(f"Processando msg do topico {message.topic}: {message.payload.decode('utf-8')}")
+        msgs.on_mqtt_message(message.topic, message.payload)
 
 
     def on_mqtt_connect(self):
@@ -642,7 +644,7 @@ def main(broker, port, broker_user, broker_pass):
                         client.send_message("lora2mqtt/dados", data_to_publish)
                         # Tratando a msg conforme remetente
                         index = funcs.get_index_from_addr(de)
-                        msgs.trata_mensagem(msg, index)
+                        msgs.on_lora_message(msg, index)
 
     
                 if funcs.pega_delta_millis(msgs.loraCommandTime) > msgs.LORA_TEMPO_REFRESH:

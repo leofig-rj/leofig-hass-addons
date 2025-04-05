@@ -71,6 +71,14 @@ class DeviceRAM:
                       f"Mac: {self.slaveMac}, Vesion: {self.slaveVer}, "
                       f"Chip: {self.slaveChip}, Model: {self.slaveModel}, "
                       f"Manuf: {self.slaveMan}")
+        
+    def find_device_by_slug(self, slug_rec):
+        """Busca um dispositivo específico pelo slug."""
+        for i in range[len(self.slaveName)]:
+            slug = funcs.slugify(self.slaveName[i])
+            if slug == slug_rec:
+                return i
+        return None
 
 class DeviceManager:
     def __init__(self):
