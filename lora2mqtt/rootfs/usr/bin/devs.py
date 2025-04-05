@@ -1,11 +1,41 @@
 import os
 import yaml
 import logging
+import importlib
 
 import funcs
 import globals
 import pw01
 import lz01
+
+import importlib
+
+class Models:
+    def __init__(self, dev_name=""):
+        self.dev_name = dev_name
+        self.dev_obj = None
+        self.pega_obj()
+
+
+    def pega_obj(self):
+        try:
+            # Importa dinamicamente o módulo correspondente em dispositivos
+            module_name = f"models.{self.dev_name}"
+            module = importlib.import_module(module_name)
+
+            # Obtém a classe com o nome esperado (DevXX)
+            class_name = f"Dev{self.dev_name}"
+            cls = getattr(module, class_name)
+
+            # Cria uma instância da classe e a armazena em dev_obj
+            self.dev_obj = cls()
+
+        except ModuleNotFoundError:
+            print(f"Erro: O módulo '{self.dev_name}' não foi encontrado.")
+        except AttributeError:
+            print(f"Erro: A classe 'Dev{self.dev_name}' não foi encontrada no módulo.")
+        except Exception as e:
+            print(f"Erro inesperado: {e}")
 
 class DeviceRAM:
     def __init__(self, slaveIndex=0, slaveAddr=0, slaveName="", slaveMac="", slaveVer="", slaveChip="", slaveModel="", slaveMan=""):
