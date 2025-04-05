@@ -155,7 +155,7 @@ class DeviceManager:
                 if model:
                     obj = model.model_obj
                 self.dev_rams.append(DeviceRAM(i, device['address'], name, device['id'], device['version'], \
-                                               device['chip'], device['model'], device['manufacturer']), obj)
+                                               device['chip'], device['model'], device['manufacturer'], obj))
                 i = i + 1
         else:
             logging.debug("Nenhum dispositivo cadastrado.")
