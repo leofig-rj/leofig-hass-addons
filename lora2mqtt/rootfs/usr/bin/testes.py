@@ -96,3 +96,43 @@ if not os.path.exists(config_file_path):
         logging.error(f"Erro ao criar o arquivo: {e}")
         logging.error("Certifique-se de que o diretório possui permissões de gravação.")
 
+class DeviceRamManager:
+    def __init__(self):
+        # Inicializa a lista vazia
+        self.list = []
+
+    def add(self, item):
+        """Adiciona um novo item à lista."""
+        self.list.append(item)
+        print(f"Item '{item}' adicionado!")
+
+    def delete(self, item):
+        """Exclui um item específico da lista."""
+        if item in self.list:
+            self.list.remove(item)
+            print(f"Item '{item}' excluído!")
+        else:
+            print(f"Item '{item}' não encontrado na lista.")
+
+    def listar(self):
+        """Lista todos os itens da lista."""
+        if self.list:
+            print("Itens na lista:")
+            for i, item in enumerate(self.list, 1):
+                print(f"{i}. {item}")
+        else:
+            print("A lista está vazia.")
+
+    def buscar(self, item):
+        """Busca um item específico na lista."""
+        if item in self.list:
+            print(f"Item '{item}' encontrado!")
+            return item
+        else:
+            print(f"Item '{item}' não encontrado.")
+            return None
+    def clear(self):
+        """Remove todos os itens da lista."""
+        self.list.clear()
+        print("A lista foi limpa com sucesso!")
+
