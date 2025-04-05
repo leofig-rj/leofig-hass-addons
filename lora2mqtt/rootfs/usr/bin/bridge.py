@@ -16,7 +16,7 @@ import funcs
 import globals
 
 from consts import MSG_CHECK_OK, ADDON_NAME, ADDON_SLUG, VERSION, UINQUE, OWNER, HA_PREFIX, LWT_MSG, LWT_QOS, \
-    LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID
+    LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID, EC_DIAGNOSTIC, DEVICE_CLASS_RESTART
 
 class LoRa2MQTTClient(mqtt.Client):
     def __init__(self, lora, broker, port, usb_id, broker_user=None, broker_pass=None):
@@ -626,6 +626,7 @@ def main(broker, port, broker_user, broker_pass):
             client.mqtt_connection()
             client.loop_start()  # Inicia o loop MQTT em uma thread separada
             client.send_connectivity_discovery()
+            client.send_bridge_button_discovery("Reset ESP", EC_DIAGNOSTIC, DEVICE_CLASS_RESTART)
 
             contador = 0
 
