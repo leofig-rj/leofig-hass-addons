@@ -3,7 +3,7 @@ import logging
 
 import funcs
 import devs
-import bridge
+import globals
 
 #from .devices import pw01
 
@@ -55,7 +55,7 @@ def on_mqtt_message(topic, payload):
             # Procura nos dispositivo
             index = devs.DeviceRAM.find_device_by_slug(device)
             if index:
-                ram_dev = bridge.devices.get_dev_rams()[index]
+                ram_dev = globals.g_devices.get_dev_rams()[index]
                 ram_dev.proc_command(entity, pay)
             else:
                 logging.debug(f"Não encontrado dispositivo {device}")
@@ -70,7 +70,7 @@ def on_lora_message(sMsg, index):
         logging.info("FiFo não está vazia!")
         return
     
-    ram_dev = bridge.devices.get_dev_rams()[index]
+    ram_dev = globals.g_devices.get_dev_rams()[index]
     ram_dev.slaveObj.proc_rec_msg(sMsg)
     return
 
@@ -96,7 +96,7 @@ def lora_fifo_tenta_enviar(sMsg, index):
     loraFiFoUltimo = aux
 
 def lora_envia_mensagem_index(sMsg, index):
-    lora_envia_mensagem(sMsg, bridge.devices.ram_devs()[index]["slaveAddr"])
+    lora_envia_mensagem(sMsg, globals.g_devices.ram_devs()[index]["slaveAddr"])
 
 
 def lora_envia_mensagem(sMsg, para):
@@ -139,7 +139,7 @@ def lora_fifo_verifica():
 def lora_proximo_destino_cmd():
     global loraUltimoDestinoCmd
 
-    loraUltimoDestinoCmd = (loraUltimoDestinoCmd + 1) % len(bridge.devices.get_dev_rams())
+    loraUltimoDestinoCmd = (loraUltimoDestinoCmd + 1) % len(globals.g_devices.get_dev_rams())
 
 def get_loraUltimoDestinoCmd():
     global loraUltimoDestinoCmd

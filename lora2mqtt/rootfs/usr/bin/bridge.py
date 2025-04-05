@@ -1,31 +1,22 @@
 import serial
-import paho.mqtt.client as mqtt
 import logging
 import json
-import os
 import time
 import getopt
 import sys
-
-import yaml
 
 import lflora
 import msgs
 import devs
 import funcs
+import globals
 
 from broker import LoRa2MQTTClient
 
 from consts import MSG_CHECK_OK, EC_DIAGNOSTIC, DEVICE_CLASS_RESTART
 
-# Variáveis Globais
-client_mqtt = None
-devices = None
-
-
 ########### MAIN ############
 def main(broker, port, broker_user, broker_pass):
-    global client_mqtt, devices
 
     usb_id = "Desconhecido"
 
@@ -41,37 +32,9 @@ def main(broker, port, broker_user, broker_pass):
     logging.debug(f"data_path: {data_path}")
 
     # Inicializa variáveis globais
-    devices = devs.DeviceManager()
-    devices.load_devices_to_ram()
-
-
-    # Verifica se a pasta existe
-    try:
-        if os.path.exists(data_path) and os.path.isdir(data_path):
-            logging.debug(f"Pasta encontrada: {data_path}")
-            # Listar arquivos, por exemplo:
-            arquivos = os.listdir(data_path)
-            logging.debug(f"Arquivos na pasta: {arquivos}")
-            arquivos = [arquivo for arquivo in os.listdir(data_path) if arquivo.endswith(".py")]
-            logging.debug(f"Arquivos Python encontrados: {arquivos}")
-        else:
-            logging.error(f"O caminho não é uma pasta válida: {data_path}")
-    except PermissionError:
-        logging.error("Erro: Permissão negada para acessar a pasta.")
-
-
-
-
-    config_file_path = "/config/lora2mqtt/teste.yaml"
-
-    # Verifica se o arquivo existe, caso contrário, cria um arquivo vazio
-    if not os.path.exists(config_file_path):
-        try:
-            with open(config_file_path, "w") as arquivo_yaml:
-                yaml.dump({"devices": []}, arquivo_yaml)
-        except OSError as e:
-            logging.error(f"Erro ao criar o arquivo: {e}")
-            logging.error("Certifique-se de que o diretório possui permissões de gravação.")
+    globals.g_data_path = data_path
+    globals.g_devices = devs.DeviceManager()
+    globals.g_devices.load_devices_to_ram()
 
     try:
         # Configurando conexão serial
@@ -106,7 +69,7 @@ def main(broker, port, broker_user, broker_pass):
                                         broker_pass) 
             
             # Torno o cliente global
-            client_mqtt = client
+            globals.g_cli_mqtt = client
             
             lf_lora = lflora.LFLoraClass()
             lf_lora.set_my_addr(1)

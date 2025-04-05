@@ -2,7 +2,7 @@ import logging
 
 import msgs
 import funcs
-import bridge
+import globals
 
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_CLASS_VOLTAGE, \
     DEVICE_CLASS_POWER, DEVICE_CLASS_CURRENT, DEVICE_CLASS_ENERGY, DEVICE_CLASS_RESTART, \
@@ -28,7 +28,7 @@ class DevicePW01:
 
     def proc_rec_msg(self, sMsg):
 
-        ram_dev = bridge.devices.get_dev_rams()[self.index]
+        ram_dev = globals.g_devices.get_dev_rams()[self.index]
         
         if len(sMsg) != 33:
             logging.info(f"PW01 - Erro no tamanho da mensagem! {len(sMsg)}")
@@ -72,7 +72,7 @@ class DevicePW01:
  
     def proc_publish(self):
 
-        client = bridge.client_mqtt
+        client = globals.g_cli_mqtt
 
         for i in range(5):          
             if self.entityValNum[i] != self.entityLastValNum[i]:
@@ -82,7 +82,7 @@ class DevicePW01:
 
     def proc_discovery(self):
 
-        client = bridge.client_mqtt
+        client = globals.g_cli_mqtt
 
         if client.sendAuxConnectivityDiscovery(self.index) and \
             client.sendTeleSensorDiscovery(self.index, "RSSI", EC_DIAGNOSTIC, "{{ value_json.rssi }}", DEVICE_CLASS_SIGNAL_STRENGTH, "") and \

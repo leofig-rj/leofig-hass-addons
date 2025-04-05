@@ -1,9 +1,9 @@
 import os
 import yaml
 import logging
-import json
 
 import funcs
+import globals
 import pw01
 import lz01
 
@@ -86,12 +86,8 @@ class DeviceManager:
         self.config_file_path = None
         self.dev_rams = []
 
-        # Carrega as opções configuradas no addon
-        with open("/data/options.json") as config_file:
-            options = json.load(config_file)
-
         # Acessa o caminho configurado
-        self.data_path = options.get("data_path", "/config/lora2mqtt")
+        self.data_path = globals.g_data_path
         self.config_file_path = f"{self.data_path}/config.yaml"
 
         # Verifica se o arquivo existe, caso contrário, cria um arquivo vazio
