@@ -5,40 +5,39 @@ import importlib
 
 import funcs
 import globals
-import pw01
-import lz01
+#import pw01
+#import lz01
 
-import importlib
+class Model:
+    def __init__(self, model_name="", model_obj=None):
+        self.model_name = model_name
+        self.model_obj = model_obj
 
-class Models:
-    def __init__(self, dev_name=""):
-        self.dev_name = dev_name
-        self.dev_obj = None
-        self.pega_obj()
-
-
-    def pega_obj(self):
+    def pega_obj(self, name):
         try:
             # Importa dinamicamente o módulo correspondente em dispositivos
-            module_name = f"models.{self.dev_name}"
+            module_name = f"models.{name}"
             module = importlib.import_module(module_name)
 
-            # Obtém a classe com o nome esperado (DevXX)
-            class_name = f"Dev{self.dev_name}"
-            cls = getattr(module, class_name)
+            # Obtém a classe com o nome esperado (DeviceXX)
+            class_name = f"Device{self.dev_name}"
+            obj = getattr(module, class_name)
 
-            # Cria uma instância da classe e a armazena em dev_obj
-            self.dev_obj = cls()
+            return obj
 
         except ModuleNotFoundError:
-            print(f"Erro: O módulo '{self.dev_name}' não foi encontrado.")
+            logging.error(f"Erro: O módulo '{self.dev_name}' não foi encontrado.")
+            return None
         except AttributeError:
-            print(f"Erro: A classe 'Dev{self.dev_name}' não foi encontrada no módulo.")
+            logging.error(f"Erro: A classe 'Dev{self.dev_name}' não foi encontrada no módulo.")
+            return None
         except Exception as e:
-            print(f"Erro inesperado: {e}")
+            logging.error(f"Erro inesperado: {e}") 
+            return None
 
 class DeviceRAM:
-    def __init__(self, slaveIndex=0, slaveAddr=0, slaveName="", slaveMac="", slaveVer="", slaveChip="", slaveModel="", slaveMan=""):
+    def __init__(self, slaveIndex=0, slaveAddr=0, slaveName="", slaveMac="", slaveVer="", slaveChip="", slaveModel="", \
+                 slaveMan="", slaveObj=None):
         self.slaveIndex = slaveIndex
         self.slaveAddr = slaveAddr
         self.slaveName = slaveName
@@ -47,20 +46,20 @@ class DeviceRAM:
         self.slaveChip = slaveChip
         self.slaveModel = slaveModel
         self.slaveMan = slaveMan
-        self.slaveObj = None
+        self.slaveObj = slaveObj
         self.loraTimeOut = 0
         self.loraCom = False
         self.loraRSSI = 0
         self.loraLastTimeOut = 0
         self.loraLastCom = False
-        if self.slaveIndex == 0:
-            self.slaveObj = pw01.DevicePW01(self.slaveMac, self.slaveAddr, self.slaveIndex)
-        if self.slaveIndex == 1:
-            self.slaveObj = lz01.DevicePW01(self.slaveMac, self.slaveAddr, self.slaveIndex)
+#        if self.slaveIndex == 0:
+#            self.slaveObj = pw01.DevicePW01(self.slaveMac, self.slaveAddr, self.slaveIndex)
+#        if self.slaveIndex == 1:
+#            self.slaveObj = lz01.DevicePW01(self.slaveMac, self.slaveAddr, self.slaveIndex)
         logging.debug(f"Addr: {self.slaveAddr}, Name: {self.slaveName}, "
                       f"Mac: {self.slaveMac}, Vesion: {self.slaveVer}, "
                       f"Chip: {self.slaveChip}, Model: {self.slaveModel}, "
-                      f"Manuf: {self.slaveMan}")
+                      f"Manuf: {self.slaveMan}, Obj: {self.slaveObj}")
         
     def find_device_by_slug(self, slug_rec):
         """Busca um dispositivo específico pelo slug."""
@@ -75,6 +74,7 @@ class DeviceManager:
         self.data_path = None
         self.config_file_path = None
         self.dev_rams = []
+        self.models = []
 
         # Acessa o caminho configurado
         self.data_path = globals.g_data_path
@@ -145,14 +145,34 @@ class DeviceManager:
         i = 0
         if devices:
             for device in devices:
+                # Vejo se friendly_name foi definido
                 name = device['friendly_name']
                 if funcs.is_empty_str(name):
                     name = device['id']
+                # Vejo se o modelo existe no sistema
+                model = self.get_model(device['model'])
+                obj = None
+                if model:
+                    obj = model.model_obj
                 self.dev_rams.append(DeviceRAM(i, device['address'], name, device['id'], device['version'], \
-                                               device['chip'], device['model'], device['manufacturer']))
+                                               device['chip'], device['model'], device['manufacturer']), obj)
                 i = i + 1
         else:
             logging.debug("Nenhum dispositivo cadastrado.")
     
     def get_dev_rams(self):
         return self.dev_rams
+
+    def get_model(self, modelo):
+        # Procuro o modelo em self.models
+        for i in range(len(self.models)):
+            if self.models[i].model_name == modelo:
+                return self.models[i]
+        # Não achou, tento criar
+        obj = Model.pega_obj(modelo)
+        if obj:
+            model = Model(modelo, obj)
+            self.models.append(model)
+            return model
+
+        return None
