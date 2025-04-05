@@ -44,13 +44,16 @@ class DevicePW01:
             logging.info(f"P1 {partes[1]} P2 {partes[2]} P3 {partes[3]} P4 {partes[4]} P5 {partes[5]} ")
             return
         
-        self.entityVal[0]  = int(partes[1])
-        self.entityVal[1]  = int(partes[2])
-        self.entityVal[2]  = int(partes[3])
-        self.entityVal[3]  = int(partes[4])
-        self.entityVal[4]  = int(partes[5])
+        self.entityValNum[0]  = int(partes[1])
+        self.entityValNum[1]  = int(partes[2])
+        self.entityValNum[2]  = int(partes[3])
+        self.entityValNum[3]  = int(partes[4])
+        self.entityValNum[4]  = int(partes[5])
 
-        logging.debug(f"PW01 - Tensão: {self.entityVal[0]} Potência: {self.entityVal[1]} Corrente: {self.entityVal[2]} Energia: {self.entityVal[3]} EnergiaRam: {self.entityVal[4]}")
+        logging.debug(
+            f"PW01 - Tensão: {self.entityValNum[0]} Potência: {self.entityValNum[1]} "
+            f"Corrente: {self.entityValNum[2]} Energia: {self.entityValNum[3]} "
+            f"EnergiaRam: {self.entityValNum[4]}")
         
         ram_dev.loraTimeOut = funcs.millis()
         ram_dev.loraCom = True
