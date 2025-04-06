@@ -8,12 +8,13 @@ from msgs import lora_fifo_tenta_enviar
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH
 
 class DeviceLZ01:
-    def __init__(self):
+    def __init__(self, addr=0):
         self.model = "LZ01"
         self.chip = "ESP32"
         self.ver = "1.0.0"
         self.man = "Leonardo Figueiro"
         self.desc = "Lampada"
+        self.entityAddr = addr
         self.entityNames = ["Lampada 1", "Input 1"]
         self.entitySlugs = []
         self.entityValNum = []
@@ -23,12 +24,14 @@ class DeviceLZ01:
         self._setup_lists()
 
     def _setup_lists(self):
+        logging.debug(f"LZ01 - Preenchendo listas! {len(self.entityNames)}")
         for i in range[len(self.entityNames)]:
             self.entitySlugs.append(slugify(self.entityNames[i]))
             self.entityValNum.append(-1)
             self.entityLastValNum.append(-1)
             self.entityValStr.append("NULL")
             self.entityLastValStr.append("NULL")
+        logging.debug(f"LZ01 - Resultado listas! {self.entitySlugs}")
 
     def proc_rec_msg(self, sMsg):
 
