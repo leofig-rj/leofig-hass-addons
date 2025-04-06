@@ -43,9 +43,6 @@ def loop_serial():
         logging.debug(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
         # Trato a mensagem
         if result == MSG_CHECK_OK:
-            # Publicando a msg limpa
-#            data_to_publish = f"Dado recebido: {msg}"
-#            client.send_message("lora2mqtt/dados", data_to_publish)
             # Tratando a msg conforme remetente
             index = funcs.get_index_from_addr(de)
             on_lora_message(msg, index)
@@ -59,7 +56,6 @@ def loop_mqtt():
             mqtt_send_discovery_entities()
 
     # Em Python, `yield` pode ser substituído por uma pausa como `time.sleep`
-    import time
     time.sleep(0.01)
 
     if online:
@@ -103,7 +99,7 @@ def mqtt_send_online():
     if globals.g_cli_mqtt.pub(globals.g_cli_mqtt.bridge_status_topic, 0, True, "online"):
         online = True
     else:
-        print("Erro enviando status=online")
+        logging.debug("Erro enviando status=online")
     return online
 
 def mqtt_send_discovery_bridge():

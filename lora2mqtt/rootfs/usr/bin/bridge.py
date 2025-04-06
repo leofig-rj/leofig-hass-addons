@@ -86,37 +86,15 @@ def main(broker, port, broker_user, broker_pass):
             # Inicio a comunicação MQTT
             client.mqtt_connection()
             client.loop_start()  # Inicia o loop MQTT em uma thread separada
-
-            contador = 0
-
+            
             # Loop Geral
             while True:
-                # Verifico se tem dado na serial
-                if ser.in_waiting > 0:
-                    # Pegando o dado e deixando como string
-                    serial_data = ser.readline().decode('utf-8').strip()
-                    # Tratando o dado
-                    result, de, para, msg = lf_lora.lora_check_msg_ini(serial_data)
-                    logging.debug(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
-                    # Trato a mensagem
-                    if result == MSG_CHECK_OK:
-                        # Publicando a msg limpa
-                        data_to_publish = f"Dado recebido: {msg}"
-                        client.send_message("lora2mqtt/dados", data_to_publish)
-                        # Tratando a msg conforme remetente
-                        index = funcs.get_index_from_addr(de)
-                        msgs.on_lora_message(msg, index)
-
-    
-                if funcs.pega_delta_millis(msgs.loraCommandTime) > msgs.LORA_TEMPO_REFRESH:
-                    msgs.loraCommandTime = int(time.time() * 1000)
-
-                    # Envio comando de solicitação de estado
-                    serial_data = lf_lora.lora_add_header("000", contador + 2)
-                    ser.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
-                    logging.debug(f"Enviado {serial_data}")
-
-                    contador = (contador + 1) % 2
+                # Loop Serial
+                msgs.loop_serial()
+                # Loop MQTT
+                msgs.loop_mqtt()
+                # Loop LoRa
+                msgs.loop_lora()
 
     except Exception as e:
         logging.error(f"Erro: {e}")
