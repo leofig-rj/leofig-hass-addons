@@ -12,9 +12,6 @@ import devs
 import funcs
 import globals
 
-# Para Main
-from consts import MSG_CHECK_OK, EC_DIAGNOSTIC, DEVICE_CLASS_RESTART
-
 # Para MQTT
 from consts import ADDON_NAME, ADDON_SLUG, VERSION, UINQUE, OWNER, HA_PREFIX, LWT_MSG, LWT_QOS, \
     LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID
@@ -86,7 +83,7 @@ def main(broker, port, broker_user, broker_pass):
             # Inicio a comunicação MQTT
             client.mqtt_connection()
             client.loop_start()  # Inicia o loop MQTT em uma thread separada
-            
+
             # Loop Geral
             while True:
                 # Loop Serial

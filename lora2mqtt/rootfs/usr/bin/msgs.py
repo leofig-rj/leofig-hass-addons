@@ -123,6 +123,7 @@ def mqtt_send_discovery_entities():
         if ram_devs[i].loraCom:
             # Publica discovery das entidades do dispositivo (modelo)
             ram_devs[i].slaveObj.proc_discovery()
+            logging.debug(f"Discovery Entity {i}")
 
 def send_com_lora():
     # Pego oo Dispositivos na RAM

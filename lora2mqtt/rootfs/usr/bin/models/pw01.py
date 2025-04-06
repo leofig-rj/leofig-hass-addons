@@ -85,8 +85,10 @@ class DevicePW01:
             client.sendSensorDiscovery(self.index, self.entityNames[4], EC_NONE, DEVICE_CLASS_ENERGY, "Wh", STATE_CLASS_TOTAL_INCREASING, True) and \
             client.sendButtonDiscovery(self.index, self.entityNames[5], EC_NONE, DEVICE_CLASS_UPDATE) and \
             client.sendButtonDiscovery(self.index, self.entityNames[6], EC_NONE, DEVICE_CLASS_RESTART):
+            logging.debug("Discovery Entity PW01 OK")
             return True
         else:
+            logging.debug("Discovery Entity PW01 NOT OK")
             return False
 
 

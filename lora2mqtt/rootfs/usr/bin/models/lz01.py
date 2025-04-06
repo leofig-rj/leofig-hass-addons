@@ -73,6 +73,8 @@ class DeviceLZ01:
             client.sendTeleSensorDiscovery(self.index, "RSSI", EC_DIAGNOSTIC, "{{ value_json.rssi }}", DEVICE_CLASS_SIGNAL_STRENGTH, "") and \
             client.sendLightSwitchDiscovery(self.index, self.entityNames[0], EC_NONE) and \
             client.sendBinarySensorDiscovery(self.index, self.entityNames[1], EC_NONE, EC_NONE):
+            logging.debug("Discovery Entity LZ01 OK")
             return True
         else:
+            logging.debug("Discovery Entity LZ01 NOT OK")
             return False
