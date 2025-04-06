@@ -266,7 +266,7 @@ def lora_envia_mensagem_index(sMsg, index):
     # Pego oo Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
 
-    lora_envia_mensagem(sMsg, ram_devs()[index]["slaveAddr"])
+    lora_envia_mensagem(sMsg, ram_devs[index].slaveAddr)
 
 
 def lora_envia_mensagem(sMsg, para):
