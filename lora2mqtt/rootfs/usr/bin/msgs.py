@@ -238,7 +238,10 @@ def lora_fifo_tenta_enviar(sMsg, index):
     loraFiFoUltimo = aux
 
 def lora_envia_mensagem_index(sMsg, index):
-    lora_envia_mensagem(sMsg, globals.g_devices.ram_devs()[index]["slaveAddr"])
+    # Pego oo Dispositivos na RAM
+    ram_devs = globals.g_devices.get_dev_rams()
+
+    lora_envia_mensagem(sMsg, ram_devs()[index]["slaveAddr"])
 
 
 def lora_envia_mensagem(sMsg, para):
