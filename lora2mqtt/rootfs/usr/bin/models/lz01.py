@@ -64,7 +64,7 @@ class DeviceLZ01:
         for i in range(2):
             if self.entityLastValStr[i] != self.entityValStr[i]:
                 self.entityLastValStr[i] = self.entityValStr[i]
-                logging.debug("PW01 - entityValStr {i} {self.entityValStr[i]}")
+                logging.debug(f"PW01 - entityValStr {i} {self.entityValStr[i]}")
                 client.pub(f"{client.work_topics[self.index]}/{self.entitySlugs[i]}", 0, True, self.entityValStr[i])
 
     def proc_discovery(self):

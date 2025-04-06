@@ -70,9 +70,9 @@ class DevicePW01:
         for i in range(5):
             if self.entityLastValNum[i] != self.entityValNum[i]:
                 self.entityLastValNum[i] = self.entityValNum[i]
-                logging.debug("PW01 - entityValNum {i} {self.entityValNum[i]}")
+                logging.debug(f"PW01 - entityValNum {i} {self.entityValNum[i]}")
                 aAux = "{:.1f}".format(self.entityValNum[i]/10.0)
-                logging.debug("PW01 - entityValNum FORMAT {i} {aAux}")
+                logging.debug(f"PW01 - entityValNum FORMAT {i} {aAux}")
                 client.pub(f"{client.work_topics[self.index]}/{self.entitySlugs[i]}", 0, True, aAux)
 
     def proc_discovery(self):

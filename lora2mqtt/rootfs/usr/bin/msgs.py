@@ -46,12 +46,12 @@ def loop_serial():
         if result == MSG_CHECK_OK:
             # Tratando a msg conforme remetente
             index = funcs.get_index_from_addr(de)
+            logging.debug(f"Ïndice do dispositivo: {index}")
             on_lora_message(msg, index)
 
 def loop_mqtt():
     global online
     
-    logging.debug("Loop MQTT")
     if not online:
         if mqtt_send_online():
             logging.debug("Discovery")
@@ -62,7 +62,6 @@ def loop_mqtt():
     time.sleep(0.01)
 
     if online:
-        logging.debug("Telemetry")
         mqtt_send_telemetry()
         mqtt_send_com_lora()
 
@@ -70,12 +69,10 @@ def loop_mqtt():
     time.sleep(0.01)
 
     if online:
-        logging.debug("Entities")
         mqtt_send_entities()
 
 def loop_lora():
 
-    logging.debug("Loop LoRa")
     ram_devs = globals.g_devices.get_dev_rams()
 
     # Verifico Time out dos dispositivos para informar desconexão
@@ -85,7 +82,6 @@ def loop_lora():
             ram_devs[i].loraTimeOut = funcs.millis()
             ram_devs[i].loraCom = False
     
-    logging.debug("Loop LoRa - 1")
     # Verifico se a última mensagem retornou...
     if not lora_ultimo_cmd_retornou():
         return
@@ -122,7 +118,6 @@ def mqtt_send_discovery_entities():
     # Pego oo Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
 
-    logging.debug("Discovery Entities")
     for i in range(len(ram_devs)):
         # Publica discovery das entidades do dispositivo (modelo)
         ram_devs[i].slaveObj.proc_discovery()
@@ -132,7 +127,6 @@ def mqtt_send_com_lora():
     # Pego oo Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
 
-    logging.debug("Com LoRa")
     for i in range(len(ram_devs)):
         if ram_devs[i].loraLastCom != ram_devs[i].loraCom:
             ram_devs[i].loraLastCom = ram_devs[i].loraCom
@@ -145,7 +139,6 @@ def mqtt_send_com_lora():
 def mqtt_send_telemetry():
     global lastTeleMillis
 
-    logging.debug("Telemetry")
     tempo_loop = funcs.pega_delta_millis(lastTeleMillis)
 
     if tempo_loop < REFRESH_TELEMETRY:
@@ -167,7 +160,6 @@ def mqtt_send_entities():
     # Pego oo Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
 
-    logging.debug("Entities")
     for i in range(len(ram_devs)):
         if ram_devs[i].loraCom:
             logging.debug(f"Entities {i}")
@@ -243,24 +235,18 @@ def bridge_proc_command(entity, pay):
 def lora_fifo_tenta_enviar(sMsg, index):
     global loraFiFoPrimeiro, loraFiFoUltimo, loraFiFoMsgBuffer, loraFiFoDestinoBuffer
     
-    logging.debug("lora_fifo_tenta_enviar- 1")
     if loraFiFoPrimeiro == loraFiFoUltimo:
         if lora_ultimo_cmd_retornou():
-            logging.debug("lora_fifo_tenta_enviar- 2")
             lora_envia_mensagem_index(sMsg, index)
-            logging.debug("lora_fifo_tenta_enviar- 3")
             return
     
     aux = (loraFiFoUltimo + 1) % LORA_FIFO_LEN
     if aux == loraFiFoPrimeiro:
-        logging.debug("lora_fifo_tenta_enviar- 4")
         return
     
-    logging.debug("lora_fifo_tenta_enviar- 5")
     loraFiFoMsgBuffer[loraFiFoUltimo] = sMsg
     loraFiFoDestinoBuffer[loraFiFoUltimo] = index
     loraFiFoUltimo = aux
-    logging.debug("lora_fifo_tenta_enviar- 6")
 
 def lora_envia_mensagem_index(sMsg, index):
     # Pego oo Dispositivos na RAM
