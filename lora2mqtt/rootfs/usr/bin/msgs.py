@@ -25,6 +25,7 @@ lastMsgSent = ""
 lastIdRec = 0
 lastIdSent = 0
 tentativasCmd = 0
+lastTeleMillis = 0
 
 
 loraFiFoPrimeiro = 0
@@ -128,13 +129,13 @@ def send_com_lora():
             globals.g_cli_mqtt.pub(f"{globals.g_cli_mqtt.work_topic[i]}/com_lora", 0, True, s_com_lora)
 
 def mqtt_send_telemetry():
-    global last_tele_millis  # Presumo que seja uma variável global
-    tempo_loop = funcs.pega_delta_millis(last_tele_millis)
+    global lastTeleMillis
+    tempo_loop = funcs.pega_delta_millis(lastTeleMillis)
 
     if tempo_loop < REFRESH_TELEMETRY:
         return
 
-    last_tele_millis = funcs.millis()
+    lastTeleMillis = funcs.millis()
 
     # Pego oo Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
