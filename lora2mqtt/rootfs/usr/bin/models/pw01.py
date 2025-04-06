@@ -77,15 +77,15 @@ class DevicePW01:
 
         client = globals.g_cli_mqtt
 
-        if client.sendAuxConnectivityDiscovery(self.index) and \
-            client.sendTeleSensorDiscovery(self.index, "RSSI", EC_DIAGNOSTIC, "{{ value_json.rssi }}", DEVICE_CLASS_SIGNAL_STRENGTH, "") and \
-            client.sendSensorDiscovery(self.index, self.entityNames[0], EC_NONE, DEVICE_CLASS_VOLTAGE, "V", STATE_CLASS_MEASUREMENT, True) and \
-            client.sendSensorDiscovery(self.index, self.entityNames[1], EC_NONE, DEVICE_CLASS_POWER, "W", STATE_CLASS_MEASUREMENT, True) and \
-            client.sendSensorDiscovery(self.index, self.entityNames[2], EC_NONE, DEVICE_CLASS_CURRENT, "A", STATE_CLASS_MEASUREMENT, True) and \
-            client.sendSensorDiscovery(self.index, self.entityNames[3], EC_NONE, DEVICE_CLASS_ENERGY, "Wh", STATE_CLASS_TOTAL_INCREASING, True) and \
-            client.sendSensorDiscovery(self.index, self.entityNames[4], EC_NONE, DEVICE_CLASS_ENERGY, "Wh", STATE_CLASS_TOTAL_INCREASING, True) and \
-            client.sendButtonDiscovery(self.index, self.entityNames[5], EC_NONE, DEVICE_CLASS_UPDATE) and \
-            client.sendButtonDiscovery(self.index, self.entityNames[6], EC_NONE, DEVICE_CLASS_RESTART):
+        if client.send_aux_connectivity_discovery(self.index) and \
+            client.send_tele_sensor_discovery(self.index, "RSSI", EC_DIAGNOSTIC, "{{ value_json.rssi }}", DEVICE_CLASS_SIGNAL_STRENGTH, "") and \
+            client.send_sensor_discovery(self.index, self.entityNames[0], EC_NONE, DEVICE_CLASS_VOLTAGE, "V", STATE_CLASS_MEASUREMENT, True) and \
+            client.send_sensor_discovery(self.index, self.entityNames[1], EC_NONE, DEVICE_CLASS_POWER, "W", STATE_CLASS_MEASUREMENT, True) and \
+            client.send_sensor_discovery(self.index, self.entityNames[2], EC_NONE, DEVICE_CLASS_CURRENT, "A", STATE_CLASS_MEASUREMENT, True) and \
+            client.send_sensor_discovery(self.index, self.entityNames[3], EC_NONE, DEVICE_CLASS_ENERGY, "Wh", STATE_CLASS_TOTAL_INCREASING, True) and \
+            client.send_sensor_discovery(self.index, self.entityNames[4], EC_NONE, DEVICE_CLASS_ENERGY, "Wh", STATE_CLASS_TOTAL_INCREASING, True) and \
+            client.send_button_discovery(self.index, self.entityNames[5], EC_NONE, DEVICE_CLASS_UPDATE) and \
+            client.send_button_discovery(self.index, self.entityNames[6], EC_NONE, DEVICE_CLASS_RESTART):
             logging.debug("Discovery Entity PW01 OK")
             return True
         else:

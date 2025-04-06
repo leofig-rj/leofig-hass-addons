@@ -70,10 +70,10 @@ class DeviceLZ01:
 
         client = globals.g_cli_mqtt
 
-        if client.sendAuxConnectivityDiscovery(self.index) and \
-            client.sendTeleSensorDiscovery(self.index, "RSSI", EC_DIAGNOSTIC, "{{ value_json.rssi }}", DEVICE_CLASS_SIGNAL_STRENGTH, "") and \
-            client.sendLightSwitchDiscovery(self.index, self.entityNames[0], EC_NONE) and \
-            client.sendBinarySensorDiscovery(self.index, self.entityNames[1], EC_NONE, EC_NONE):
+        if client.send_aux_connectivity_discovery(self.index) and \
+            client.send_tele_sensor_discovery(self.index, "RSSI", EC_DIAGNOSTIC, "{{ value_json.rssi }}", DEVICE_CLASS_SIGNAL_STRENGTH, "") and \
+            client.send_light_switch_discovery(self.index, self.entityNames[0], EC_NONE) and \
+            client.send_binary_sensor_discovery(self.index, self.entityNames[1], EC_NONE, EC_NONE):
             logging.debug("Discovery Entity LZ01 OK")
             return True
         else:
