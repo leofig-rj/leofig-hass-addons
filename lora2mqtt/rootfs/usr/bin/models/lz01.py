@@ -1,6 +1,7 @@
 import logging
 
-from globals import g_cli_mqtt
+import globals
+
 from funcs import char_to_state, char_to_on_off
 from msgs import lora_fifo_tenta_enviar
 
@@ -67,7 +68,7 @@ class DeviceLZ01:
 
     def proc_discovery(self):
 
-        client = g_cli_mqtt
+        client = globals.g_cli_mqtt
 
         if client.sendAuxConnectivityDiscovery(self.index) and \
             client.sendTeleSensorDiscovery(self.index, "RSSI", EC_DIAGNOSTIC, "{{ value_json.rssi }}", DEVICE_CLASS_SIGNAL_STRENGTH, "") and \
