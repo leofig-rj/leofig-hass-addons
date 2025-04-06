@@ -50,9 +50,11 @@ def loop_serial():
 
 def loop_mqtt():
     global online
-        
+    
+    logging.debug("Loop MQTT")
     if not online:
         if mqtt_send_online():
+            logging.debug("Discovery")
             mqtt_send_discovery_bridge()
             mqtt_send_discovery_entities()
 
@@ -60,6 +62,7 @@ def loop_mqtt():
     time.sleep(0.01)
 
     if online:
+        logging.debug("Telemetry")
         mqtt_send_telemetry()
         send_com_lora()
 
@@ -67,6 +70,7 @@ def loop_mqtt():
     time.sleep(0.01)
 
     if online:
+        logging.debug("Entities")
         mqtt_send_entities()
 
 def loop_lora():
