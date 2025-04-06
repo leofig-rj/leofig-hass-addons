@@ -25,7 +25,7 @@ class DeviceLZ01:
 
     def _setup_lists(self):
         logging.debug(f"LZ01 - Preenchendo listas! {len(self.entityNames)}")
-        for i in range[len(self.entityNames)]:
+        for i in range(len(self.entityNames)):
             self.entitySlugs.append(slugify(self.entityNames[i]))
             self.entityValNum.append(-1)
             self.entityLastValNum.append(-1)
