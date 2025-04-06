@@ -1,8 +1,7 @@
 import logging
 
-from globals import g_devices, g_cli_mqtt
-from funcs import millis
-from msgs import get_loraUltimoDestinoCmd, lora_proximo_destino_cmd, lora_fifo_tenta_enviar
+from globals import g_cli_mqtt
+from msgs import lora_fifo_tenta_enviar
 
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_CLASS_VOLTAGE, \
     DEVICE_CLASS_POWER, DEVICE_CLASS_CURRENT, DEVICE_CLASS_ENERGY, DEVICE_CLASS_RESTART, \
