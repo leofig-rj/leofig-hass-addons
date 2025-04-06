@@ -217,7 +217,7 @@ def on_lora_message(sMsg, index):
     ram_dev = globals.g_devices.get_dev_rams()[index]
 
     # Executa a rotina no dispositivo (modelo)
-    ram_dev.slaveObj.proc_rec_msg(sMsg, index)
+    ram_dev.slaveObj.proc_rec_msg(sMsg)
 
     # Atualizo variáveis de contexto
     ram_dev.loraTimeOut = funcs.millis()

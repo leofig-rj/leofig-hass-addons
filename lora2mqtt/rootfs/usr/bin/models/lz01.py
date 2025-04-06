@@ -22,7 +22,7 @@ class DeviceLZ01:
         self.entityValStr = ["NULL"] * self.lenEntiies
         self.entityLastValStr = ["NULL"] * self.lenEntiies
 
-    def proc_rec_msg(self, sMsg, index):
+    def proc_rec_msg(self, sMsg):
 
         if len(sMsg) != 4:
             logging.info(f"LZ01 - Erro no tamanho da mensagem! {len(sMsg)}")
