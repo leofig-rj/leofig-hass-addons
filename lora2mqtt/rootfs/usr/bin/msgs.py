@@ -243,18 +243,24 @@ def bridge_proc_command(entity, pay):
 def lora_fifo_tenta_enviar(sMsg, index):
     global loraFiFoPrimeiro, loraFiFoUltimo, loraFiFoMsgBuffer, loraFiFoDestinoBuffer
     
+    logging.debug("lora_fifo_tenta_enviar- 1")
     if loraFiFoPrimeiro == loraFiFoUltimo:
         if lora_ultimo_cmd_retornou():
+            logging.debug("lora_fifo_tenta_enviar- 2")
             lora_envia_mensagem_index(sMsg, index)
+            logging.debug("lora_fifo_tenta_enviar- 3")
             return
     
     aux = (loraFiFoUltimo + 1) % LORA_FIFO_LEN
     if aux == loraFiFoPrimeiro:
+        logging.debug("lora_fifo_tenta_enviar- 4")
         return
     
+    logging.debug("lora_fifo_tenta_enviar- 5")
     loraFiFoMsgBuffer[loraFiFoUltimo] = sMsg
     loraFiFoDestinoBuffer[loraFiFoUltimo] = index
     loraFiFoUltimo = aux
+    logging.debug("lora_fifo_tenta_enviar- 6")
 
 def lora_envia_mensagem_index(sMsg, index):
     # Pego oo Dispositivos na RAM
