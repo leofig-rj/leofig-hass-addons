@@ -75,6 +75,7 @@ def loop_mqtt():
 
 def loop_lora():
 
+    logging.debug("Loop LoRa")
     ram_devs = globals.g_devices.get_dev_rams()
 
     # Verifico Time out dos dispositivos para informar desconexão
