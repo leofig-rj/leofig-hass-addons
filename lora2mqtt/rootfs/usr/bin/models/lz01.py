@@ -20,6 +20,9 @@ class DeviceLZ01:
         self.entityLastValNum= []
         self.entityValStr = []
         self.entityLastValStr = []
+        self._setup_lists()
+
+    def _setup_lists(self):
         for i in range[len(self.entityNames)]:
             self.entitySlugs.append(slugify(self.entityNames[i]))
             self.entityValNum.append(-1)
