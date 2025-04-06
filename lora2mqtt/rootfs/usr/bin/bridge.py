@@ -154,11 +154,11 @@ class LoRa2MQTTClient(mqtt.Client):
 
         # Configura os tópicos para cada slave
         for i in range(self.num_slaves):
-            work_topic = f"{self.addon_slug}/{self.ram_devs[i-1].slaveName}"
+            work_topic = f"{self.addon_slug}/{self.ram_devs[i].slaveName}"
             tele_topic = f"{work_topic}/telemetry"
             set_topic = f"{work_topic}/+/set"
-            masc_uniq_topic = f"{self.addon_slug}_{self.ram_devs[i-1].slaveMac}_%s"
-            masc_disc_topic = f"{HA_PREFIX}/%s/{self.addon_slug}_{self.ram_devs[i-1].slaveMac}/%s/config"
+            masc_uniq_topic = f"{self.addon_slug}_{self.ram_devs[i].slaveMac}_%s"
+            masc_disc_topic = f"{HA_PREFIX}/%s/{self.addon_slug}_{self.ram_devs[i].slaveMac}/%s/config"
 
             self.work_topics.append(work_topic)
             self.tele_topics.append(tele_topic)
