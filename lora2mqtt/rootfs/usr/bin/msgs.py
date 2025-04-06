@@ -86,11 +86,11 @@ def loop_lora():
     if not lora_ultimo_cmd_retornou():
         return
 
-    logging.debug("Loop LoRa - 2")
+#    logging.debug("Loop LoRa - 2")
     # Verifico se tem comando no FiFo para enviar...
     lora_fifo_verifica()
 
-    logging.debug("Loop LoRa - 3")
+#    logging.debug("Loop LoRa - 3")
     # Solicito estado periodicamente...
     tempoLoop = funcs.pega_delta_millis(loraCommandTime)
     if tempoLoop > LORA_TEMPO_REFRESH:
