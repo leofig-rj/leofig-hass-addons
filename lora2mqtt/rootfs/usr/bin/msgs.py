@@ -64,7 +64,7 @@ def loop_mqtt():
     if online:
         logging.debug("Telemetry")
         mqtt_send_telemetry()
-        send_com_lora()
+        mqtt_send_com_lora()
 
     # Outra pausa
     time.sleep(0.01)
@@ -119,13 +119,13 @@ def mqtt_send_discovery_entities():
     # Pego oo Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
 
+    logging.debug("Discovery Entities")
     for i in range(len(ram_devs)):
-        if ram_devs[i].loraCom:
-            # Publica discovery das entidades do dispositivo (modelo)
-            ram_devs[i].slaveObj.proc_discovery()
-            logging.debug(f"Discovery Entity {i}")
+        # Publica discovery das entidades do dispositivo (modelo)
+        ram_devs[i].slaveObj.proc_discovery()
+        logging.debug(f"Discovery Entity {i}")
 
-def send_com_lora():
+def mqtt_send_com_lora():
     # Pego oo Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
 
