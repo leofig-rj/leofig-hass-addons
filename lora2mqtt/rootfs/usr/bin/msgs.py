@@ -162,7 +162,6 @@ def mqtt_send_entities():
 
     for i in range(len(ram_devs)):
         if ram_devs[i].loraCom:
-            logging.debug(f"Entities {i}")
             # Publica entidades do dispositivo (modelo)
             ram_devs[i].slaveObj.proc_publish(i)
 
