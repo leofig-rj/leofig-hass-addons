@@ -8,8 +8,11 @@ import globals
 
 #from .devices import pw01
 
+# Constantes para LFLoRa
+from consts import  MSG_CHECK_OK
+
 # Para LoRa
-from consts import LORA_FIFO_LEN, LORA_TEMPO_REFRESH, LORA_NUM_TENTATIVAS_CMD, LFLORA_MAX_PACKET_SIZE
+from consts import LORA_FIFO_LEN, LORA_TEMPO_REFRESH, LORA_NUM_TENTATIVAS_CMD, LFLORA_MAX_PACKET_SIZE, LORA_TEMPO_OUT
 
 # Para MQTT
 from consts import  REFRESH_TELEMETRY, EC_DIAGNOSTIC, DEVICE_CLASS_RESTART
@@ -29,6 +32,23 @@ loraFiFoUltimo = 0
 loraFiFoMsgBuffer = [""] * LORA_FIFO_LEN
 loraFiFoDestinoBuffer = [0] * LORA_FIFO_LEN
 loraUltimoDestinoCmd = 0
+
+def loop_serial():
+    # Verifico se tem dado na serial
+    if globals.g_serial.in_waiting > 0:
+        # Pegando o dado e deixando como string
+        serial_data = globals.g_serial.readline().decode('utf-8').strip()
+        # Tratando o dado
+        result, de, para, msg = globals.g_lf_lora.lora_check_msg_ini(serial_data)
+        logging.debug(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
+        # Trato a mensagem
+        if result == MSG_CHECK_OK:
+            # Publicando a msg limpa
+#            data_to_publish = f"Dado recebido: {msg}"
+#            client.send_message("lora2mqtt/dados", data_to_publish)
+            # Tratando a msg conforme remetente
+            index = funcs.get_index_from_addr(de)
+            on_lora_message(msg, index)
 
 def loop_mqtt():
     global online
@@ -51,6 +71,31 @@ def loop_mqtt():
 
     if online:
         mqtt_send_entities()
+
+def loop_lora():
+
+    ram_devs = globals.g_devices.get_dev_rams()
+
+    # Verifico Time out dos dispositivos para informar desconexão
+    for i in range(len(ram_devs)):
+        tempoOut = funcs.pega_delta_millis(ram_devs[i].loraTimeOut)
+        if tempoOut > LORA_TEMPO_OUT:
+            ram_devs[i].loraTimeOut = funcs.millis()
+            ram_devs[i].loraCom = False
+    
+    # Verifico se a última mensagem retornou...
+    if not lora_ultimo_cmd_retornou():
+        return
+
+    # Verifico se tem comando no FiFo para enviar...
+    lora_fifo_verifica()
+
+    # Solicito estado periodicamente...
+    tempoLoop = funcs.pega_delta_millis(loraCommandTime)
+    if tempoLoop > LORA_TEMPO_REFRESH:
+        lora_fifo_tenta_enviar("000", loraUltimoDestinoCmd)
+        # Defino o próximo destino para solicitar estado...
+        lora_proximo_destino_cmd()
 
 def mqtt_send_online():
     global online
@@ -202,18 +247,27 @@ def lora_envia_mensagem_index(sMsg, index):
 def lora_envia_mensagem(sMsg, para):
     global loraCommandTime, tentativasCmd, lastIdSent, lastMsgSent
     
-    loraCommandTime = int(time.time() * 1000)
+    loraCommandTime = funcs.millis()
     tentativasCmd = 0
     
-    lora_data = f"{sMsg}:{para}"
-    lastIdSent = hash(lora_data) % 256  # Simulação de ID único
-    lastMsgSent = lora_data
+    # Envio comando de solicitação de estado
+    serial_data = globals.g_lf_lora.lora_add_header(sMsg, para)
+    globals.g_serial.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
+    logging.debug(f"Enviado {serial_data}")
+
+    lastIdSent = globals.g_lf_lora.last_sent_id();
+    lastMsgSent = sMsg
 
 def lora_reenvia_mensagem():
     global loraCommandTime, tentativasCmd
     
-    loraCommandTime = int(time.time() * 1000)
+    loraCommandTime = funcs.millis()
     tentativasCmd += 1
+
+    # Reenvio último comando
+    serial_data = lastMsgSent
+    globals.g_serial.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
+    logging.debug(f"Enviado {serial_data}")
 
 def lora_ultimo_cmd_retornou():
     global lastIdRec, lastIdSent, loraCommandTime, tentativasCmd

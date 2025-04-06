@@ -35,11 +35,6 @@ def main(broker, port, broker_user, broker_pass):
     data_path = options.get("data_path", "/config/lora2mqtt")
     logging.debug(f"data_path: {data_path}")
 
-    # Inicializa variáveis globais
-    globals.g_data_path = data_path
-    globals.g_devices = devs.DeviceManager()
-    globals.g_devices.load_devices_to_ram()
-
     try:
         # Configurando conexão serial
         ser = serial.Serial(serial_obj["port"], 115200)
@@ -49,9 +44,21 @@ def main(broker, port, broker_user, broker_pass):
         ser = None  # Define como None para evitar problemas futuros
         logging.error(f"Erro {e} na configuração serial...")
 
+    # Configuro meu endereço no LFLoraClass
+    lf_lora = lflora.LFLoraClass()
+    lf_lora.set_my_addr(1)
+
+    # Inicializa variáveis globais
+    globals.g_data_path = data_path
+    globals.g_devices = devs.DeviceManager()
+    globals.g_devices.load_devices_to_ram()
+    globals.g_serial = ser   # Torno o serial global
+    globals.g_lf_lora = lf_lora   # Torno o lf_lora global
+
     try:
         
-       if ser:
+        # Inicio o Loop geral se serial OK
+        if ser:
             # Envio comando de solicitação de estado da dongue
             ser.write("!000".encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
             logging.debug("Enviado comando solicita estado do adaptador")
@@ -65,6 +72,7 @@ def main(broker, port, broker_user, broker_pass):
                     usb_id = serial_data[1:]
                     logging.debug(f"Recebeu do adaptador: {usb_id}")
 
+            # Crio o objeto MQTT
             client = LoRa2MQTTClient("/dev/ttyUSB0", 
                                         broker, 
                                         port, 
@@ -75,14 +83,13 @@ def main(broker, port, broker_user, broker_pass):
             # Torno o cliente global
             globals.g_cli_mqtt = client
             
-            lf_lora = lflora.LFLoraClass()
-            lf_lora.set_my_addr(1)
-
+            # Inicio a comunicação MQTT
             client.mqtt_connection()
             client.loop_start()  # Inicia o loop MQTT em uma thread separada
 
             contador = 0
 
+            # Loop Geral
             while True:
                 # Verifico se tem dado na serial
                 if ser.in_waiting > 0:

@@ -97,5 +97,8 @@ class LFLoraClass:
         # Remove o registro no índice especificado
         self._regRecs.pop(index)
 
+    def last_sent_id(self):
+        return self._lastSendId
+    
     def clear_reg_recs(self):
         self._regRecs.clear()  # Limpa a lista de registros
