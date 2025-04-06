@@ -37,11 +37,12 @@ class Model:
             return None
 
 class DeviceRAM:
-    def __init__(self, slaveIndex=0, slaveAddr=0, slaveName="", slaveMac="", slaveVer="", slaveChip="", slaveModel="", \
+    def __init__(self, slaveIndex=0, slaveAddr=0, slaveName="", slaveSlug="", slaveMac="", slaveVer="", slaveChip="", slaveModel="", \
                  slaveMan="", slaveObj=None):
         self.slaveIndex = slaveIndex
         self.slaveAddr = slaveAddr
         self.slaveName = slaveName
+        self.slaveSlug = slaveSlug
         self.slaveMac = slaveMac
         self.slaveVer = slaveVer
         self.slaveChip = slaveChip
@@ -58,14 +59,6 @@ class DeviceRAM:
                       f"Chip: {self.slaveChip}, Model: {self.slaveModel}, "
                       f"Manuf: {self.slaveMan}, Obj: {self.slaveObj}")
         
-    def find_device_by_slug(self, slug_rec):
-        """Busca um dispositivo específico pelo slug."""
-        for i in range[len(self.slaveName)]:
-            slug = funcs.slugify(self.slaveName[i])
-            if slug == slug_rec:
-                return i
-        return None
-
 class DeviceManager:
     def __init__(self):
         self.data_path = None
@@ -145,12 +138,15 @@ class DeviceManager:
                 name = device['friendly_name']
                 if funcs.is_empty_str(name):
                     name = device['id']
+                # Defino o slug do nome
+                slug = funcs.slugify(self.slaveName[i])
+
                 # Vejo se o modelo existe no sistema
-                model = self.get_model(device['model'])
+                model = self.get_model(name)
                 obj = None
                 if model:
                     obj = model.model_obj
-                self.dev_rams.append(DeviceRAM(i, device['address'], name, device['id'], device['version'], \
+                self.dev_rams.append(DeviceRAM(i, device['address'], name, slug, device['id'], device['version'], \
                                                device['chip'], device['model'], device['manufacturer'], obj))
                 i = i + 1
         else:
@@ -172,3 +168,11 @@ class DeviceManager:
             return model
 
         return None
+
+    def find_device_by_slug(self, slug):
+        """Busca um dispositivo específico pelo slug."""
+        for i in range[len(self.dev_rams)]:
+            if slug == self.slaveSlug:
+                return i
+        return None
+

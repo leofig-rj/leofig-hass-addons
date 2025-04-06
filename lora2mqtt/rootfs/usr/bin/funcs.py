@@ -23,8 +23,8 @@ def slug_com_lora(index):
     """Retorna o nome slugificado de um dispositivo LoRa."""
     return slugify(nome_com_lora(index))
 
-def isEmptyStr(s):
-    return s == 'null' or len(s) == 0 or s.isspace()
+#def isEmptyStr(s):
+#    return s == 'null' or len(s) == 0 or s.isspace()
 
 def millis():
     return int(time.time() * 1000)
