@@ -69,7 +69,7 @@ class DevicePW01:
                 self.entityLastValNum[i] = self.entityValNum[i]
                 logging.debug(f"PW01 - entityValNum {i} {self.entityValNum[i]}")
                 aAux = "{:.1f}".format(self.entityValNum[i]/10.0)
-                logging.debug(f"PW01 - entityValNum FORMAT {i} {aAux}")
+                logging.debug(f"PW01 - entityValNum FORMAT {i} {self.entitySlugs[i]} {aAux}")
                 client.pub(f"{client.work_topics[index]}/{self.entitySlugs[i]}", 0, True, aAux)
 
     def proc_discovery(self, index):

@@ -132,7 +132,7 @@ def mqtt_send_com_lora():
             ram_devs[i].loraLastCom = ram_devs[i].loraCom
 
             s_com_lora = "online" if ram_devs[i].loraCom else "offline"
-            logging.debug("Com LoRa {i} {s_com_lora}")
+            logging.debug(f"Com LoRa {i} {s_com_lora}")
 
             globals.g_cli_mqtt.pub(f"{globals.g_cli_mqtt.work_topics[i]}/com_lora", 0, True, s_com_lora)
 
