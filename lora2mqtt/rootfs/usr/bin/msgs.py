@@ -169,10 +169,10 @@ def mqtt_send_entities():
 def on_mqtt_message(topic, payload):
 
     # Converte o payload de byte para string
-    payload_char = payload.decode('utf-8')[:LFLORA_MAX_PACKET_SIZE]
+    #payload_char = payload.decode('utf-8')[:LFLORA_MAX_PACKET_SIZE]
 
     top = topic
-    pay = payload_char
+    pay = payload
 
     if "/set" in top:
         set_pos = top.rfind("/set")
