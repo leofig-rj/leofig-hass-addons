@@ -1,5 +1,6 @@
 import time
 import logging
+import json
 
 import funcs
 import devs
@@ -7,9 +8,15 @@ import globals
 
 #from .devices import pw01
 
+# Para LoRa
 from consts import LORA_FIFO_LEN, LORA_TEMPO_REFRESH, LORA_NUM_TENTATIVAS_CMD, LFLORA_MAX_PACKET_SIZE
 
+# Para MQTT
+from consts import  REFRESH_TELEMETRY, EC_DIAGNOSTIC, DEVICE_CLASS_RESTART
+
 # Variáveis globais
+online = False
+
 loraCommandTime = 0
 lastMsgSent = ""
 lastIdRec = 0
@@ -22,6 +29,89 @@ loraFiFoUltimo = 0
 loraFiFoMsgBuffer = [""] * LORA_FIFO_LEN
 loraFiFoDestinoBuffer = [0] * LORA_FIFO_LEN
 loraUltimoDestinoCmd = 0
+
+def loop_mqtt():
+    global online
+        
+    if not online:
+        if mqtt_send_online():
+            mqtt_send_discovery_bridge()
+            mqtt_send_discovery_entities()
+
+    # Em Python, `yield` pode ser substituído por uma pausa como `time.sleep`
+    import time
+    time.sleep(0.01)
+
+    if online:
+        mqtt_send_telemetry()
+        send_com_lora()
+
+    # Outra pausa
+    time.sleep(0.01)
+
+    if online:
+        mqtt_send_entities()
+
+def mqtt_send_online():
+    global online
+
+    if globals.g_cli_mqtt.pub(globals.g_cli_mqtt.bridge_status_topic, 0, True, "online"):
+        online = True
+    else:
+        print("Erro enviando status=online")
+    return online
+
+def mqtt_send_discovery_bridge():
+    globals.g_cli_mqtt.send_connectivity_discovery()
+    globals.g_cli_mqtt.send_bridge_button_discovery("Reset ESP", EC_DIAGNOSTIC, DEVICE_CLASS_RESTART)
+
+def mqtt_send_discovery_entities():
+    # Pego oo Dispositivos na RAM
+    ram_devs = globals.g_devices.get_dev_rams()
+
+    for i in range(len(ram_devs)):
+        if ram_devs[i].loraCom:
+            # Publica discovery das entidades do dispositivo (modelo)
+            ram_devs[i].slaveObj.proc_discovery()
+
+def send_com_lora():
+    # Pego oo Dispositivos na RAM
+    ram_devs = globals.g_devices.get_dev_rams()
+
+    for i in range(len(ram_devs)):
+        if ram_devs[i].loraLastCom != ram_devs[i].loraCom:
+            ram_devs[i].loraLastCom = ram_devs[i].loraCom
+
+            s_com_lora = "online" if ram_devs[i].loraCom else "offline"
+
+            globals.g_cli_mqtt.pub(f"{globals.g_cli_mqtt.work_topic[i]}/com_lora", 0, True, s_com_lora)
+
+def mqtt_send_telemetry():
+    global last_tele_millis  # Presumo que seja uma variável global
+    tempo_loop = funcs.pega_delta_millis(last_tele_millis)
+
+    if tempo_loop < REFRESH_TELEMETRY:
+        return
+
+    last_tele_millis = funcs.millis()
+
+    # Pego oo Dispositivos na RAM
+    ram_devs = globals.g_devices.get_dev_rams()
+
+    for i in range(len(ram_devs)):
+        doc = {}  # Inicializa o dicionário (equivalente ao `JsonDocument`)
+        doc["rssi"] = str(ram_devs[i].loraRSSI)
+        buffer = json.dumps(doc)  # Serializa o JSON em uma string
+        globals.g_cli_mqtt.pub(globals.g_cli_mqtt.tele_topic[i], 0, False, buffer)
+
+def mqtt_send_entities():
+    # Pego oo Dispositivos na RAM
+    ram_devs = globals.g_devices.get_dev_rams()
+
+    for i in range(len(ram_devs)):
+        if ram_devs[i].loraCom:
+            # Publica entidades do dispositivo (modelo)
+            ram_devs[i].slaveObj.proc_publish()
 
 def on_mqtt_message(topic, payload):
 
@@ -70,8 +160,18 @@ def on_lora_message(sMsg, index):
         logging.info("FiFo não está vazia!")
         return
     
+    # Pego o Dispositivo na RAM
     ram_dev = globals.g_devices.get_dev_rams()[index]
+
+    # Executa a rotina no dispositivo (modelo)
     ram_dev.slaveObj.proc_rec_msg(sMsg)
+
+    # Atualizo variáveis de contexto
+    ram_dev.loraTimeOut = funcs.millis()
+    ram_dev.loraCom = True
+    if lora_pega_ultimo_destino_cmd() == index:
+        lora_proximo_destino_cmd()
+
     return
 
 def bridge_proc_command(entity, pay):
@@ -141,7 +241,7 @@ def lora_proximo_destino_cmd():
 
     loraUltimoDestinoCmd = (loraUltimoDestinoCmd + 1) % len(globals.g_devices.get_dev_rams())
 
-def get_loraUltimoDestinoCmd():
+def lora_pega_ultimo_destino_cmd():
     global loraUltimoDestinoCmd
     return loraUltimoDestinoCmd
 

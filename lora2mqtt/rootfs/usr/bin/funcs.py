@@ -2,6 +2,8 @@ import time
 
 import globals
 
+from consts import LORA_COM_NAME
+
 # Funções Auxiliares
 def last4(s):
     """
@@ -15,7 +17,7 @@ def slugify(text):
 
 def nome_com_lora(index):
     """Retorna o nome básico para um dispositivo LoRa."""
-    return "Com LoRa"  # Pode ser expandido com nomes individuais, se necessário.
+    return LORA_COM_NAME
 
 def slug_com_lora(index):
     """Retorna o nome slugificado de um dispositivo LoRa."""

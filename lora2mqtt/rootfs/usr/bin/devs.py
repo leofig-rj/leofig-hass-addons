@@ -5,8 +5,6 @@ import importlib
 
 import funcs
 import globals
-#import pw01
-#import lz01
 
 class Model:
     def __init__(self, model_name="", model_obj=None):
@@ -55,10 +53,6 @@ class DeviceRAM:
         self.loraRSSI = 0
         self.loraLastTimeOut = 0
         self.loraLastCom = False
-#        if self.slaveIndex == 0:
-#            self.slaveObj = pw01.DevicePW01(self.slaveMac, self.slaveAddr, self.slaveIndex)
-#        if self.slaveIndex == 1:
-#            self.slaveObj = lz01.DevicePW01(self.slaveMac, self.slaveAddr, self.slaveIndex)
         logging.debug(f"Addr: {self.slaveAddr}, Name: {self.slaveName}, "
                       f"Mac: {self.slaveMac}, Vesion: {self.slaveVer}, "
                       f"Chip: {self.slaveChip}, Model: {self.slaveModel}, "
@@ -93,7 +87,6 @@ class DeviceManager:
             except OSError as e:
                 logging.error(f"Erro ao criar o arquivo: {e}")
                 logging.error("Certifique-se de que o diretório possui permissões de gravação.")
-
 
     def load_devices(self):
         """Carrega todos os dispositivos do arquivo config.yaml."""

@@ -26,8 +26,6 @@ class DeviceLZ01:
 
     def proc_rec_msg(self, sMsg):
 
-        ram_dev = g_devices.get_dev_rams()[self.index]
-        
         if len(sMsg) != 4:
             logging.info(f"LZ01 - Erro no tamanho da mensagem! {len(sMsg)}")
             return
@@ -46,11 +44,6 @@ class DeviceLZ01:
         
         logging.debug(f"LZ01 - Lâmpada1: {self.entityValStr[0]} Input1: {self.entityValStr[1]}")
             
-        ram_dev.loraTimeOut = millis()
-        ram_dev.loraCom = True
-        if get_loraUltimoDestinoCmd() == self.index:
-            lora_proximo_destino_cmd()
-
     def proc_command(self, entity, pay):
 
         if entity == self.entitySlugs[0]:

@@ -27,8 +27,6 @@ class DevicePW01:
         self.entityLastValStr = ["NULL"] * self.lenEntiies
 
     def proc_rec_msg(self, sMsg):
-
-        ram_dev = g_devices.get_dev_rams()[self.index]
         
         if len(sMsg) != 33:
             logging.info(f"PW01 - Erro no tamanho da mensagem! {len(sMsg)}")
@@ -55,11 +53,6 @@ class DevicePW01:
             f"Corrente: {self.entityValNum[2]} Energia: {self.entityValNum[3]} "
             f"EnergiaRam: {self.entityValNum[4]}")
         
-        ram_dev.loraTimeOut = millis()
-        ram_dev.loraCom = True
-        if get_loraUltimoDestinoCmd() == self.index:
-            lora_proximo_destino_cmd()
-
     def proc_command(self, entity, pay):
 
         if entity == self.entitySlugs[5]:

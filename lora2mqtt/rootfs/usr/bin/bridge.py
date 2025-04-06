@@ -80,8 +80,6 @@ def main(broker, port, broker_user, broker_pass):
 
             client.mqtt_connection()
             client.loop_start()  # Inicia o loop MQTT em uma thread separada
-            client.send_connectivity_discovery()
-            client.send_bridge_button_discovery("Reset ESP", EC_DIAGNOSTIC, DEVICE_CLASS_RESTART)
 
             contador = 0
 
