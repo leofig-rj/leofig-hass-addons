@@ -37,8 +37,8 @@ class Model:
             return None
 
 class DeviceRAM:
-    def __init__(self, slaveIndex=0, slaveAddr=0, slaveName="", slaveSlug="", slaveMac="", slaveVer="", slaveChip="", slaveModel="", \
-                 slaveMan="", slaveObj=None):
+    def __init__(self, slaveIndex=0, slaveAddr=0, slaveName="", slaveSlug="", slaveMac="", slaveVer="", slaveChip="", \
+                 slaveModel="", slaveMan="", slaveObj=None):
         self.slaveIndex = slaveIndex
         self.slaveAddr = slaveAddr
         self.slaveName = slaveName
@@ -145,6 +145,8 @@ class DeviceManager:
                 obj = None
                 if model:
                     obj = model.model_obj
+                logging.debug(f"DEVICE {device['address']} {name} {slug} {device['id']} {device['version']} " \
+                              f"{device['chip']} {device['model']} {device['manufacturer']} {obj}")
                 self.dev_rams.append(DeviceRAM(i, device['address'], name, slug, device['id'], device['version'], \
                                                device['chip'], device['model'], device['manufacturer'], obj))
                 i = i + 1
