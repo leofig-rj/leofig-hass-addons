@@ -65,13 +65,13 @@ class DevicePW01:
  
     def proc_publish(self):
 
-        client = g_cli_mqtt
+        client = globals.g_cli_mqtt
 
         for i in range(5):          
             if self.entityValNum[i] != self.entityLastValNum[i]:
                 self.entityLastValNum[i] = self.entityValNum[i]
                 aAux = "{:.1f}".format(self.entityValNum[i]/10.0)
-                client.pub(f"{client.workTopic[self.index]}/{self.entitySlugs[i]}", 0, True, aAux)
+                client.pub(f"{client.work_topics[self.index]}/{self.entitySlugs[i]}", 0, True, aAux)
 
     def proc_discovery(self):
 
