@@ -2,6 +2,7 @@ import logging
 
 import globals
 
+from funcs import slugify
 from msgs import lora_fifo_tenta_enviar
 
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_CLASS_VOLTAGE, \
@@ -16,12 +17,18 @@ class DevicePW01:
         self.man = "Leonardo Figueiro"
         self.desc = "Sensores de elétricas"
         self.entityNames = ["Tensao", "Potencia", "Corrente", "Energia", "Energia RAM", "Aciona Rele", "Reset Energia"]
-        self.entitySlugs = ["tensao", "potencia", "corrente", "energia", "energia_ram", "aciona_rele", "reset_energia"]
         self.lenEntiies = len(self.entityNames)
-        self.entityValNum = [-1] * self.lenEntiies
-        self.entityLastValNum= [-1] * self.lenEntiies
-        self.entityValStr = ["NULL"] * self.lenEntiies
-        self.entityLastValStr = ["NULL"] * self.lenEntiies
+        self.entitySlugs = []
+        self.entityValNum = []
+        self.entityLastValNum= []
+        self.entityValStr = []
+        self.entityLastValStr = []
+        for i in range[self.lenEntiies]:
+            self.entitySlugs.append(slugify(self.entityNames[i]))
+            self.entityValNum.append(-1)
+            self.entityLastValNum.append(-1)
+            self.entityValStr.append("NULL")
+            self.entityLastValStr.append("NULL")
 
     def proc_rec_msg(self, sMsg):
         
