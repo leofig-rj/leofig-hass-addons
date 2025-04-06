@@ -126,7 +126,7 @@ def send_com_lora():
 
             s_com_lora = "online" if ram_devs[i].loraCom else "offline"
 
-            globals.g_cli_mqtt.pub(f"{globals.g_cli_mqtt.work_topic[i]}/com_lora", 0, True, s_com_lora)
+            globals.g_cli_mqtt.pub(f"{globals.g_cli_mqtt.work_topics[i]}/com_lora", 0, True, s_com_lora)
 
 def mqtt_send_telemetry():
     global lastTeleMillis
@@ -144,7 +144,7 @@ def mqtt_send_telemetry():
         doc = {}  # Inicializa o dicionário (equivalente ao `JsonDocument`)
         doc["rssi"] = str(ram_devs[i].loraRSSI)
         buffer = json.dumps(doc)  # Serializa o JSON em uma string
-        globals.g_cli_mqtt.pub(globals.g_cli_mqtt.tele_topic[i], 0, False, buffer)
+        globals.g_cli_mqtt.pub(globals.g_cli_mqtt.tele_topics[i], 0, False, buffer)
 
 def mqtt_send_entities():
     # Pego oo Dispositivos na RAM
