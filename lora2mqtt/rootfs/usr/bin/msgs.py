@@ -129,6 +129,7 @@ def mqtt_send_com_lora():
     # Pego oo Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
 
+    logging.debug("Com LoRa")
     for i in range(len(ram_devs)):
         if ram_devs[i].loraLastCom != ram_devs[i].loraCom:
             ram_devs[i].loraLastCom = ram_devs[i].loraCom
@@ -140,6 +141,8 @@ def mqtt_send_com_lora():
 
 def mqtt_send_telemetry():
     global lastTeleMillis
+
+    logging.debug("Telemetry")
     tempo_loop = funcs.pega_delta_millis(lastTeleMillis)
 
     if tempo_loop < REFRESH_TELEMETRY:
@@ -154,14 +157,17 @@ def mqtt_send_telemetry():
         doc = {}  # Inicializa o dicionário (equivalente ao `JsonDocument`)
         doc["rssi"] = str(ram_devs[i].loraRSSI)
         buffer = json.dumps(doc)  # Serializa o JSON em uma string
+        logging.debug(f"Telemetry {i} {buffer}")
         globals.g_cli_mqtt.pub(globals.g_cli_mqtt.tele_topics[i], 0, False, buffer)
 
 def mqtt_send_entities():
     # Pego oo Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
 
+    logging.debug("Entities")
     for i in range(len(ram_devs)):
         if ram_devs[i].loraCom:
+            logging.debug(f"Entities {i}")
             # Publica entidades do dispositivo (modelo)
             ram_devs[i].slaveObj.proc_publish()
 
