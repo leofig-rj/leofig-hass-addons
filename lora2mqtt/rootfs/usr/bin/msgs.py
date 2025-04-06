@@ -120,7 +120,7 @@ def mqtt_send_discovery_entities():
 
     for i in range(len(ram_devs)):
         # Publica discovery das entidades do dispositivo (modelo)
-        ram_devs[i].slaveObj.proc_discovery()
+        ram_devs[i].slaveObj.proc_discovery(i)
         logging.debug(f"Discovery Entity {i}")
 
 def mqtt_send_com_lora():
@@ -164,7 +164,7 @@ def mqtt_send_entities():
         if ram_devs[i].loraCom:
             logging.debug(f"Entities {i}")
             # Publica entidades do dispositivo (modelo)
-            ram_devs[i].slaveObj.proc_publish()
+            ram_devs[i].slaveObj.proc_publish(i)
 
 def on_mqtt_message(topic, payload):
 
@@ -199,7 +199,7 @@ def on_mqtt_message(topic, payload):
             index = devs.DeviceRAM.find_device_by_slug(device)
             if index:
                 ram_dev = globals.g_devices.get_dev_rams()[index]
-                ram_dev.proc_command(entity, pay)
+                ram_dev.proc_command(entity, pay, index)
             else:
                 logging.debug(f"Não encontrado dispositivo {device}")
     else:
@@ -217,7 +217,7 @@ def on_lora_message(sMsg, index):
     ram_dev = globals.g_devices.get_dev_rams()[index]
 
     # Executa a rotina no dispositivo (modelo)
-    ram_dev.slaveObj.proc_rec_msg(sMsg)
+    ram_dev.slaveObj.proc_rec_msg(sMsg, index)
 
     # Atualizo variáveis de contexto
     ram_dev.loraTimeOut = funcs.millis()

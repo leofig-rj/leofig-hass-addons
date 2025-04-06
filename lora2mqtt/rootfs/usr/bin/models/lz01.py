@@ -8,11 +8,8 @@ from msgs import lora_fifo_tenta_enviar
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH
 
 class DeviceLZ01:
-    def __init__(self, mac=0, addr=0, index=0):
+    def __init__(self):
         self.model = "LZ01"
-        self.mac = mac
-        self.addr = addr
-        self.index = index
         self.chip = "ESP32"
         self.ver = "1.0.0"
         self.man = "Leonardo Figueiro"
@@ -25,7 +22,7 @@ class DeviceLZ01:
         self.entityValStr = ["NULL"] * self.lenEntiies
         self.entityLastValStr = ["NULL"] * self.lenEntiies
 
-    def proc_rec_msg(self, sMsg):
+    def proc_rec_msg(self, sMsg, index):
 
         if len(sMsg) != 4:
             logging.info(f"LZ01 - Erro no tamanho da mensagem! {len(sMsg)}")
@@ -45,19 +42,19 @@ class DeviceLZ01:
         
         logging.debug(f"LZ01 - Lâmpada1: {self.entityValStr[0]} Input1: {self.entityValStr[1]}")
             
-    def proc_command(self, entity, pay):
+    def proc_command(self, entity, pay, index):
 
         if entity == self.entitySlugs[0]:
             if (pay.indexOf("ON")!=-1):
-                lora_fifo_tenta_enviar("101", self.index)
+                lora_fifo_tenta_enviar("101", index)
             else:
-                lora_fifo_tenta_enviar("102", self.index)
+                lora_fifo_tenta_enviar("102", index)
             ######  Definindo para evitar ficar mudando enquanto espera feedback
             self.entityValStr[0] = pay
             return True
         return False
  
-    def proc_publish(self):
+    def proc_publish(self, index):
 
         client = globals.g_cli_mqtt
 
@@ -65,17 +62,17 @@ class DeviceLZ01:
             if self.entityLastValStr[i] != self.entityValStr[i]:
                 self.entityLastValStr[i] = self.entityValStr[i]
                 logging.debug(f"PW01 - entityValStr {i} {self.entityValStr[i]}")
-                client.pub(f"{client.work_topics[self.index]}/{self.entitySlugs[i]}", 0, True, self.entityValStr[i])
+                client.pub(f"{client.work_topics[index]}/{self.entitySlugs[i]}", 0, True, self.entityValStr[i])
 
-    def proc_discovery(self):
+    def proc_discovery(self, index):
 
         client = globals.g_cli_mqtt
 
-        if client.send_aux_connectivity_discovery(self.index) and \
-            client.send_tele_sensor_discovery(self.index, "RSSI", EC_DIAGNOSTIC, "{{ value_json.rssi }}", DEVICE_CLASS_SIGNAL_STRENGTH, "") and \
-            client.send_light_switch_discovery(self.index, self.entityNames[0], EC_NONE) and \
-            client.send_binary_sensor_discovery(self.index, self.entityNames[1], EC_NONE, EC_NONE):
-            logging.debug("Discovery Entity LZ01 OK")
+        if client.send_aux_connectivity_discovery(index) and \
+            client.send_tele_sensor_discovery(index, "RSSI", EC_DIAGNOSTIC, "{{ value_json.rssi }}", DEVICE_CLASS_SIGNAL_STRENGTH, "") and \
+            client.send_light_switch_discovery(index, self.entityNames[0], EC_NONE) and \
+            client.send_binary_sensor_discovery(index, self.entityNames[1], EC_NONE, EC_NONE):
+            logging.debug(f"Discovery Entity LZ01 OK Índex {index}")
             return True
         else:
             logging.debug("Discovery Entity LZ01 NOT OK")
