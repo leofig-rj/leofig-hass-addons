@@ -100,9 +100,10 @@ def loop_lora():
     if tempoLoop > LORA_TEMPO_REFRESH:
         logging.debug("Loop LoRa - 4")
         lora_fifo_tenta_enviar("000", loraUltimoDestinoCmd)
+        logging.debug("Loop LoRa - 5")
         # Defino o próximo destino para solicitar estado...
         lora_proximo_destino_cmd()
-        logging.debug("Loop LoRa - 5")
+        logging.debug("Loop LoRa - 6")
 
 def mqtt_send_online():
     global online
