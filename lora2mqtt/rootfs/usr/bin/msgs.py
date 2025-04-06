@@ -192,11 +192,11 @@ def on_mqtt_message(topic, payload):
         logging.debug(f"Dispositivo {device}")
 
         if device == 'bridge':
-            # Trata comandoa de Bridge
+            # Trata comando de Bridge
             bridge_proc_command(entity, pay)
         else:
             # Procura nos dispositivo
-            index = devs.DeviceRAM.find_device_by_slug(device)
+            index = globals.g_devices.find_device_by_slug(device)
             if index:
                 ram_dev = globals.g_devices.get_dev_rams()[index]
                 ram_dev.proc_command(entity, pay, index)

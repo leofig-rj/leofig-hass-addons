@@ -139,10 +139,9 @@ class DeviceManager:
                 if funcs.is_empty_str(name):
                     name = device['id']
                 # Defino o slug do nome
-                slug = funcs.slugify(self.slaveName[i])
-
+                slug = funcs.slugify(name)
                 # Vejo se o modelo existe no sistema
-                model = self.get_model(name)
+                model = self.get_model(device['model'])
                 obj = None
                 if model:
                     obj = model.model_obj
@@ -169,10 +168,10 @@ class DeviceManager:
 
         return None
 
-    def find_device_by_slug(self, slug):
+    def find_device_by_slug(self, slug_rec):
         """Busca um dispositivo específico pelo slug."""
         for i in range[len(self.dev_rams)]:
-            if slug == self.slaveSlug:
+            if slug_rec == self.slaveSlug:
                 return i
         return None
 
