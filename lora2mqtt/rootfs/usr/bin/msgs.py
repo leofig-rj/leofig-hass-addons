@@ -156,8 +156,10 @@ def mqtt_bridge_proc_command(entity, pay):
     client.send_delete_discovery_x("sensor", "RSSI", 0)
     obj = ram_devs[0].slaveObj
     logging.info(f"Objeto {obj}")
-    for i in range(obj.entityNames):
-        logging.info(f"Objeto {0} Domínio {obj.entityDomains[0]} Nome {obj.entityNames[0]}")
+    logging.info(f"Dominios {obj.entityDomains}")
+    logging.info(f"Nmes {obj.entityNames}")
+#    for i in range(obj.entityNames):
+#        logging.info(f"Objeto {0} Domínio {obj.entityDomains[0]} Nome {obj.entityNames[0]}")
 #        client.send_delete_discovery_x(obj.entityDomains[0], obj.entityNames[0], 0)
  
 
