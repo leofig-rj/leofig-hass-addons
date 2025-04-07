@@ -161,7 +161,7 @@ def mqtt_send_telemetry():
 
     lastTeleMillis = funcs.millis()
 
-    # Pego oo Dispositivos na RAM
+    # Pego o Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
 
     for i in range(len(ram_devs)):
@@ -170,6 +170,11 @@ def mqtt_send_telemetry():
         buffer = json.dumps(doc)  # Serializa o JSON em uma string
         logging.debug(f"Telemetry {i} {buffer}")
         globals.g_cli_mqtt.pub(globals.g_cli_mqtt.tele_topics[i], 0, False, buffer)
+
+def mqtt_set_rssi(index, rssi):
+    # Salvo RSSI do Dispositivo na RAM
+    ram_devs = globals.g_devices.get_dev_rams()
+    ram_devs[index].loraRSSI = rssi
 
 def mqtt_send_entities():
     # Pego oo Dispositivos na RAM
@@ -261,7 +266,7 @@ def on_lora_message(sMsg, index):
     ram_dev = globals.g_devices.get_dev_rams()[index]
 
     # Executa a rotina no dispositivo (modelo)
-    ram_dev.slaveObj.proc_rec_msg(sMsg)
+    ram_dev.slaveObj.proc_rec_msg(sMsg, index)
 
     # Atualizo variáveis de contexto
     ram_dev.loraTimeOut = funcs.millis()
