@@ -193,8 +193,8 @@ class LoRa2MQTTClient(mqtt.Client):
     def cb_on_message(cls, client, userdata, message):
         """Callback para mensagens recebidas."""
         try:
-            payload = message.payload.decode("utf-8")
-            logging.debug(f"Mensagem recebida no topico {message.topic}: {payload}")
+#            payload = message.payload.decode("utf-8")
+#            logging.debug(f"Mensagem recebida no topico {message.topic}: {payload}")
             # Processa a mensagem aqui, se necessário
             client.handle_message(message)
         except Exception as e:
@@ -221,7 +221,7 @@ class LoRa2MQTTClient(mqtt.Client):
     def handle_message(self, message):
         """Processa mensagens recebidas do MQTT)."""
         logging.debug(f"Processando msg do topico {message.topic}: {message.payload.decode('utf-8')}")
-        msgs.on_mqtt_message(message.topic, message.payload)
+        msgs.on_mqtt_message(message.topic, message.payload.decode('utf-8'))
     
     def on_mqtt_connect(self):
         """Assina os tópicos MQTT necessários ao conectar."""
