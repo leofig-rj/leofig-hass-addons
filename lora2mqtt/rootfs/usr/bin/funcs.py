@@ -1,4 +1,5 @@
 import time
+import json
 
 import globals
 
@@ -23,9 +24,6 @@ def slug_com_lora(index):
     """Retorna o nome slugificado de um dispositivo LoRa."""
     return slugify(nome_com_lora(index))
 
-#def isEmptyStr(s):
-#    return s == 'null' or len(s) == 0 or s.isspace()
-
 def millis():
     return int(time.time() * 1000)
 
@@ -42,7 +40,10 @@ def char_to_on_off(c):
     return "ON" if c == '1' else "OFF"
 
 def char_to_state(c):
-    return {"state": "ON"} if c == '1' else {"state": "OFF"}
+    ret = {"state": "OFF"}
+    if c == '1':
+        ret = {"state": "ON"}
+    return json.dumps(ret)       # Serializa o JSON em uma string
 
 def bool_to_on_off(b):
     return "ON" if b else "OFF"

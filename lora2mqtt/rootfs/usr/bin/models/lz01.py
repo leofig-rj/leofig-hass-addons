@@ -8,13 +8,12 @@ from msgs import lora_fifo_tenta_enviar
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH
 
 class DeviceLZ01:
-    def __init__(self, addr=0):
+    def __init__(self):
         self.model = "LZ01"
         self.chip = "ESP32"
         self.ver = "1.0.0"
         self.man = "Leonardo Figueiro"
         self.desc = "Lampada"
-        self.entityAddr = addr
         self.entityNames = ["Lampada 1", "Input 1"]
         self.entitySlugs = []
         self.entityValNum = []

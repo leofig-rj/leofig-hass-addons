@@ -10,13 +10,12 @@ from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_
     DEVICE_CLASS_UPDATE, STATE_CLASS_MEASUREMENT, STATE_CLASS_TOTAL_INCREASING
 
 class DevicePW01:
-    def __init__(self, addr=0):
+    def __init__(self):
         self.model = "PW01"
         self.chip = "ESP32"
         self.ver = "1.0.0"
         self.man = "Leonardo Figueiro"
         self.desc = "Sensores de elétricas"
-        self.entityAddr = addr
         self.entityNames = ["Tensao", "Potencia", "Corrente", "Energia", "Energia RAM", "Aciona Rele", "Reset Energia"]
         self.entitySlugs = []
         self.entityValNum = []
@@ -26,14 +25,12 @@ class DevicePW01:
         self._setup_lists()
 
     def _setup_lists(self):
-        logging.debug(f"PW01 - Preenchendo listas! {len(self.entityNames)}")
         for i in range(len(self.entityNames)):
             self.entitySlugs.append(slugify(self.entityNames[i]))
             self.entityValNum.append(-1)
             self.entityLastValNum.append(-1)
             self.entityValStr.append("NULL")
             self.entityLastValStr.append("NULL")
-        logging.debug(f"PW01 - Resultado listas! {self.entitySlugs}")
 
     def proc_rec_msg(self, sMsg):
         

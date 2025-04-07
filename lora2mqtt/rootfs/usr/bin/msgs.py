@@ -3,7 +3,6 @@ import logging
 import json
 
 import funcs
-import devs
 import globals
 
 #from .devices import pw01
