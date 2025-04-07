@@ -265,7 +265,7 @@ def lora_envia_mensagem(sMsg, para):
     logging.debug(f"Enviado {serial_data}")
 
     lastIdSent = globals.g_lf_lora.last_sent_id();
-    lastMsgSent = sMsg
+    lastMsgSent = serial_data
 
 def lora_reenvia_mensagem():
     global loraCommandTime, tentativasCmd
