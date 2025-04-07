@@ -276,7 +276,7 @@ def lora_reenvia_mensagem():
     # Reenvio último comando
     serial_data = lastMsgSent
     globals.g_serial.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
-    logging.debug(f"Enviado {serial_data}")
+    logging.debug(f"Renviado {serial_data}")
 
 def lora_ultimo_cmd_retornou():
     global lastIdRec, lastIdSent, loraCommandTime, tentativasCmd
