@@ -1,7 +1,7 @@
 import logging
 
 from funcs import slugify, char_to_state, char_to_on_off
-from msgs import lora_fifo_tenta_enviar, mqtt_set_telemetry, mqtt_pub, mqtt_send_aux_connectivity_discovery, \
+from msgs import lora_fifo_tenta_enviar, mqtt_set_rssi, mqtt_pub, mqtt_send_aux_connectivity_discovery, \
                     mqtt_send_tele_sensor_discovery, mqtt_send_light_switch_discovery, mqtt_send_binary_sensor_discovery
 
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH
@@ -43,7 +43,8 @@ class DeviceLZ01:
         
         self.entityValStr[0] = char_to_state(partes[1])
         self.entityValStr[1] = char_to_on_off(partes[2])
-#        mqtt_set_telemetry(index, int(partes[3]))
+#        mqtt_set_rssi(index, int(partes[3]))
+        mqtt_set_rssi(index, -25)
         
         logging.debug(f"LZ01 - Lâmpada1: {self.entityValStr[0]} Input1: {self.entityValStr[1]}")
             
