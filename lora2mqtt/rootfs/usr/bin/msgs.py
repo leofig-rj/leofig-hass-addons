@@ -146,7 +146,24 @@ def on_mqtt_message(topic, payload):
 
 def mqtt_bridge_proc_command(entity, pay):
     """Processa comando para Bridge recebidas do MQTT)."""
+    if entity != "reset_esp":
+        return
     logging.debug(f"Processando comando para Bridge {entity}: {pay}")
+    # Vou tentar excluir o dispositivo indice 0
+    ram_devs = globals.g_devices.get_dev_rams()
+    client = globals.g_cli_mqtt
+    client.send_delete_discovery_x("binary_sensor", "Com LoRa", 0)
+    client.send_delete_discovery_x("sensor", "Tensao", 0)
+    client.send_delete_discovery_x("sensor", "Potencia", 0)
+    client.send_delete_discovery_x("sensor", "Corrente", 0)
+    client.send_delete_discovery_x("sensor", "Energia", 0)
+    client.send_delete_discovery_x("sensor", "Energia RAM", 0)
+    client.send_delete_discovery_x("button", "Aciona Rele", 0)
+    client.send_delete_discovery_x("button", "Reset Energia", 0)
+    logging.debug(f"Ficaram {len(ram_devs)} Dispositovo(s)")
+ 
+
+ 
 
 def mqtt_send_online():
     global online
