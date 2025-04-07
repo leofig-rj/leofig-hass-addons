@@ -24,7 +24,6 @@ LORA_TEMPO_CMD = 2000
 ##### Constantes para MQTT
 # Constantes de uso geral
 BUF_MQTT_MSG_LEN = 512
-REFRESH_TELEMETRY = 5000
 LORA_COM_NAME = "Com LoRa"
 
 # Constantes para inicialização

@@ -17,6 +17,7 @@ class DeviceLZ01:
         self.entitySlugs = []
         self.entityValStr = []
         self.entityLastValStr = []
+        self.entityRSSI = -20
 
         for i in range(len(self.entityNames)):
             self.entitySlugs.append(slugify(self.entityNames[i]))
@@ -44,7 +45,10 @@ class DeviceLZ01:
         self.entityValStr[0] = char_to_state(partes[1])
         self.entityValStr[1] = char_to_on_off(partes[2])
 #        mqtt_set_rssi(index, int(partes[3]))
-        mqtt_set_rssi(index, -25)
+        mqtt_set_rssi(index, self.entityRSSI)
+        self.entityRSSI = self.entityRSSI -1
+        if self.entityRSSI < 150:
+            self.entityRSSI = -20
         
         logging.debug(f"LZ01 - Lâmpada1: {self.entityValStr[0]} Input1: {self.entityValStr[1]}")
             

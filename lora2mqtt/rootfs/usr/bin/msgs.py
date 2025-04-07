@@ -14,7 +14,7 @@ from consts import  MSG_CHECK_OK
 from consts import LORA_FIFO_LEN, LORA_TEMPO_REFRESH, LORA_NUM_TENTATIVAS_CMD, LORA_TEMPO_OUT
 
 # Para MQTT
-from consts import  REFRESH_TELEMETRY, EC_DIAGNOSTIC, DEVICE_CLASS_RESTART, DEVICE_CLASS_SIGNAL_STRENGTH
+from consts import  EC_DIAGNOSTIC, DEVICE_CLASS_RESTART, DEVICE_CLASS_SIGNAL_STRENGTH
 
 # Variáveis globais
 online = False
@@ -64,7 +64,6 @@ def loop_mqtt():
     time.sleep(0.01)
 
     if online:
-        mqtt_send_telemetry()
         mqtt_send_com_lora()
 
     # Outra pausa
@@ -153,28 +152,6 @@ def mqtt_send_com_lora():
             logging.debug(f"Com LoRa {i} {s_com_lora}")
 
             globals.g_cli_mqtt.pub(f"{globals.g_cli_mqtt.work_topics[i]}/com_lora", 0, True, s_com_lora)
-
-def mqtt_send_telemetry():
-    global lastTeleMillis
-
-    return
-
-    tempo_loop = funcs.pega_delta_millis(lastTeleMillis)
-
-    if tempo_loop < REFRESH_TELEMETRY:
-        return
-
-    lastTeleMillis = funcs.millis()
-
-    # Pego o Dispositivos na RAM
-    ram_devs = globals.g_devices.get_dev_rams()
-
-    for i in range(len(ram_devs)):
-        doc = {}  # Inicializa o dicionário (equivalente ao `JsonDocument`)
-        doc["rssi"] = str(ram_devs[i].loraRSSI)
-        buffer = json.dumps(doc)  # Serializa o JSON em uma string
-        logging.debug(f"Telemetry {i} {buffer}")
-        globals.g_cli_mqtt.pub(globals.g_cli_mqtt.tele_topics[i], 0, False, buffer)
 
 def mqtt_set_rssi(index, rssi):
     # Salvo RSSI do Dispositivo na RAM

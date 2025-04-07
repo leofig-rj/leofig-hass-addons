@@ -20,6 +20,7 @@ class DevicePW01:
         self.entitySlugs = []
         self.entityValNum = []
         self.entityLastValNum= []
+        self.entityRSSI = -25
 
         for i in range(len(self.entityNames)):
             self.entitySlugs.append(slugify(self.entityNames[i]))
@@ -53,7 +54,10 @@ class DevicePW01:
         self.entityValNum[3]  = int(partes[4])
         self.entityValNum[4]  = int(partes[5])
 #        mqtt_set_rssi(index, int(partes[6]))
-        mqtt_set_rssi(index, -20)
+        mqtt_set_rssi(index, self.entityRSSI)
+        self.entityRSSI = self.entityRSSI -1
+        if self.entityRSSI < 150:
+            self.entityRSSI = -25
 
         logging.debug(
             f"PW01 - Tensão: {self.entityValNum[0]} Potência: {self.entityValNum[1]} "
