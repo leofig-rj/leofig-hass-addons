@@ -16,6 +16,7 @@ class DevicePW01:
         self.man = "Leonardo Figueiro"
         self.desc = "Sensores de elétricas"
         self.entityNames = ["Tensao", "Potencia", "Corrente", "Energia", "Energia RAM", "Aciona Rele", "Reset Energia"]
+        self.entityDomains = ["sensor", "sensor", "sensor", "sensor", "sensor", "button", "button"]
         self.entityValNumFator = [0.1, 0.1, 0.001, 1, 1]
         self.entitySlugs = []
         self.entityValNum = []

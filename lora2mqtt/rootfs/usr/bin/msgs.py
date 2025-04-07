@@ -154,16 +154,9 @@ def mqtt_bridge_proc_command(entity, pay):
     client = globals.g_cli_mqtt
     client.send_delete_discovery_x("binary_sensor", "Com LoRa", 0)
     client.send_delete_discovery_x("sensor", "RSSI", 0)
-    client.send_delete_discovery_x("sensor", "Tensao", 0)
-    client.send_delete_discovery_x("sensor", "Potencia", 0)
-    client.send_delete_discovery_x("sensor", "Corrente", 0)
-    client.send_delete_discovery_x("sensor", "Energia", 0)
-    client.send_delete_discovery_x("sensor", "Energia RAM", 0)
-    client.send_delete_discovery_x("button", "Aciona Rele", 0)
-    client.send_delete_discovery_x("button", "Reset Energia", 0)
-    logging.debug(f"Ficaram {len(ram_devs)} Dispositovo(s)")
- 
-
+    obj = ram_devs[0].slaveObj
+    for i in range(obj.entityNames):
+        client.send_delete_discovery_x(obj.entityDomains[0], obj.entityNames[0], 0)
  
 
 def mqtt_send_online():
