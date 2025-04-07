@@ -152,16 +152,12 @@ def mqtt_bridge_proc_command(entity, pay):
     # Vou tentar excluir o dispositivo indice 0
     ram_devs = globals.g_devices.get_dev_rams()
     client = globals.g_cli_mqtt
-    client.send_delete_discovery_x("binary_sensor", "Com LoRa", 0)
-    client.send_delete_discovery_x("sensor", "RSSI", 0)
+    client.send_delete_discovery_x(0, "binary_sensor", "Com LoRa")
+    client.send_delete_discovery_x(0, "sensor", "RSSI")
     obj = ram_devs[0].slaveObj
-    logging.info(f"Objeto {obj}")
-    logging.info(f"Dominios {obj.entityDomains}")
-    logging.info(f"Nomes {obj.entityNames}")
-#    logging.info(f"Entidade {0} Domínio {obj.entityDomains[0]} Nome {obj.entityNames[0]}")
-#    for i in range(len(obj.entityNames)):
-#        logging.info(f"Entidade {i} Domínio {obj.entityDomains[i]} Nome {obj.entityNames[i]}")
-#        client.send_delete_discovery_x(0, obj.entityDomains[i], obj.entityNames[i])
+    for i in range(len(obj.entityNames)):
+        logging.info(f"Entidade {i} Domínio {obj.entityDomains[i]} Nome {obj.entityNames[i]}")
+        client.send_delete_discovery_x(0, obj.entityDomains[i], obj.entityNames[i])
  
 
 def mqtt_send_online():
