@@ -56,7 +56,7 @@ class DevicePW01:
 #        mqtt_set_rssi(index, int(partes[6]))
         mqtt_set_rssi(index, self.entityRSSI)
         self.entityRSSI = self.entityRSSI -1
-        if self.entityRSSI < 150:
+        if self.entityRSSI < -150:
             self.entityRSSI = -25
 
         logging.debug(

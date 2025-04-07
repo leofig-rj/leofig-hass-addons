@@ -47,7 +47,7 @@ class DeviceLZ01:
 #        mqtt_set_rssi(index, int(partes[3]))
         mqtt_set_rssi(index, self.entityRSSI)
         self.entityRSSI = self.entityRSSI -1
-        if self.entityRSSI < 150:
+        if self.entityRSSI < -150:
             self.entityRSSI = -20
         
         logging.debug(f"LZ01 - Lâmpada1: {self.entityValStr[0]} Input1: {self.entityValStr[1]}")
