@@ -1,12 +1,12 @@
 import logging
 
 from funcs import slugify
-from msgs import lora_fifo_tenta_enviar, mqtt_set_rssi, mqtt_pub, mqtt_send_aux_connectivity_discovery, \
-                    mqtt_send_tele_sensor_discovery, mqtt_send_sensor_discovery, mqtt_send_button_discovery
+from msgs import lora_fifo_tenta_enviar, mqtt_set_rssi, mqtt_pub, mqtt_send_sensor_discovery, \
+                    mqtt_send_button_discovery
 
-from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_CLASS_VOLTAGE, \
-    DEVICE_CLASS_POWER, DEVICE_CLASS_CURRENT, DEVICE_CLASS_ENERGY, DEVICE_CLASS_RESTART, \
-    DEVICE_CLASS_UPDATE, STATE_CLASS_MEASUREMENT, STATE_CLASS_TOTAL_INCREASING
+from consts import EC_NONE, DEVICE_CLASS_VOLTAGE, DEVICE_CLASS_POWER, DEVICE_CLASS_CURRENT, \
+    DEVICE_CLASS_ENERGY, DEVICE_CLASS_RESTART, DEVICE_CLASS_UPDATE, STATE_CLASS_MEASUREMENT, \
+    STATE_CLASS_TOTAL_INCREASING
 
 class DevicePW01:
     def __init__(self):
@@ -81,9 +81,7 @@ class DevicePW01:
 
     def proc_discovery(self, index):
 
-        if mqtt_send_aux_connectivity_discovery(index) and \
-            mqtt_send_tele_sensor_discovery(index, "RSSI", EC_DIAGNOSTIC, "{{ value_json.rssi }}", DEVICE_CLASS_SIGNAL_STRENGTH, "") and \
-            mqtt_send_sensor_discovery(index, self.entityNames[0], EC_NONE, DEVICE_CLASS_VOLTAGE, "V", STATE_CLASS_MEASUREMENT, True) and \
+        if mqtt_send_sensor_discovery(index, self.entityNames[0], EC_NONE, DEVICE_CLASS_VOLTAGE, "V", STATE_CLASS_MEASUREMENT, True) and \
             mqtt_send_sensor_discovery(index, self.entityNames[1], EC_NONE, DEVICE_CLASS_POWER, "W", STATE_CLASS_MEASUREMENT, True) and \
             mqtt_send_sensor_discovery(index, self.entityNames[2], EC_NONE, DEVICE_CLASS_CURRENT, "A", STATE_CLASS_MEASUREMENT, True) and \
             mqtt_send_sensor_discovery(index, self.entityNames[3], EC_NONE, DEVICE_CLASS_ENERGY, "Wh", STATE_CLASS_TOTAL_INCREASING, True) and \

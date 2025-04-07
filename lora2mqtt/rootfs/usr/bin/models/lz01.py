@@ -1,10 +1,10 @@
 import logging
 
 from funcs import slugify, char_to_state, char_to_on_off
-from msgs import lora_fifo_tenta_enviar, mqtt_set_rssi, mqtt_pub, mqtt_send_aux_connectivity_discovery, \
-                    mqtt_send_tele_sensor_discovery, mqtt_send_light_switch_discovery, mqtt_send_binary_sensor_discovery
+from msgs import lora_fifo_tenta_enviar, mqtt_set_rssi, mqtt_pub, mqtt_send_light_switch_discovery, \
+                    mqtt_send_binary_sensor_discovery
 
-from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH
+from consts import EC_NONE
 
 class DeviceLZ01:
     def __init__(self):
@@ -72,9 +72,7 @@ class DeviceLZ01:
 
     def proc_discovery(self, index):
 
-        if mqtt_send_aux_connectivity_discovery(index) and \
-            mqtt_send_tele_sensor_discovery(index, "RSSI", EC_DIAGNOSTIC, "{{ value_json.rssi }}", DEVICE_CLASS_SIGNAL_STRENGTH, "") and \
-            mqtt_send_light_switch_discovery(index, self.entityNames[0], EC_NONE) and \
+        if mqtt_send_light_switch_discovery(index, self.entityNames[0], EC_NONE) and \
             mqtt_send_binary_sensor_discovery(index, self.entityNames[1], EC_NONE, EC_NONE):
             logging.debug(f"Discovery Entity LZ01 OK Índex {index}")
             return True

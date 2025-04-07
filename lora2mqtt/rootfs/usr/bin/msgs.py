@@ -14,7 +14,7 @@ from consts import  MSG_CHECK_OK
 from consts import LORA_FIFO_LEN, LORA_TEMPO_REFRESH, LORA_NUM_TENTATIVAS_CMD, LORA_TEMPO_OUT
 
 # Para MQTT
-from consts import  REFRESH_TELEMETRY, EC_DIAGNOSTIC, DEVICE_CLASS_RESTART
+from consts import  REFRESH_TELEMETRY, EC_DIAGNOSTIC, DEVICE_CLASS_RESTART, DEVICE_CLASS_SIGNAL_STRENGTH
 
 # Variáveis globais
 online = False
@@ -134,6 +134,9 @@ def mqtt_send_discovery_entities():
     ram_devs = globals.g_devices.get_dev_rams()
 
     for i in range(len(ram_devs)):
+        # Publica discovery do Com LoRa e RRSI do dispositivo
+        mqtt_send_aux_connectivity_discovery(i)
+        mqtt_send_binary_sensor_discovery(i, "RSSI", EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH)
         # Publica discovery das entidades do dispositivo (modelo)
         ram_devs[i].slaveObj.proc_discovery(i)
         logging.debug(f"Discovery Entity {i}")
@@ -153,6 +156,8 @@ def mqtt_send_com_lora():
 
 def mqtt_send_telemetry():
     global lastTeleMillis
+
+    return
 
     tempo_loop = funcs.pega_delta_millis(lastTeleMillis)
 
@@ -180,8 +185,13 @@ def mqtt_send_entities():
     # Pego oo Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
 
+    # Envio os estados das entidades
     for i in range(len(ram_devs)):
         if ram_devs[i].loraCom:
+            # Publica RSSI do dispositivo
+            if ram_devs[i].loraLastRSSI != ram_devs[i].loraRSSI:
+                ram_devs[i].loraLastRSSI = ram_devs[i].loraRSSI
+                mqtt_pub(i, "rssi", str(ram_devs[i].loraRSSI))
             # Publica entidades do dispositivo (modelo)
             ram_devs[i].slaveObj.proc_publish(i)
 

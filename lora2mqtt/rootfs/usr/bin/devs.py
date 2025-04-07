@@ -54,6 +54,7 @@ class DeviceRAM:
         self.loraRSSI = 0
         self.loraLastTimeOut = 0
         self.loraLastCom = False
+        self.loraLastRSSI = -1
         logging.debug(f"Addr: {self.slaveAddr}, Name: {self.slaveName}, "
                       f"Mac: {self.slaveMac}, Vesion: {self.slaveVer}, "
                       f"Chip: {self.slaveChip}, Model: {self.slaveModel}, "
