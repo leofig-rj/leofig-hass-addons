@@ -86,7 +86,7 @@ def main(broker, port, broker_user, broker_pass):
 
             # Listo os dispositivos filhos de LoRa2MQTT
             msgs.mqtt_filhos()
-            
+
             # Loop Geral
             while True:
                 # Loop Serial
@@ -553,7 +553,7 @@ class LoRa2MQTTClient(mqtt.Client):
         topic = f"{HA_PREFIX}/{domain}/{self.addon_slug}_{UINQUE}/{slug}/config"
         return self.pub(topic, 0, False, "")
 
-    def send_delete_discovery_x(self, domain, name, index):
+    def send_delete_discovery_x(self, index, domain, name):
         """
         Envia uma mensagem para deletar descoberta de um slave LoRa.
         """
