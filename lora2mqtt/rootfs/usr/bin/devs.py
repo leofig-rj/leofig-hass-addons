@@ -115,18 +115,6 @@ class DeviceManager:
         self.save_devices(devices_filtered)
         logging.debug(f"Dispositivo com ID '{id_device}' excluído com sucesso!")
 
-    def list_devices(self):
-        """Lista todos os dispositivos cadastrados."""
-        devices = self.load_devices()
-        if devices:
-            for device in devices:
-                logging.debug(f"ID: {device['id']}, Modelo: {device['model']}, "
-                      f"Chip: {device['chip']}, Fabricante: {device['manufacturer']}, "
-                      f"Serial: {device['serial']}, Versão: {device['version']}, "
-                      f"Nome: {device['friendly_name']}, Endereço: {device['address']}")
-        else:
-            logging.debug("Nenhum dispositivo cadastrado.")
-
     def load_devices_to_ram(self):
         """Carrega todos os dispositivos cadastrados na DeviceRAM."""
         devices = self.load_devices()
@@ -145,13 +133,9 @@ class DeviceManager:
                 obj = None
                 if model:
                     obj = model.model_obj
-#                logging.info(f"DEVICE {device['address']} {name} {slug} {device['id']} {device['version']} " \
-#                              f"{device['chip']} {device['model']} {device['manufacturer']} {obj}")
-                logging.info(f"DEVICE {device['address']} {name} {slug} {device['id']} {obj.ver} " \
+                logging.info(f"DEVICE {device['address']} {name} {slug} {device['mac']} {obj.ver} " \
                               f"{obj.chip} {device['model']} {obj.man} {obj}")
-#                self.dev_rams.append(DeviceRAM(i, device['address'], name, slug, device['id'], device['version'], \
-#                                               device['chip'], device['model'], device['manufacturer'], obj))
-                self.dev_rams.append(DeviceRAM(i, device['address'], name, slug, device['id'], obj.ver, \
+                self.dev_rams.append(DeviceRAM(i, device['address'], name, slug, device['mac'], obj.ver, \
                                                obj.chip, device['model'], obj.man, obj))
                 i = i + 1
         else:
