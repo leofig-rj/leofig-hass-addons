@@ -11,7 +11,7 @@ import globals
 from consts import  MSG_CHECK_OK
 
 # Para LoRa
-from consts import LORA_FIFO_LEN, LORA_TEMPO_REFRESH, LORA_NUM_TENTATIVAS_CMD, LFLORA_MAX_PACKET_SIZE, LORA_TEMPO_OUT
+from consts import LORA_FIFO_LEN, LORA_TEMPO_REFRESH, LORA_NUM_TENTATIVAS_CMD, LORA_TEMPO_OUT
 
 # Para MQTT
 from consts import  REFRESH_TELEMETRY, EC_DIAGNOSTIC, DEVICE_CLASS_RESTART
@@ -34,16 +34,18 @@ loraFiFoDestinoBuffer = [0] * LORA_FIFO_LEN
 loraUltimoDestinoCmd = 0
 
 def loop_serial():
+    global lastIdRec
     # Verifico se tem dado na serial
     if globals.g_serial.in_waiting > 0:
         # Pegando o dado e deixando como string
         serial_data = globals.g_serial.readline().decode('utf-8').strip()
         # Tratando o dado
-        result, de, para, msg = globals.g_lf_lora.lora_check_msg_ini(serial_data)
+        result, de, para, id, msg = globals.g_lf_lora.lora_check_msg_ini(serial_data)
         logging.debug(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
         # Trato a mensagem
         if result == MSG_CHECK_OK:
             # Tratando a msg conforme remetente
+            lastIdRec = id
             index = funcs.get_index_from_addr(de)
             logging.debug(f"Ïndice do dispositivo: {index}")
             on_lora_message(msg, index)
@@ -264,7 +266,7 @@ def lora_envia_mensagem(sMsg, para):
     globals.g_serial.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
     logging.debug(f"Enviado {serial_data}")
 
-    lastIdSent = globals.g_lf_lora.last_sent_id();
+    lastIdSent = globals.g_lf_lora.last_sent_id()
     lastMsgSent = serial_data
 
 def lora_reenvia_mensagem():

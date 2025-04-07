@@ -25,9 +25,9 @@ class LFLoraClass:
 
     def lora_add_header(self, input_str, para):
         self._lastSendId = (self._lastSendId + 1) % 256 
-        return self.lora_add_header_to(input_str, para, self._lastSendId)
+        return self.lora_add_header_id(input_str, para, self._lastSendId)
 
-    def lora_add_header_to(self, input_str, para, msg_id):
+    def lora_add_header_id(self, input_str, para, msg_id):
         # Criação do buffer auxiliar com o cabeçalho
         aux = f"#{self._myAddr:02X}{para:02X}{msg_id:02X}{len(input_str) + 10:04X}"
         # Completa com a mensagem de entrada
@@ -39,15 +39,15 @@ class LFLoraClass:
         out = ""
 
         if input_str[0] != '#':
-            return MSG_CHECK_ERROR, 0, 0, out
+            return MSG_CHECK_ERROR, 0, 0, 0, out
 
         for i in range(10):
             try:
                 char = input_str[i+1:i+2]
                 if char not in "0123456789ABCDEFabcdef":
-                    return MSG_CHECK_ERROR, 0, 0, out
+                    return MSG_CHECK_ERROR, 0, 0, 0, out
             except UnicodeDecodeError:
-                return MSG_CHECK_ERROR, 0, 0, out
+                return MSG_CHECK_ERROR, 0, 0, 0, out
 
         de = int(input_str[1:3], 16)
         para = int(input_str[3:5], 16)
@@ -56,7 +56,7 @@ class LFLoraClass:
 
         # input_str tem um caracter a maias (o # no início)
         if len_in_msg != len(input_str) - 1:
-            return MSG_CHECK_ERROR, 0, 0, out
+            return MSG_CHECK_ERROR, 0, 0, 0, out
 
         out = input_str[11:]
 
@@ -67,14 +67,14 @@ class LFLoraClass:
             self.add_reg_rec(de, para, id)
         else:
             if self._regRecs[index].id == id:
-                return MSG_CHECK_ALREADY_REC, de, para, out
+                return MSG_CHECK_ALREADY_REC, de, para, id, out
             self._regRecs[index].id = id
 
-        return MSG_CHECK_OK, de, para, out
+        return MSG_CHECK_OK, de, para, id, out
 
     def lora_check_msg(self, input_str, length):
         out = []
-        result, de, para, out = self.lora_check_msg_ini(input_str, length)
+        result, de, para, id, out = self.lora_check_msg_ini(input_str, length)
         if result != MSG_CHECK_OK:
             return result, out
         if para != self._myAddr:
