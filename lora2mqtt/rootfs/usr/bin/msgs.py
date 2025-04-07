@@ -130,9 +130,9 @@ def mqtt_send_discovery_entities():
     ram_devs = globals.g_devices.get_dev_rams()
 
     for i in range(len(ram_devs)):
-        # Publica discovery do Com LoRa e RRSI do dispositivo
+        # Publica discovery do Com LoRa e RSSI do dispositivo
         mqtt_send_aux_connectivity_discovery(i)
-        mqtt_send_binary_sensor_discovery(i, "RSSI", EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH)
+        mqtt_send_sensor_discovery(i, "RSSI", EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH, "", "", True) and \
         # Publica discovery das entidades do dispositivo (modelo)
         ram_devs[i].slaveObj.proc_discovery(i)
         logging.debug(f"Discovery Entity {i}")
@@ -163,10 +163,10 @@ def mqtt_send_entities():
     for i in range(len(ram_devs)):
         if ram_devs[i].loraCom:
             # Publica RSSI do dispositivo
-            logging.info(f"RSSI {i} {ram_devs[i].loraRSSI} {ram_devs[i].loraLastRSSI}")
             if ram_devs[i].loraLastRSSI != ram_devs[i].loraRSSI:
                 ram_devs[i].loraLastRSSI = ram_devs[i].loraRSSI
                 mqtt_pub(i, "rssi", str(ram_devs[i].loraRSSI))
+                logging.info(f"RSSI {i} {ram_devs[i].loraRSSI} {ram_devs[i].loraLastRSSI}")
             # Publica entidades do dispositivo (modelo)
             ram_devs[i].slaveObj.proc_publish(i)
 
