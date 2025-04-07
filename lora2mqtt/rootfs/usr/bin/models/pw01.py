@@ -76,7 +76,7 @@ class DevicePW01:
                 aAux = "{:.1f}".format(self.entityValNum[i]*self.entityValNumFator[i])
                 logging.debug(f"PW01 - entityValNum {i} {self.entitySlugs[i]} {aAux}")
 #                client.pub(f"{client.work_topics[index]}/{self.entitySlugs[i]}", 0, True, aAux)
-                mqtt_pub(index, self.entitySlugs[i], self.entityValStr[i])
+                mqtt_pub(index, self.entitySlugs[i], aAux)
 
     def proc_discovery(self, index):
 
