@@ -55,7 +55,7 @@ class DeviceLZ01:
     def proc_command(self, entity, pay, index):
 
         if entity == self.entitySlugs[0]:
-            if (pay.indexOf("ON")!=-1):
+            if (pay.find("ON")!=-1):
                 lora_fifo_tenta_enviar("101", index)
             else:
                 lora_fifo_tenta_enviar("102", index)
