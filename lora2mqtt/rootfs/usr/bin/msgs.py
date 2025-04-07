@@ -166,7 +166,6 @@ def mqtt_send_entities():
             if ram_devs[i].loraLastRSSI != ram_devs[i].loraRSSI:
                 ram_devs[i].loraLastRSSI = ram_devs[i].loraRSSI
                 mqtt_pub(i, "rssi", str(ram_devs[i].loraRSSI))
-                logging.info(f"RSSI {i} {ram_devs[i].loraRSSI} {ram_devs[i].loraLastRSSI}")
             # Publica entidades do dispositivo (modelo)
             ram_devs[i].slaveObj.proc_publish(i)
 
