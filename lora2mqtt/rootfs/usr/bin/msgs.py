@@ -63,7 +63,7 @@ def mqtt_filhos():
         for device in mqtt_devices:
             logging.info(f"ID: {device['id']} - Nome: {device['name']}")
     else:
-        logging.info("Erro ao acessar dispositivos:", response.status_code)
+        logging.info(f"Erro ao acessar dispositivos: {response.status_code}")
 
 def loop_serial():
     global lastIdRec
