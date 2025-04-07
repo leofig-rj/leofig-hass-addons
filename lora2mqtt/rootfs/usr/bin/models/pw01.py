@@ -3,7 +3,7 @@ import logging
 import globals
 
 from funcs import slugify
-from msgs import lora_fifo_tenta_enviar
+from msgs import lora_fifo_tenta_enviar, mqtt_pub
 
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_CLASS_VOLTAGE, \
     DEVICE_CLASS_POWER, DEVICE_CLASS_CURRENT, DEVICE_CLASS_ENERGY, DEVICE_CLASS_RESTART, \
@@ -68,14 +68,15 @@ class DevicePW01:
  
     def proc_publish(self, index):
 
-        client = globals.g_cli_mqtt
+#        client = globals.g_cli_mqtt
 
         for i in range(len(self.entityValNumFator)):
             if self.entityLastValNum[i] != self.entityValNum[i]:
                 self.entityLastValNum[i] = self.entityValNum[i]
                 aAux = "{:.1f}".format(self.entityValNum[i]*self.entityValNumFator[i])
                 logging.debug(f"PW01 - entityValNum {i} {self.entitySlugs[i]} {aAux}")
-                client.pub(f"{client.work_topics[index]}/{self.entitySlugs[i]}", 0, True, aAux)
+#                client.pub(f"{client.work_topics[index]}/{self.entitySlugs[i]}", 0, True, aAux)
+                mqtt_pub(index, self.entitySlugs[i], self.entityValStr[i])
 
     def proc_discovery(self, index):
 

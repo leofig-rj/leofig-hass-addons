@@ -88,20 +88,15 @@ def loop_lora():
     if not lora_ultimo_cmd_retornou():
         return
 
-#    logging.debug("Loop LoRa - 2")
     # Verifico se tem comando no FiFo para enviar...
     lora_fifo_verifica()
 
-#    logging.debug("Loop LoRa - 3")
     # Solicito estado periodicamente...
     tempoLoop = funcs.pega_delta_millis(loraCommandTime)
     if tempoLoop > LORA_TEMPO_REFRESH:
-        logging.debug("Loop LoRa - 4")
         lora_fifo_tenta_enviar("000", loraUltimoDestinoCmd)
-        logging.debug("Loop LoRa - 5")
         # Defino o próximo destino para solicitar estado...
         lora_proximo_destino_cmd()
-        logging.debug("Loop LoRa - 6")
 
 def mqtt_send_online():
     global online
@@ -166,6 +161,10 @@ def mqtt_send_entities():
         if ram_devs[i].loraCom:
             # Publica entidades do dispositivo (modelo)
             ram_devs[i].slaveObj.proc_publish(i)
+
+def mqtt_pub(index, slug, val):
+    client = globals.g_cli_mqtt
+    client.pub(f"{client.work_topics[index]}/{slug}", 0, True, val)
 
 def on_mqtt_message(topic, payload):
 

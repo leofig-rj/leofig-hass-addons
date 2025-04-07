@@ -3,7 +3,7 @@ import logging
 import globals
 
 from funcs import slugify, char_to_state, char_to_on_off
-from msgs import lora_fifo_tenta_enviar
+from msgs import lora_fifo_tenta_enviar, mqtt_pub
 
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH
 
@@ -59,13 +59,14 @@ class DeviceLZ01:
  
     def proc_publish(self, index):
 
-        client = globals.g_cli_mqtt
+#        client = globals.g_cli_mqtt
 
         for i in range(len(self.entityNames)):
             if self.entityLastValStr[i] != self.entityValStr[i]:
                 self.entityLastValStr[i] = self.entityValStr[i]
                 logging.debug(f"LZ01 - entityValStr {i} {self.entitySlugs[i]} {self.entityValStr[i]}")
-                client.pub(f"{client.work_topics[index]}/{self.entitySlugs[i]}", 0, True, self.entityValStr[i])
+#                client.pub(f"{client.work_topics[index]}/{self.entitySlugs[i]}", 0, True, self.entityValStr[i])
+                mqtt_pub(index, self.entitySlugs[i], self.entityValStr[i])
 
     def proc_discovery(self, index):
 
