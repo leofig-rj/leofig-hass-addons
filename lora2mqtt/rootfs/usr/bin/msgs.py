@@ -1,6 +1,5 @@
 import time
 import logging
-import json
 
 import funcs
 import globals
@@ -24,8 +23,6 @@ lastMsgSent = ""
 lastIdRec = 0
 lastIdSent = 0
 tentativasCmd = 0
-lastTeleMillis = 0
-
 
 loraFiFoPrimeiro = 0
 loraFiFoUltimo = 0
