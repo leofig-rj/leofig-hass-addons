@@ -35,7 +35,7 @@ loraUltimoDestinoCmd = 0
 
 
 # Configurações
-url = "http://IP_DO_HOMEASSISTANT:8123/api/devices"
+url = "http://Ilocalhost:8123/api/devices"
 headers = {
     "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmZTJiZmRiZjJkNmE0YWEyOWEwY2ZiZTNhMWY4NzRkZCIsImlhdCI6MTc0NDA1MDU4OSwiZXhwIjoyMDU5NDEwNTg5fQ.mNt5-tDLeNLhL3aaf4KemmBShisffScu6JhleysQLl0",  # Substitua pelo seu token de acesso
     "Content-Type": "application/json",
