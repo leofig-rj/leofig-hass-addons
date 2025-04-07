@@ -173,14 +173,6 @@ class LoRa2MQTTClient(mqtt.Client):
         logging.debug(f"Set Topics: {self.set_topics}")
         logging.debug(f"Masc Disc Topics: {self.masc_disc_topics}")
 
-#    def send_message(self, topic, msg, retain=False):
-#        """Envia uma mensagem para um tópico MQTT."""
-#        try:
-#            logging.debug(f'Enviando messagem "{msg}" to topic "{topic}" with retain={retain}')
-#            self.publish(topic, msg, qos=0, retain=retain)
-#        except Exception as e:
-#            logging.error(f"Falha em enviar mensagem: {e}")
-
     def mqtt_connection(self):
         """Tenta conectar ao broker MQTT."""
         try:

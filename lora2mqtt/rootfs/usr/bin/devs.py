@@ -145,10 +145,14 @@ class DeviceManager:
                 obj = None
                 if model:
                     obj = model.model_obj
-                logging.debug(f"DEVICE {device['address']} {name} {slug} {device['id']} {device['version']} " \
-                              f"{device['chip']} {device['model']} {device['manufacturer']} {obj}")
-                self.dev_rams.append(DeviceRAM(i, device['address'], name, slug, device['id'], device['version'], \
-                                               device['chip'], device['model'], device['manufacturer'], obj))
+#                logging.info(f"DEVICE {device['address']} {name} {slug} {device['id']} {device['version']} " \
+#                              f"{device['chip']} {device['model']} {device['manufacturer']} {obj}")
+                logging.info(f"DEVICE {device['address']} {name} {slug} {device['id']} {obj.ver} " \
+                              f"{obj.chip} {device['model']} {obj.man} {obj}")
+#                self.dev_rams.append(DeviceRAM(i, device['address'], name, slug, device['id'], device['version'], \
+#                                               device['chip'], device['model'], device['manufacturer'], obj))
+                self.dev_rams.append(DeviceRAM(i, device['address'], name, slug, device['id'], obj.ver, \
+                                               obj.chip, device['model'], obj.man, obj))
                 i = i + 1
         else:
             logging.debug("Nenhum dispositivo cadastrado.")
