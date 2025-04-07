@@ -170,10 +170,10 @@ class DeviceManager:
 
         return None
 
-    def find_device_by_slug(self, slug_rec):
+    def find_device_by_name(self, name):
         """Busca um dispositivo específico pelo slug."""
         for i in range(len(self.dev_rams)):
-            if slug_rec == self.dev_rams[i].slaveSlug:
+            if name == self.dev_rams[i].slaveName:
                 return i
         return None
 
