@@ -42,6 +42,7 @@ headers = {
 }
 
 def mqtt_filhos():
+    global url, headers
     # Requisição para listar dispositivos
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
