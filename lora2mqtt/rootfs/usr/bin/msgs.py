@@ -197,7 +197,7 @@ def on_mqtt_message(topic, payload):
             index = globals.g_devices.find_device_by_name(device)
             if index:
                 ram_dev = globals.g_devices.get_dev_rams()[index]
-                ram_dev.proc_command(entity, pay, index)
+                ram_dev.slaveObj.proc_command(entity, pay, index)
             else:
                 logging.debug(f"Não encontrado dispositivo {device}")
     else:
