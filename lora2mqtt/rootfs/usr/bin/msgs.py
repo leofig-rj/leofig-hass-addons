@@ -1,5 +1,6 @@
 import time
 import logging
+import requests
 
 import funcs
 import globals
@@ -13,7 +14,9 @@ from consts import  MSG_CHECK_OK
 from consts import LORA_FIFO_LEN, LORA_TEMPO_REFRESH, LORA_NUM_TENTATIVAS_CMD, LORA_TEMPO_OUT
 
 # Para MQTT
-from consts import  EC_DIAGNOSTIC, DEVICE_CLASS_RESTART, DEVICE_CLASS_SIGNAL_STRENGTH
+from consts import EC_DIAGNOSTIC, DEVICE_CLASS_RESTART, DEVICE_CLASS_SIGNAL_STRENGTH
+
+from consts import ADDON_SLUG, UINQUE
 
 # Variáveis globais
 online = False
@@ -29,6 +32,28 @@ loraFiFoUltimo = 0
 loraFiFoMsgBuffer = [""] * LORA_FIFO_LEN
 loraFiFoDestinoBuffer = [0] * LORA_FIFO_LEN
 loraUltimoDestinoCmd = 0
+
+
+# Configurações
+url = "http://IP_DO_HOMEASSISTANT:8123/api/devices"
+headers = {
+    "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmZTJiZmRiZjJkNmE0YWEyOWEwY2ZiZTNhMWY4NzRkZCIsImlhdCI6MTc0NDA1MDU4OSwiZXhwIjoyMDU5NDEwNTg5fQ.mNt5-tDLeNLhL3aaf4KemmBShisffScu6JhleysQLl0",  # Substitua pelo seu token de acesso
+    "Content-Type": "application/json",
+}
+
+def mqtt_filhos():
+    # Requisição para listar dispositivos
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        devices = response.json()
+        bridge_id = f"{ADDON_SLUG}_{UINQUE}"  # Substitua pelo ID da sua Bridge
+        child_device_ids = [
+            device["id"] for device in devices if device.get("via_device_id") == bridge_id
+        ]
+        logging.info(f"IDs dos dispositivos filhos da Bridge: , {child_device_ids}")
+    else:
+        logging.info(f"Erro ao obter dispositivos: {response.status_code}")
+
 
 def loop_serial():
     global lastIdRec

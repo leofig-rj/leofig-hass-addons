@@ -84,6 +84,9 @@ def main(broker, port, broker_user, broker_pass):
             client.mqtt_connection()
             client.loop_start()  # Inicia o loop MQTT em uma thread separada
 
+            # Listo os dispositivos filhos de LoRa2MQTT
+            msgs.mqtt_filhos()
+            
             # Loop Geral
             while True:
                 # Loop Serial
