@@ -160,7 +160,7 @@ def mqtt_bridge_proc_command(entity, pay):
     logging.info(f"Nmes {obj.entityNames}")
     for i in range(len(obj.entityNames)):
         logging.info(f"Entidade {i} Domínio {obj.entityDomains[i]} Nome {obj.entityNames[i]}")
-        client.send_delete_discovery_x(0, obj.entityDomains[i], obj.entityNames[i])
+#        client.send_delete_discovery_x(0, obj.entityDomains[i], obj.entityNames[i])
  
 
 def mqtt_send_online():
