@@ -1,9 +1,8 @@
 import logging
 
-import globals
-
 from funcs import slugify, char_to_state, char_to_on_off
-from msgs import lora_fifo_tenta_enviar, mqtt_pub
+from msgs import lora_fifo_tenta_enviar, mqtt_pub, mqtt_send_aux_connectivity_discovery, mqtt_send_tele_sensor_discovery, \
+                    mqtt_send_light_switch_discovery, mqtt_send_binary_sensor_discovery
 
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH
 
@@ -59,23 +58,18 @@ class DeviceLZ01:
  
     def proc_publish(self, index):
 
-#        client = globals.g_cli_mqtt
-
         for i in range(len(self.entityNames)):
             if self.entityLastValStr[i] != self.entityValStr[i]:
                 self.entityLastValStr[i] = self.entityValStr[i]
                 logging.debug(f"LZ01 - entityValStr {i} {self.entitySlugs[i]} {self.entityValStr[i]}")
-#                client.pub(f"{client.work_topics[index]}/{self.entitySlugs[i]}", 0, True, self.entityValStr[i])
                 mqtt_pub(index, self.entitySlugs[i], self.entityValStr[i])
 
     def proc_discovery(self, index):
 
-        client = globals.g_cli_mqtt
-
-        if client.send_aux_connectivity_discovery(index) and \
-            client.send_tele_sensor_discovery(index, "RSSI", EC_DIAGNOSTIC, "{{ value_json.rssi }}", DEVICE_CLASS_SIGNAL_STRENGTH, "") and \
-            client.send_light_switch_discovery(index, self.entityNames[0], EC_NONE) and \
-            client.send_binary_sensor_discovery(index, self.entityNames[1], EC_NONE, EC_NONE):
+        if mqtt_send_aux_connectivity_discovery(index) and \
+            mqtt_send_tele_sensor_discovery(index, "RSSI", EC_DIAGNOSTIC, "{{ value_json.rssi }}", DEVICE_CLASS_SIGNAL_STRENGTH, "") and \
+            mqtt_send_light_switch_discovery(index, self.entityNames[0], EC_NONE) and \
+            mqtt_send_binary_sensor_discovery(index, self.entityNames[1], EC_NONE, EC_NONE):
             logging.debug(f"Discovery Entity LZ01 OK Índex {index}")
             return True
         else:

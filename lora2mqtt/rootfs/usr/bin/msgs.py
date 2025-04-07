@@ -73,30 +73,48 @@ def loop_mqtt():
     if online:
         mqtt_send_entities()
 
-def loop_lora():
+def on_mqtt_message(topic, payload):
 
-    ram_devs = globals.g_devices.get_dev_rams()
+    # Converte o payload de byte para string
+    #payload_char = payload.decode('utf-8')[:LFLORA_MAX_PACKET_SIZE]
 
-    # Verifico Time out dos dispositivos para informar desconexão
-    for i in range(len(ram_devs)):
-        tempoOut = funcs.pega_delta_millis(ram_devs[i].loraTimeOut)
-        if tempoOut > LORA_TEMPO_OUT:
-            ram_devs[i].loraTimeOut = funcs.millis()
-            ram_devs[i].loraCom = False
-    
-    # Verifico se a última mensagem retornou...
-    if not lora_ultimo_cmd_retornou():
-        return
+    top = topic
+    pay = payload
 
-    # Verifico se tem comando no FiFo para enviar...
-    lora_fifo_verifica()
+    if "/set" in top:
+        set_pos = top.rfind("/set")
+        entity_pos = top.rfind("/", 0, set_pos)
+        if entity_pos == -1:
+            logging.error(f"Na msg recebida de MQTT não encontrado /set: | {top} para {pay}")
+            return
+        entity = top[entity_pos + 1:set_pos]
+        logging.debug(f"Set | {entity} para {pay}")
+        
+        # Para pegar o dispositivo que enviou o comando
+        device_pos = top.rfind("/", 0, entity_pos)
+        if device_pos == -1:
+            logging.error(f"Na msg recebida de MQTT não encontrado o dispositivo: | {top} para {pay}")
+            return
+        device = top[device_pos + 1:entity_pos]
+        logging.debug(f"Dispositivo {device}")
 
-    # Solicito estado periodicamente...
-    tempoLoop = funcs.pega_delta_millis(loraCommandTime)
-    if tempoLoop > LORA_TEMPO_REFRESH:
-        lora_fifo_tenta_enviar("000", loraUltimoDestinoCmd)
-        # Defino o próximo destino para solicitar estado...
-        lora_proximo_destino_cmd()
+        if device == 'bridge':
+            # Trata comando de Bridge
+            mqtt_bridge_proc_command(entity, pay)
+        else:
+            # Procura nos dispositivo
+            index = globals.g_devices.find_device_by_name(device)
+            if index is not None:
+                ram_dev = globals.g_devices.get_dev_rams()[index]
+                ram_dev.slaveObj.proc_command(entity, pay, index)
+            else:
+                logging.debug(f"Não encontrado dispositivo {device}")
+    else:
+        logging.error(f"A msg recebida de MQTT não foi tratada: | {top} para {pay}")
+
+def mqtt_bridge_proc_command(entity, pay):
+    """Processa comando para Bridge recebidas do MQTT)."""
+    logging.debug(f"Processando comando para Bridge {entity}: {pay}")
 
 def mqtt_send_online():
     global online
@@ -164,46 +182,72 @@ def mqtt_send_entities():
 
 def mqtt_pub(index, slug, val):
     client = globals.g_cli_mqtt
-    client.pub(f"{client.work_topics[index]}/{slug}", 0, True, val)
+    return client.pub(f"{client.work_topics[index]}/{slug}", 0, True, val)
 
-def on_mqtt_message(topic, payload):
+def mqtt_send_aux_connectivity_discovery(index):
+    client = globals.g_cli_mqtt
+    return client.send_aux_connectivity_discovery(index)
 
-    # Converte o payload de byte para string
-    #payload_char = payload.decode('utf-8')[:LFLORA_MAX_PACKET_SIZE]
+def mqtt_send_tele_binary_sensor_discovery(index, name, entity_category, value_template, device_class):
+    client = globals.g_cli_mqtt
+    return client.send_tele_binary_sensor_discovery(index, name, entity_category, value_template, device_class)
 
-    top = topic
-    pay = payload
+def mqtt_send_tele_sensor_discovery(index, name, entity_category, value_template, device_class, units):
+    client = globals.g_cli_mqtt
+    return client.send_tele_sensor_discovery(index, name, entity_category, value_template, device_class, units)
 
-    if "/set" in top:
-        set_pos = top.rfind("/set")
-        entity_pos = top.rfind("/", 0, set_pos)
-        if entity_pos == -1:
-            logging.error(f"Na msg recebida de MQTT não encontrado /set: | {top} para {pay}")
-            return
-        entity = top[entity_pos + 1:set_pos]
-        logging.debug(f"Set | {entity} para {pay}")
-        
-        # Para pegar o dispositivo que enviou o comando
-        device_pos = top.rfind("/", 0, entity_pos)
-        if device_pos == -1:
-            logging.error(f"Na msg recebida de MQTT não encontrado o dispositivo: | {top} para {pay}")
-            return
-        device = top[device_pos + 1:entity_pos]
-        logging.debug(f"Dispositivo {device}")
+def mqtt_send_sensor_discovery(index, name, entity_category, device_class, units, state_class, force_update):
+    client = globals.g_cli_mqtt
+    return client.send_sensor_discovery(index, name, entity_category, device_class, units, state_class, force_update)
 
-        if device == 'bridge':
-            # Trata comando de Bridge
-            bridge_proc_command(entity, pay)
-        else:
-            # Procura nos dispositivo
-            index = globals.g_devices.find_device_by_name(device)
-            if index is not None:
-                ram_dev = globals.g_devices.get_dev_rams()[index]
-                ram_dev.slaveObj.proc_command(entity, pay, index)
-            else:
-                logging.debug(f"Não encontrado dispositivo {device}")
-    else:
-        logging.error(f"A msg recebida de MQTT não foi tratada: | {top} para {pay}")
+def mqtt_send_binary_sensor_discovery(index, name, entity_category, device_class):
+    client = globals.g_cli_mqtt
+    return client.send_binary_sensor_discovery(index, name, entity_category, device_class)
+
+def mqtt_send_button_discovery(index, name, entity_category, device_class):
+    client = globals.g_cli_mqtt
+    return client.send_button_discovery(index, name, entity_category, device_class)
+
+def mqtt_send_switch_discovery(index, name, entity_category):
+    client = globals.g_cli_mqtt
+    return client.send_switch_discovery(index, name, entity_category)
+
+def mqtt_send_number_discovery(index, name, entity_category, step):
+    client = globals.g_cli_mqtt
+    return client.send_number_discovery(index, name, entity_category, step)
+
+def mqtt_send_light_discovery(index, name, entity_category, rgb):
+    client = globals.g_cli_mqtt
+    return client.send_light_discovery(index, name, entity_category, rgb)
+
+def mqtt_send_light_switch_discovery(index, name, entity_category):
+    client = globals.g_cli_mqtt
+    return client.send_light_switch_discovery(index, name, entity_category)
+
+def loop_lora():
+
+    ram_devs = globals.g_devices.get_dev_rams()
+
+    # Verifico Time out dos dispositivos para informar desconexão
+    for i in range(len(ram_devs)):
+        tempoOut = funcs.pega_delta_millis(ram_devs[i].loraTimeOut)
+        if tempoOut > LORA_TEMPO_OUT:
+            ram_devs[i].loraTimeOut = funcs.millis()
+            ram_devs[i].loraCom = False
+    
+    # Verifico se a última mensagem retornou...
+    if not lora_ultimo_cmd_retornou():
+        return
+
+    # Verifico se tem comando no FiFo para enviar...
+    lora_fifo_verifica()
+
+    # Solicito estado periodicamente...
+    tempoLoop = funcs.pega_delta_millis(loraCommandTime)
+    if tempoLoop > LORA_TEMPO_REFRESH:
+        lora_fifo_tenta_enviar("000", loraUltimoDestinoCmd)
+        # Defino o próximo destino para solicitar estado...
+        lora_proximo_destino_cmd()
 
 def on_lora_message(sMsg, index):
     global loraFiFoPrimeiro, loraFiFoUltimo
@@ -226,11 +270,6 @@ def on_lora_message(sMsg, index):
         lora_proximo_destino_cmd()
 
     return
-
-def bridge_proc_command(entity, pay):
-    """Processa comando para Bridge recebidas do MQTT)."""
-    logging.debug(f"Processando comando para Bridge {entity}: {pay}")
-
 
 def lora_fifo_tenta_enviar(sMsg, index):
     global loraFiFoPrimeiro, loraFiFoUltimo, loraFiFoMsgBuffer, loraFiFoDestinoBuffer
