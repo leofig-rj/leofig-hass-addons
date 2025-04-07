@@ -261,7 +261,7 @@ class LoRa2MQTTClient(mqtt.Client):
                 "sw": self.ram_devs[index].slaveVer,
                 "mf": self.ram_devs[index].slaveMan,
                 "mdl": self.ram_devs[index].slaveModel,
-                "via_device" : "LoRa2MQTT Bridge"
+                "via_device" : f"{self.addon_slug}_{UINQUE}"
             }
         }
         return payload
