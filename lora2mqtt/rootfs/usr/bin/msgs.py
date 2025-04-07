@@ -53,7 +53,17 @@ def mqtt_filhos():
         logging.info(f"IDs dos dispositivos filhos da Bridge: , {child_device_ids}")
     else:
         logging.info(f"Erro ao obter dispositivos: {response.status_code}")
-
+    # Requisição para listar dispositivos
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        devices = response.json()
+        mqtt_devices = [
+            device for device in devices if "mqtt" in device.get("config_entries", [])
+        ]
+        for device in mqtt_devices:
+            logging.info(f"ID: {device['id']} - Nome: {device['name']}")
+    else:
+        logging.info("Erro ao acessar dispositivos:", response.status_code)
 
 def loop_serial():
     global lastIdRec
