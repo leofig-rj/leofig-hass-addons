@@ -163,6 +163,7 @@ def mqtt_send_entities():
     for i in range(len(ram_devs)):
         if ram_devs[i].loraCom:
             # Publica RSSI do dispositivo
+            logging.info(f"RSSI {i} {ram_devs[i].loraRSSI} {ram_devs[i].loraLastRSSI}")
             if ram_devs[i].loraLastRSSI != ram_devs[i].loraRSSI:
                 ram_devs[i].loraLastRSSI = ram_devs[i].loraRSSI
                 mqtt_pub(i, "rssi", str(ram_devs[i].loraRSSI))
