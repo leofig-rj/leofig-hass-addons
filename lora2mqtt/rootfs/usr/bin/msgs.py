@@ -44,10 +44,11 @@ def loop_serial():
         logging.debug(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
         # Trato a mensagem
         if result == MSG_CHECK_OK:
-            # Tratando a msg conforme remetente
+            # Preservando o ID
             lastIdRec = id
+            # Tratando a msg conforme remetente
             index = funcs.get_index_from_addr(de)
-            logging.debug(f"Ïndice do dispositivo: {index}")
+            logging.debug(f"Índice do dispositivo: {index}")
             on_lora_message(msg, index)
 
 def loop_mqtt():

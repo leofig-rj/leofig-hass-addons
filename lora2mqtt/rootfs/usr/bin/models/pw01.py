@@ -17,20 +17,17 @@ class DevicePW01:
         self.man = "Leonardo Figueiro"
         self.desc = "Sensores de elétricas"
         self.entityNames = ["Tensao", "Potencia", "Corrente", "Energia", "Energia RAM", "Aciona Rele", "Reset Energia"]
+        self.entityValNumFator = [0.1, 0.1, 0.001, 1, 1]
         self.entitySlugs = []
         self.entityValNum = []
         self.entityLastValNum= []
-        self.entityValStr = []
-        self.entityLastValStr = []
-        self._setup_lists()
 
-    def _setup_lists(self):
         for i in range(len(self.entityNames)):
             self.entitySlugs.append(slugify(self.entityNames[i]))
+
+        for i in range(len(self.entityValNumFator)):
             self.entityValNum.append(-1)
             self.entityLastValNum.append(-1)
-            self.entityValStr.append("NULL")
-            self.entityLastValStr.append("NULL")
 
     def proc_rec_msg(self, sMsg):
         
@@ -73,12 +70,11 @@ class DevicePW01:
 
         client = globals.g_cli_mqtt
 
-        for i in range(5):
+        for i in range(len(self.entityValNumFator)):
             if self.entityLastValNum[i] != self.entityValNum[i]:
                 self.entityLastValNum[i] = self.entityValNum[i]
-                logging.debug(f"PW01 - entityValNum {i} {self.entityValNum[i]}")
-                aAux = "{:.1f}".format(self.entityValNum[i]/10.0)
-                logging.debug(f"PW01 - entityValNum FORMAT {i} {self.entitySlugs[i]} {aAux}")
+                aAux = "{:.1f}".format(self.entityValNum[i]*self.entityValNumFator[i])
+                logging.debug(f"PW01 - entityValNum {i} {self.entitySlugs[i]} {aAux}")
                 client.pub(f"{client.work_topics[index]}/{self.entitySlugs[i]}", 0, True, aAux)
 
     def proc_discovery(self, index):

@@ -16,21 +16,12 @@ class DeviceLZ01:
         self.desc = "Lampada"
         self.entityNames = ["Lampada 1", "Input 1"]
         self.entitySlugs = []
-        self.entityValNum = []
-        self.entityLastValNum= []
         self.entityValStr = []
         self.entityLastValStr = []
-        self._setup_lists()
-
-    def _setup_lists(self):
-        logging.debug(f"LZ01 - Preenchendo listas! {len(self.entityNames)}")
         for i in range(len(self.entityNames)):
             self.entitySlugs.append(slugify(self.entityNames[i]))
-            self.entityValNum.append(-1)
-            self.entityLastValNum.append(-1)
             self.entityValStr.append("NULL")
             self.entityLastValStr.append("NULL")
-        logging.debug(f"LZ01 - Resultado listas! {self.entitySlugs}")
 
     def proc_rec_msg(self, sMsg):
 
@@ -56,8 +47,10 @@ class DeviceLZ01:
 
         if entity == self.entitySlugs[0]:
             if (pay.find("ON")!=-1):
+                # ON -> Cmd 101
                 lora_fifo_tenta_enviar("101", index)
             else:
+                # OFF -> Cmd 102
                 lora_fifo_tenta_enviar("102", index)
             ######  Definindo para evitar ficar mudando enquanto espera feedback
             self.entityValStr[0] = pay
@@ -68,7 +61,7 @@ class DeviceLZ01:
 
         client = globals.g_cli_mqtt
 
-        for i in range(2):
+        for i in range(len(self.entityNames)):
             if self.entityLastValStr[i] != self.entityValStr[i]:
                 self.entityLastValStr[i] = self.entityValStr[i]
                 logging.debug(f"LZ01 - entityValStr {i} {self.entitySlugs[i]} {self.entityValStr[i]}")
