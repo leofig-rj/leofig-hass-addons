@@ -45,16 +45,16 @@ def main(broker, port, broker_user, broker_pass):
     lf_lora = lflora.LFLoraClass()
     lf_lora.set_my_addr(1)
 
-    # Criando o cliente MQTT
-    client = LoRa2MQTTClient(broker, port, broker_user, broker_pass) 
-            
     # Inicializando variáveis globais
     globals.g_data_path = data_path             # Torno o data_path global 
     globals.g_devices = devs.DeviceManager()    # Crio a instância de dispositivos global
     globals.g_devices.load_devices_to_ram()     # Carrego os dispositivos cadastrados para a RAM
     globals.g_serial = ser                      # Torno o serial global
     globals.g_lf_lora = lf_lora                 # Torno o lf_lora global        
-    globals.g_cli_mqtt = client                 # Torno o cliente global          
+    globals.g_cli_mqtt  = LoRa2MQTTClient(broker, port, broker_user, broker_pass) # Criando o cliente MQTT global
+            
+    # Deixando o cliente vizível localmente
+    client = globals.g_cli_mqtt                   
 
     try:
         
@@ -184,9 +184,7 @@ class LoRa2MQTTClient(mqtt.Client):
     def cb_on_message(cls, client, userdata, message):
         """Callback para mensagens recebidas."""
         try:
-#            payload = message.payload.decode("utf-8")
-#            logging.debug(f"Mensagem recebida no topico {message.topic}: {payload}")
-            # Processa a mensagem aqui, se necessário
+            # Processa a mensagem no cliente
             client.handle_message(message)
         except Exception as e:
             logging.error(f"Erro processando msg recebida: {e}")
