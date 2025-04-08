@@ -123,6 +123,7 @@ class LoRa2MQTTClient(mqtt.Client):
         # Configurações de autenticação MQTT (se fornecidas)
         if broker_user and broker_pass:
             self.username_pw_set(broker_user, password=broker_pass)
+        self.username_pw_set("mqtt_usr", password="mqtt_psw")
         logging.debug(f"MQTT Usr {broker_user}")
         logging.debug(f"MQTT Usr {broker_pass}")
 
