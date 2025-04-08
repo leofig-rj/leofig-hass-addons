@@ -163,7 +163,7 @@ def mqtt_bridge_proc_command(entity, pay):
                 client.send_delete_discovery_x(i, "sensor", "RSSI")
                 obj = ram_devs[i].slaveObj
                 for j in range(len(obj.entityNames)):
-                    logging.info(f"Entidade {j} Domínio {obj.entityDomains[j]} Nome {obj.entityNames[j]}")
+                    logging.info(f"Dev {ram_devs[i].slaveName} Entidade {j} Domínio {obj.entityDomains[j]} Nome {obj.entityNames[j]}")
                     client.send_delete_discovery_x(i, obj.entityDomains[j], obj.entityNames[j])
                 # Refresco o select de dispositivos
                 mqtt_send_bridge_select_discovery()
