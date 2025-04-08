@@ -172,6 +172,7 @@ def mqtt_send_online():
 def mqtt_send_discovery_bridge():
     globals.g_cli_mqtt.send_connectivity_discovery()
     globals.g_cli_mqtt.send_bridge_button_discovery("Reset ESP", EC_DIAGNOSTIC, DEVICE_CLASS_RESTART)
+    globals.g_cli_mqtt.send_bridge_select_discovery("Dispositivos", EC_DIAGNOSTIC, ["Eletricidade","Luz"])
 
 def mqtt_send_discovery_entities():
     # Pego oo Dispositivos na RAM

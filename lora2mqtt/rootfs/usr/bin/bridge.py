@@ -522,6 +522,28 @@ class LoRa2MQTTClient(mqtt.Client):
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
+    def send_bridge_select_discovery(self, name, entity_category, options):
+        """
+        Envia a descoberta de select para a ponte via MQTT.
+        """
+        slug = funcs.slugify(name)
+        payload = self.common_discovery()
+        payload.update({
+            "~": self.bridge_topic,
+            "name": name,
+            "uniq_id": f"{self.addon_slug}_{UINQUE}_{slug}",
+            "avty_t": "~/status",
+            "stat_t": f"~/{slug}/state",
+            "cmd_t": f"~/{slug}/command",
+            "options": options,
+        })
+        if entity_category:
+            payload["entity_category"] = entity_category
+
+        topic = f"{HA_PREFIX}/select/{self.addon_slug}_{UINQUE}/{slug}/config"
+        payload_json = json.dumps(payload)
+        return self.pub(topic, 0, True, payload_json)
+
     def send_bridge_button_discovery(self, name, entity_category, device_class):
         """
         Envia a descoberta de botão para a ponte via MQTT.
