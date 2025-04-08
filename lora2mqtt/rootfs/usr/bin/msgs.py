@@ -8,7 +8,7 @@ import globals
 from consts import  MSG_CHECK_OK
 
 # Para LoRa
-from consts import LORA_FIFO_LEN, LORA_TEMPO_REFRESH, LORA_NUM_TENTATIVAS_CMD, LORA_TEMPO_OUT
+from consts import LORA_FIFO_LEN, LORA_NUM_TENTATIVAS_CMD, LORA_TEMPO_CMD, LORA_TEMPO_OUT, LORA_TEMPO_LOOP
 
 # Para MQTT
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_CLASS_UPDATE
@@ -17,6 +17,7 @@ from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_
 online = False
 
 loraCommandTime = 0
+loraLoopTime = 0
 lastMsgSent = ""
 lastIdRec = 0
 lastIdSent = 0
@@ -266,6 +267,7 @@ def mqtt_send_light_switch_discovery(index, name, entity_category):
     return client.send_light_switch_discovery(index, name, entity_category)
 
 def loop_lora():
+    global loraCommandTime, loraLoopTime, loraUltimoDestinoCmd
 
     ram_devs = globals.g_devices.get_dev_rams()
 
@@ -286,9 +288,14 @@ def loop_lora():
     # Verifico se tem comando no FiFo para enviar...
     lora_fifo_verifica()
 
+    # Vejo se o tempo de loop já passou
+    tempoLoop = funcs.pega_delta_millis(loraLoopTime)
+    if tempoLoop <= LORA_TEMPO_LOOP:
+        return
+
     # Solicito estado periodicamente...
-    tempoLoop = funcs.pega_delta_millis(loraCommandTime)
-    if tempoLoop > LORA_TEMPO_REFRESH:
+    tempoCmd = funcs.pega_delta_millis(loraCommandTime)
+    if tempoCmd > LORA_TEMPO_CMD:
         lora_fifo_tenta_enviar("000", loraUltimoDestinoCmd)
         # Defino o próximo destino para solicitar estado...
         lora_proximo_destino_cmd()
@@ -369,7 +376,7 @@ def lora_ultimo_cmd_retornou():
     if lastIdRec == lastIdSent:
         return True
     
-    if funcs.pega_delta_millis(loraCommandTime) > LORA_TEMPO_REFRESH:
+    if funcs.pega_delta_millis(loraCommandTime) > LORA_TEMPO_CMD:
         if tentativasCmd >= LORA_NUM_TENTATIVAS_CMD:
             return True
         lora_reenvia_mensagem()
@@ -385,9 +392,12 @@ def lora_fifo_verifica():
             loraFiFoPrimeiro = (loraFiFoPrimeiro + 1) % LORA_FIFO_LEN
 
 def lora_proximo_destino_cmd():
-    global loraUltimoDestinoCmd
+    global loraUltimoDestinoCmd, loraLoopTime
 
-    loraUltimoDestinoCmd = (loraUltimoDestinoCmd + 1) % len(globals.g_devices.get_dev_rams())
+    loraUltimoDestinoCmd = (loraUltimoDestinoCmd + 1)
+    if loraUltimoDestinoCmd >= len(globals.g_devices.get_dev_rams()):
+        loraUltimoDestinoCmd = 0
+        loraLoopTime = funcs.millis()
 
 def lora_pega_ultimo_destino_cmd():
     global loraUltimoDestinoCmd
