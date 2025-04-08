@@ -5,8 +5,6 @@ import requests
 import funcs
 import globals
 
-#from .devices import pw01
-
 # Constantes para LFLoRa
 from consts import  MSG_CHECK_OK
 
