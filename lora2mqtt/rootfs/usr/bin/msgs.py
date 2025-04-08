@@ -301,9 +301,9 @@ def on_lora_message(sMsg, index):
     global loraFiFoPrimeiro, loraFiFoUltimo
     logging.debug(f"Tamanho da MSG: {len(sMsg)} Índice {index}")
     
-    if loraFiFoPrimeiro != loraFiFoUltimo:
-        logging.info("FiFo não está vazia!")
-        return
+#    if loraFiFoPrimeiro != loraFiFoUltimo:
+#        logging.info("FiFo não está vazia!")
+#        return
     
     # Pego o Dispositivo na RAM
     ram_dev = globals.g_devices.get_dev_rams()[index]
