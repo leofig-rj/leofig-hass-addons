@@ -81,6 +81,8 @@ def loop_serial():
             lastIdRec = id
             # Tratando a msg conforme remetente
             index = funcs.get_index_from_addr(de)
+            if index is None:
+                return
             logging.debug(f"Índice do dispositivo: {index}")
             on_lora_message(msg, index)
 

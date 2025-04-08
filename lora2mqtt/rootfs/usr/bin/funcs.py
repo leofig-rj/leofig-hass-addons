@@ -56,4 +56,4 @@ def get_index_from_addr(addr):
     for i in range(len(ram_devs)):
         if ram_devs[i].slaveAddr == addr:
             return i
-    return 255
+    return None
