@@ -31,6 +31,8 @@ loraFiFoMsgBuffer = [""] * LORA_FIFO_LEN
 loraFiFoDestinoBuffer = [0] * LORA_FIFO_LEN
 loraUltimoDestinoCmd = 0
 
+mqttLastBridgeSelect = ""
+
 
 # Configurações
 url = "http://10.0.1.20:8123/api/devices"
@@ -144,25 +146,28 @@ def on_mqtt_message(topic, payload):
 
 def mqtt_bridge_proc_command(entity, pay):
     """Processa comando para Bridge recebidas do MQTT)."""
+    global mqttLastBridgeSelect
     ram_devs = globals.g_devices.get_dev_rams()
     client = globals.g_cli_mqtt
     if entity == "dispositivos":
+        mqttLastBridgeSelect = pay
         logging.info(f"Processando comando para Bridge {entity}: {pay}")
         client.pub(f"{client.bridge_topic}/{entity}/status", 0, True, pay)
         return
     if entity == "excluir_disp":
         logging.info(f"Processando comando para Bridge {entity}: {pay}")
-        return
-        # Vou tentar excluir o dispositivo indice 0
-        ram_devs = globals.g_devices.get_dev_rams()
-        client = globals.g_cli_mqtt
-        client.send_delete_discovery_x(0, "binary_sensor", "Com LoRa")
-        client.send_delete_discovery_x(0, "sensor", "RSSI")
-        obj = ram_devs[0].slaveObj
-        for i in range(len(obj.entityNames)):
-            logging.info(f"Entidade {i} Domínio {obj.entityDomains[i]} Nome {obj.entityNames[i]}")
-            client.send_delete_discovery_x(0, obj.entityDomains[i], obj.entityNames[i])
- 
+        for i in range(len(ram_devs)):
+            if ram_devs[i].slaveName == mqttLastBridgeSelect:
+                # Vou tentar excluir o dispositivo indice i
+                client.send_delete_discovery_x(i, "binary_sensor", "Com LoRa")
+                client.send_delete_discovery_x(i, "sensor", "RSSI")
+                obj = ram_devs[i].slaveObj
+                for j in range(len(obj.entityNames)):
+                    logging.info(f"Entidade {j} Domínio {obj.entityDomains[j]} Nome {obj.entityNames[j]}")
+                    client.send_delete_discovery_x(0, obj.entityDomains[j], obj.entityNames[j])
+                # Refresco o select de dispositivos
+                mqtt_send_bridge_select_discovery()
+                return
 
 def mqtt_send_online():
     global online
@@ -180,6 +185,9 @@ def mqtt_send_discovery_bridge():
     mqtt_send_bridge_select_discovery()
 
 def mqtt_send_bridge_select_discovery():
+    global mqttLastBridgeSelect
+    # Inicializo o último da memória
+    mqttLastBridgeSelect = ""
     # Pego os Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
     # Crio lista com nomes dos dispositivos
