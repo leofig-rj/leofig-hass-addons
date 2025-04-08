@@ -170,9 +170,17 @@ def mqtt_send_online():
     return online
 
 def mqtt_send_discovery_bridge():
+    # Pego oo Dispositivos na RAM
+    ram_devs = globals.g_devices.get_dev_rams()
+
+    devs = []
+
+    for i in range(len(ram_devs)):
+        devs.append(ram_devs[i].slaveName)
+
     globals.g_cli_mqtt.send_connectivity_discovery()
     globals.g_cli_mqtt.send_bridge_button_discovery("Excluir Disp", EC_NONE, DEVICE_CLASS_UPDATE)
-    globals.g_cli_mqtt.send_bridge_select_discovery("Dispositivos", EC_NONE, ["Eletricidade","Luz"])
+    globals.g_cli_mqtt.send_bridge_select_discovery("Dispositivos", EC_NONE, devs)
 
 def mqtt_send_discovery_entities():
     # Pego oo Dispositivos na RAM
