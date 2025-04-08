@@ -146,18 +146,24 @@ def on_mqtt_message(topic, payload):
 
 def mqtt_bridge_proc_command(entity, pay):
     """Processa comando para Bridge recebidas do MQTT)."""
-    if entity != "reset_esp":
-        return
-    logging.debug(f"Processando comando para Bridge {entity}: {pay}")
-    # Vou tentar excluir o dispositivo indice 0
     ram_devs = globals.g_devices.get_dev_rams()
     client = globals.g_cli_mqtt
-    client.send_delete_discovery_x(0, "binary_sensor", "Com LoRa")
-    client.send_delete_discovery_x(0, "sensor", "RSSI")
-    obj = ram_devs[0].slaveObj
-    for i in range(len(obj.entityNames)):
-        logging.info(f"Entidade {i} Domínio {obj.entityDomains[i]} Nome {obj.entityNames[i]}")
-        client.send_delete_discovery_x(0, obj.entityDomains[i], obj.entityNames[i])
+    if entity == "dispositivos":
+        logging.info(f"Processando comando para Bridge {entity}: {pay}")
+        client.pub(f"{client.bridge_topic}/{entity}/status", 0, True, pay)
+        return
+    if entity == "excluir_disp":
+        logging.info(f"Processando comando para Bridge {entity}: {pay}")
+        return
+        # Vou tentar excluir o dispositivo indice 0
+        ram_devs = globals.g_devices.get_dev_rams()
+        client = globals.g_cli_mqtt
+        client.send_delete_discovery_x(0, "binary_sensor", "Com LoRa")
+        client.send_delete_discovery_x(0, "sensor", "RSSI")
+        obj = ram_devs[0].slaveObj
+        for i in range(len(obj.entityNames)):
+            logging.info(f"Entidade {i} Domínio {obj.entityDomains[i]} Nome {obj.entityNames[i]}")
+            client.send_delete_discovery_x(0, obj.entityDomains[i], obj.entityNames[i])
  
 
 def mqtt_send_online():
