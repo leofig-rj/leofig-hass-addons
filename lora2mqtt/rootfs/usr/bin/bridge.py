@@ -534,7 +534,7 @@ class LoRa2MQTTClient(mqtt.Client):
             "uniq_id": f"{self.addon_slug}_{UINQUE}_{slug}",
             "avty_t": "~/status",
             "stat_t": f"~/{slug}/status",
-            "cmd_t": f"~/{slug}/command",
+            "cmd_t": f"~/{slug}/set",
             "options": options,
         })
         if entity_category:
