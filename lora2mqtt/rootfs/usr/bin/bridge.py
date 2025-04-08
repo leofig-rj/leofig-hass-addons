@@ -55,7 +55,8 @@ def main(broker, port, broker_user, broker_pass):
     globals.g_devices.load_devices_to_ram()     # Carrego os dispositivos cadastrados para a RAM
     globals.g_serial = ser                      # Torno o serial global
     globals.g_lf_lora = lf_lora                 # Torno o lf_lora global        
-    globals.g_cli_mqtt  = LoRa2MQTTClient(broker, port, broker_user, broker_pass) # Criando o cliente MQTT global
+ #   globals.g_cli_mqtt  = LoRa2MQTTClient(broker, port, broker_user, broker_pass) # Criando o cliente MQTT global
+    globals.g_cli_mqtt  = LoRa2MQTTClient("10.0.1.84", 1883, "mqtt_usr", "mqtt_psw") # Criando o cliente MQTT global
             
     # Deixando o cliente vizível localmente
     client = globals.g_cli_mqtt                   
@@ -129,11 +130,6 @@ class LoRa2MQTTClient(mqtt.Client):
             self.username_pw_set(broker_user, password=broker_pass)
         logging.debug(f"MQTT Usr {broker_user}")
         logging.debug(f"MQTT Usr {broker_pass}")
-        usr = "mqtt_usr"
-        psw = "mqtt_psw"
-        self.username_pw_set(usr, password=psw)
-        logging.debug(f"MQTT Usr {usr}")
-        logging.debug(f"MQTT Usr {psw}")
 
         # Configura o LWT
         self.will_set(self.lwt_topic, LWT_MSG, qos=LWT_QOS, retain=LWT_REATAIN)
