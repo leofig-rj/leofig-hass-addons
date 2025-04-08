@@ -135,7 +135,7 @@ class LoRa2MQTTClient(mqtt.Client):
         self.on_message = LoRa2MQTTClient.cb_on_message
 
         # Logging informativo
-        logging.info(f"Client {MQTT_CLIENT_ID} LoRa2MQTT Created")
+        logging.info(f"Cliente {MQTT_CLIENT_ID} LoRa2MQTT Criado")
 
     def setup_mqtt_topics(self):
         """Configura os tópicos MQTT."""
@@ -178,7 +178,7 @@ class LoRa2MQTTClient(mqtt.Client):
             logging.debug(f"Connecting to MQTT broker {self.broker_host}:{self.broker_port}")
             self.connect(self.broker_host, self.broker_port, MQTT_KEEP_ALIVE)
         except Exception as e:
-            logging.error(f"Falha em conectar ao MQTT broker: {e}")
+            logging.error(f"Falha ao conectar ao MQTT broker: {e}")
 
     @classmethod
     def cb_on_message(cls, client, userdata, message):
@@ -225,10 +225,10 @@ class LoRa2MQTTClient(mqtt.Client):
 
             # Atualiza status online
             self.online = False
-            logging.info("Subscrevido com sucesso a todos os topicos relevantes.")
+            logging.info("Assinanados com sucesso a todos os topicos relevantes.")
 
         except Exception as e:
-            logging.error(f"Erro na subscrição de topico MQTT: {e}")
+            logging.error(f"Erro na assinatura de topico MQTT: {e}")
 
     def common_discovery(self):
         """
@@ -355,7 +355,7 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def send_sensor_discovery(self, index, name, entity_category, device_class, units, state_class, force_update):
         """
-        Envia a descoberta de um sensor MQTT com estado específico.
+        Envia a descoberta de um sensor via MQTT.
         """
         slug = funcs.slugify(name)
         payload = self.common_discovery_ind(index)
@@ -470,7 +470,7 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def send_light_discovery(self, index, name, entity_category, rgb):
         """
-        Envia a descoberta de luz via MQTT.
+        Envia a descoberta de uma luz via MQTT.
         """
         slug = funcs.slugify(name)
         payload = self.common_discovery_ind(index)
@@ -494,7 +494,7 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def send_light_switch_discovery(self, index, name, entity_category):
         """
-        Envia a descoberta de interruptor de luz via MQTT.
+        Envia a descoberta de uma luz (liga/deslia) via MQTT.
         """
         slug = funcs.slugify(name)
         payload = self.common_discovery_ind(index)
@@ -518,7 +518,7 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def send_bridge_select_discovery(self, name, entity_category, options):
         """
-        Envia a descoberta de select para a ponte via MQTT.
+        Envia a descoberta de um select para a ponte via MQTT.
         """
         slug = funcs.slugify(name)
         payload = self.common_discovery()
@@ -540,7 +540,7 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def send_bridge_button_discovery(self, name, entity_category, device_class):
         """
-        Envia a descoberta de botão para a ponte via MQTT.
+        Envia a descoberta de um botão para a ponte via MQTT.
         """
         slug = funcs.slugify(name)
         payload = self.common_discovery()
@@ -563,7 +563,7 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def send_delete_discovery(self, domain, name):
         """
-        Envia uma mensagem para deletar descoberta.
+        Envia uma mensagem para deletar descoberta da ponte .
         """
         slug = funcs.slugify(name)
         topic = f"{HA_PREFIX}/{domain}/{self.addon_slug}_{UINQUE}/{slug}/config"
@@ -579,7 +579,7 @@ class LoRa2MQTTClient(mqtt.Client):
 
     def send_online(self):
         """
-        Envia o status online do dispositivo via MQTT.
+        Envia o status online da ponte via MQTT.
         """
         if self.pub(self.bridge_status_topic, 0, True, "online"):
             self.online = True
@@ -596,21 +596,21 @@ class LoRa2MQTTClient(mqtt.Client):
                 status = "online" if self.lora_com[i] else "offline"
                 self.pub(f"{self.work_topics[i]}/com_lora", 0, True, status)
 
-    def send_telemetry(self):
-        """
-        Envia telemetria dos dispositivos LoRa.
-        """
-        tempo_loop = funcs.pega_delta_millis(self.last_tele_millis)
-        if tempo_loop < self.refresh_telemetry:
-            return
-
-        self.last_tele_millis = self.millis()
-        for i in range(self.num_slaves):
-            payload = {
-                "rssi": str(self.lora_rssi[i])
-            }
-            payload_json = json.dumps(payload)
-            self.pub(self.tele_topics[i], 0, False, payload_json)
+#    def send_telemetry(self):
+#        """
+#        Envia telemetria dos dispositivos LoRa.
+#        """
+#        tempo_loop = funcs.pega_delta_millis(self.last_tele_millis)
+#        if tempo_loop < self.refresh_telemetry:
+#            return
+#
+#        self.last_tele_millis = self.millis()
+#        for i in range(self.num_slaves):
+#            payload = {
+#                "rssi": str(self.lora_rssi[i])
+#            }
+#            payload_json = json.dumps(payload)
+#            self.pub(self.tele_topics[i], 0, False, payload_json)
 
     def pub(self, topic, qos, retain, payload):
         """
