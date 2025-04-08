@@ -123,9 +123,13 @@ class LoRa2MQTTClient(mqtt.Client):
         # Configurações de autenticação MQTT (se fornecidas)
         if broker_user and broker_pass:
             self.username_pw_set(broker_user, password=broker_pass)
-        self.username_pw_set("mqtt_usr", password="mqtt_psw")
         logging.debug(f"MQTT Usr {broker_user}")
         logging.debug(f"MQTT Usr {broker_pass}")
+        usr = "mqtt_usr"
+        psw = "mqtt_psw"
+        self.username_pw_set(usr, password=psw)
+        logging.debug(f"MQTT Usr {usr}")
+        logging.debug(f"MQTT Usr {psw}")
 
         # Configura o LWT
         self.will_set(self.lwt_topic, LWT_MSG, qos=LWT_QOS, retain=LWT_REATAIN)
