@@ -127,7 +127,7 @@ class LoRa2MQTTClient(mqtt.Client):
         self.masc_uniq_topics = []        # Definido em _setup_mqtt_topics
         self.masc_disc_topics = []        # Definido em _setup_mqtt_topics
         self.lwt_topic = None             # Definido em _setup_mqtt_topics
-        self._setup_mqtt_topics()
+        self.setup_mqtt_topics()
 
         # Configurações de autenticação MQTT (se fornecidas)
         if broker_user and broker_pass:
@@ -146,7 +146,7 @@ class LoRa2MQTTClient(mqtt.Client):
         # Logging informativo
         logging.info(f"Client {MQTT_CLIENT_ID} LoRa2MQTT Created")
 
-    def _setup_mqtt_topics(self):
+    def setup_mqtt_topics(self):
         """Configura os tópicos MQTT."""
         self.num_slaves = len(self.ram_devs)
         self.bridge_topic = f"{self.addon_slug}/bridge"
@@ -156,6 +156,11 @@ class LoRa2MQTTClient(mqtt.Client):
         self.lwt_topic = self.bridge_status_topic
 
         # Configura os tópicos para cada slave
+        self.work_topics.clear()
+        self.tele_topics.clear()
+        self.set_topics.clear()
+        self.masc_uniq_topics.clear()
+        self.masc_disc_topics.clear()
         for i in range(self.num_slaves):
             work_topic = f"{self.addon_slug}/{self.ram_devs[i].slaveName}"
             tele_topic = f"{work_topic}/telemetry"

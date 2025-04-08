@@ -170,7 +170,7 @@ def mqtt_bridge_proc_command(entity, pay):
                 # Refresco o select de dispositivos
                 mqtt_send_bridge_select_discovery()
                 # Refresco os tópicos de cliente
-                client._setup_mqtt_topics()
+                client.setup_mqtt_topics()
                 return
 
 def mqtt_send_online():
