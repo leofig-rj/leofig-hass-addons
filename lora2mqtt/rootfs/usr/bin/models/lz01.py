@@ -14,7 +14,7 @@ class DeviceLZ01:
         self.man = "Leonardo Figueiro"
         self.desc = "Lampada"
         self.entityNames = ["Lampada 1", "Input 1"]
-        self.entityDomains = ["switch", "binary_sensor"]
+        self.entityDomains = ["light", "binary_sensor"]
         self.entitySlugs = []
         self.entityValStr = []
         self.entityLastValStr = []
