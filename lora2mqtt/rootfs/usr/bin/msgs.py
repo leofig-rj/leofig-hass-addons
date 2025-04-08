@@ -211,6 +211,9 @@ def mqtt_send_discovery_entities():
     # Pego oo Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
 
+    if len(ram_devs) == 0:
+        return
+
     for i in range(len(ram_devs)):
         # Publica discovery do Com LoRa e RSSI do dispositivo
         mqtt_send_aux_connectivity_discovery(i)
@@ -240,6 +243,9 @@ def mqtt_set_rssi(index, rssi):
 def mqtt_send_entities():
     # Pego oo Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
+
+    if len(ram_devs) == 0:
+        return
 
     # Envio os estados das entidades
     for i in range(len(ram_devs)):
@@ -298,6 +304,9 @@ def mqtt_send_light_switch_discovery(index, name, entity_category):
 def loop_lora():
 
     ram_devs = globals.g_devices.get_dev_rams()
+
+    if len(ram_devs) == 0:
+        return
 
     # Verifico Time out dos dispositivos para informar desconexão
     for i in range(len(ram_devs)):
