@@ -53,6 +53,8 @@ def is_empty_str(string):
 
 def get_index_from_addr(addr):
     ram_devs = globals.g_devices.get_dev_rams()
+    if len(ram_devs)==0:
+        return None
     for i in range(len(ram_devs)):
         if ram_devs[i].slaveAddr == addr:
             return i
