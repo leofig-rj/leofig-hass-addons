@@ -533,7 +533,7 @@ class LoRa2MQTTClient(mqtt.Client):
             "name": name,
             "uniq_id": f"{self.addon_slug}_{UINQUE}_{slug}",
             "avty_t": "~/status",
-            "stat_t": f"~/{slug}/state",
+            "stat_t": f"~/{slug}/status",
             "cmd_t": f"~/{slug}/command",
             "options": options,
         })
