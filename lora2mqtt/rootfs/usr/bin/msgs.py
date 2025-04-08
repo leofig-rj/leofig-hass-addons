@@ -75,9 +75,6 @@ def loop_mqtt():
 
 def on_mqtt_message(topic, payload):
 
-    # Converte o payload de byte para string
-    #payload_char = payload.decode('utf-8')[:LFLORA_MAX_PACKET_SIZE]
-
     top = topic
     pay = payload
 
