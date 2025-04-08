@@ -19,13 +19,6 @@ from consts import ADDON_NAME, ADDON_SLUG, VERSION, UINQUE, OWNER, HA_PREFIX, LW
 ########### MAIN ############
 def main(broker, port, broker_user, broker_pass):
 
-    import os
-    mqtt_host = os.getenv("MQTT_HOST")  # Recupera o host do broker
-    mqtt_port = os.getenv("MQTT_PORT")  # Recupera a porta do broker
-    mqtt_user = os.getenv("MQTT_USER")  # Recupera o usuário
-    mqtt_password = os.getenv("MQTT_PASSWORD")  # Recupera a senha
-    logging.info(f"Host: {mqtt_host}, Port: {mqtt_port}, User: {mqtt_user}, Password: {mqtt_password}")    # Carregando as opções configuradas no addon
-    
     with open("/data/options.json") as config_file:
         options = json.load(config_file)
 
