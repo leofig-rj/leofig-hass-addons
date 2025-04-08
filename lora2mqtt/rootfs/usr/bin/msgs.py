@@ -200,6 +200,7 @@ def mqtt_send_bridge_select_discovery():
     client.send_bridge_select_discovery("Dispositivos", EC_NONE, devs)
     if len(ram_devs) > 0:
         client.pub(f"{client.bridge_topic}/dispositivos/status", 0, True, ram_devs[0].slaveName)
+        mqttLastBridgeSelect = ram_devs[0].slaveName
 
 
 def mqtt_send_discovery_entities():
