@@ -1,6 +1,5 @@
 import time
 import logging
-import requests
 
 import funcs
 import globals
@@ -13,8 +12,6 @@ from consts import LORA_FIFO_LEN, LORA_TEMPO_REFRESH, LORA_NUM_TENTATIVAS_CMD, L
 
 # Para MQTT
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_CLASS_UPDATE
-
-from consts import ADDON_SLUG, UINQUE
 
 # Variáveis globais
 online = False
@@ -33,38 +30,6 @@ loraUltimoDestinoCmd = 0
 
 mqttLastBridgeSelect = ""
 
-
-# Configurações
-url = "http://10.0.1.20:8123/api/devices"
-headers = {
-    "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmZTJiZmRiZjJkNmE0YWEyOWEwY2ZiZTNhMWY4NzRkZCIsImlhdCI6MTc0NDA1MDU4OSwiZXhwIjoyMDU5NDEwNTg5fQ.mNt5-tDLeNLhL3aaf4KemmBShisffScu6JhleysQLl0",  # Substitua pelo seu token de acesso
-    "Content-Type": "application/json",
-}
-
-def mqtt_filhos():
-    global url, headers
-    # Requisição para listar dispositivos
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        devices = response.json()
-        bridge_id = f"{ADDON_SLUG}_{UINQUE}"  # Substitua pelo ID da sua Bridge
-        child_device_ids = [
-            device["id"] for device in devices if device.get("via_device_id") == bridge_id
-        ]
-        logging.info(f"IDs dos dispositivos filhos da Bridge: , {child_device_ids}")
-    else:
-        logging.info(f"Erro ao obter dispositivos: {response.status_code}")
-    # Requisição para listar dispositivos
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        devices = response.json()
-        mqtt_devices = [
-            device for device in devices if "mqtt" in device.get("config_entries", [])
-        ]
-        for device in mqtt_devices:
-            logging.info(f"ID: {device['id']} - Nome: {device['name']}")
-    else:
-        logging.info(f"Erro ao acessar dispositivos: {response.status_code}")
 
 def loop_serial():
     global lastIdRec
@@ -173,7 +138,6 @@ def mqtt_bridge_proc_command(entity, pay):
                 mqtt_send_bridge_select_discovery()
                 # Refresco os tópicos de cliente
                 client.setup_mqtt_topics()
-                return
 
 def mqtt_send_online():
     global online

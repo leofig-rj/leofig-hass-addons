@@ -21,7 +21,7 @@ def main(broker, port, broker_user, broker_pass):
 
     usb_id = "Desconhecido"
 
-    # Carrega as opções configuradas no addon
+    # Carregando as opções configuradas no addon
     with open("/data/options.json") as config_file:
         options = json.load(config_file)
 
@@ -32,8 +32,8 @@ def main(broker, port, broker_user, broker_pass):
     data_path = options.get("data_path", "/config/lora2mqtt")
     logging.debug(f"data_path: {data_path}")
 
+    # Configurando conexão serial
     try:
-        # Configurando conexão serial
         ser = serial.Serial(serial_obj["port"], 115200)
         ser.flush()
 
@@ -41,51 +41,42 @@ def main(broker, port, broker_user, broker_pass):
         ser = None  # Define como None para evitar problemas futuros
         logging.error(f"Erro {e} na configuração serial...")
 
-    # Configuro meu endereço no LFLoraClass
+    # Configurando meu endereço no LFLoraClass
     lf_lora = lflora.LFLoraClass()
     lf_lora.set_my_addr(1)
 
-    # Inicializa variáveis globais
-    globals.g_data_path = data_path
-    globals.g_devices = devs.DeviceManager()
-    globals.g_devices.load_devices_to_ram()
-    globals.g_serial = ser   # Torno o serial global
-    globals.g_lf_lora = lf_lora   # Torno o lf_lora global
+    # Criando o cliente MQTT
+    client = LoRa2MQTTClient(broker, port, broker_user, broker_pass) 
+            
+    # Inicializando variáveis globais
+    globals.g_data_path = data_path             # Torno o data_path global 
+    globals.g_devices = devs.DeviceManager()    # Crio a instância de dispositivos global
+    globals.g_devices.load_devices_to_ram()     # Carrego os dispositivos cadastrados para a RAM
+    globals.g_serial = ser                      # Torno o serial global
+    globals.g_lf_lora = lf_lora                 # Torno o lf_lora global        
+    globals.g_cli_mqtt = client                 # Torno o cliente global          
 
     try:
         
-        # Inicio o Loop geral se serial OK
+        # Iniciando o Loop geral se serial OK
         if ser:
-            # Envio comando de solicitação de estado da dongue
+            # Enviando comando de solicitação de estado da dongue
             ser.write("!000".encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
             logging.debug("Enviado comando solicita estado do adaptador")
             time.sleep(2)  # Aguarda 2 segundos
-            # Verifico se tem dado na serial
+            # Verificando se tem dado na serial
             if ser.in_waiting > 0:
-                # Pegando o dado e deixando como string
+                # Pegandando o dado e deixando como string
                 serial_data = ser.readline().decode('utf-8').strip()
                 # Tratando o dado
                 if serial_data[0] == '!':
-                    usb_id = serial_data[1:]
+                    # Guardando o usb_id no cliente
+                    client.usb_id = serial_data[1:]
                     logging.debug(f"Recebeu do adaptador: {usb_id}")
 
-            # Crio o objeto MQTT
-            client = LoRa2MQTTClient("/dev/ttyUSB0", 
-                                        broker, 
-                                        port, 
-                                        usb_id, 
-                                        broker_user, 
-                                        broker_pass) 
-            
-            # Torno o cliente global
-            globals.g_cli_mqtt = client
-            
-            # Inicio a comunicação MQTT
+            # Iniciando a comunicação MQTT
             client.mqtt_connection()
             client.loop_start()  # Inicia o loop MQTT em uma thread separada
-
-            # Listo os dispositivos filhos de LoRa2MQTT
-            msgs.mqtt_filhos()
 
             # Loop Geral
             while True:
@@ -104,17 +95,17 @@ def main(broker, port, broker_user, broker_pass):
         client.loop_stop()
         client.disconnect()
 
+
 ########## Classe para MQTT ############
 class LoRa2MQTTClient(mqtt.Client):
-    def __init__(self, lora, broker, port, usb_id, broker_user=None, broker_pass=None):
+    def __init__(self, broker, port, broker_user=None, broker_pass=None):
         super().__init__(MQTT_CLIENT_ID, clean_session=True)
-        self.lora = lora
         self.connected_flag = False
         self.broker_host = broker
         self.broker_port = port
         self.addon_slug = ADDON_SLUG
         self.addon_name = ADDON_NAME
-        self.usb_id = usb_id
+        self.usb_id = ""
         self.ram_devs = globals.g_devices.get_dev_rams()
         self.num_slaves = None            # Definido em _setup_mqtt_topics
         self.bridge_topic = None          # Definido em _setup_mqtt_topics
