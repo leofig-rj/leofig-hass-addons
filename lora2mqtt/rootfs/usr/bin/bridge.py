@@ -72,7 +72,7 @@ def main(broker, port, broker_user, broker_pass):
                 if serial_data[0] == '!':
                     # Guardando o usb_id no cliente
                     client.usb_id = serial_data[1:]
-                    logging.debug(f"Recebeu do adaptador: {usb_id}")
+                    logging.debug(f"Recebeu do adaptador: {client.usb_id}")
 
             # Iniciando a comunicação MQTT
             client.mqtt_connection()
