@@ -59,7 +59,7 @@ def main(broker, port, broker_user, broker_pass):
         # Iniciando o Loop geral se serial OK
         if ser:
             # Enviando comando de solicitação de estado da dongue
-            ser.write("!000".encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
+            ser.write("!000000!FFFFFF!000".encode('utf-8'))    # Enviando uma string (precisa ser em bytes)
             logging.debug("Enviado comando solicita estado do adaptador")
             time.sleep(2)  # Aguarda 2 segundos
             # Verificando se tem dado na serial
