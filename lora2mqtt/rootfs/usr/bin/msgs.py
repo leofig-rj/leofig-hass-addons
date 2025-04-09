@@ -298,7 +298,7 @@ def loop_lora():
         lora_proximo_destino_cmd()
 
 def on_lora_message(sMsg, index):
-    global loraFiFoPrimeiro, loraFiFoUltimo
+#    global loraFiFoPrimeiro, loraFiFoUltimo
     logging.debug(f"Tamanho da MSG: {len(sMsg)} Índice {index}")
     
 #    if loraFiFoPrimeiro != loraFiFoUltimo:
@@ -308,10 +308,10 @@ def on_lora_message(sMsg, index):
     # Pego o Dispositivo na RAM
     ram_dev = globals.g_devices.get_dev_rams()[index]
 
-    # Executa a rotina no dispositivo (modelo)
+    # Executa a rotina no dispositivo Moodelo
     ram_dev.slaveObj.proc_rec_msg(sMsg, index)
 
-    # Atualizo variáveis de contexto
+    # Atualizo variáveis de contexto do dispositivo na RAM
     ram_dev.loraTimeOut = funcs.millis()
     ram_dev.loraCom = True
     if lora_pega_ultimo_destino_cmd() == index:
