@@ -299,25 +299,25 @@ def loop_lora():
 
 def on_lora_message(sMsg, index):
 #    global loraFiFoPrimeiro, loraFiFoUltimo
-    logging.debug(f"Tamanho da MSG: {len(sMsg)} Índice {index}")
+    logging.debug(f"LoRa - Tamanho da MSG: {len(sMsg)} Índice {index}")
     
 #    if loraFiFoPrimeiro != loraFiFoUltimo:
 #        logging.info("FiFo não está vazia!")
 #        return
-    
-    # Pego o Dispositivo na RAM
-    ram_dev = globals.g_devices.get_dev_rams()[index]
+    try:
+        # Pego o Dispositivo na RAM
+        ram_dev = globals.g_devices.get_dev_rams()[index]
 
-    # Executa a rotina no dispositivo Moodelo
-    ram_dev.slaveObj.proc_rec_msg(sMsg, index)
+        # Executa a rotina no dispositivo Moodelo
+        ram_dev.slaveObj.proc_rec_msg(sMsg, index)
 
-    # Atualizo variáveis de contexto do dispositivo na RAM
-    ram_dev.loraTimeOut = funcs.millis()
-    ram_dev.loraCom = True
-    if lora_pega_ultimo_destino_cmd() == index:
-        lora_proximo_destino_cmd()
-
-    return
+        # Atualizo variáveis de contexto do dispositivo na RAM
+        ram_dev.loraTimeOut = funcs.millis()
+        ram_dev.loraCom = True
+        if lora_pega_ultimo_destino_cmd() == index:
+            lora_proximo_destino_cmd()
+    except Exception as e:
+        logging.error(f"Erro: {e}")
 
 def lora_fifo_tenta_enviar(sMsg, index):
     global loraFiFoPrimeiro, loraFiFoUltimo, loraFiFoMsgBuffer, loraFiFoDestinoBuffer
