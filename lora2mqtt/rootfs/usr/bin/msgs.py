@@ -169,7 +169,7 @@ def mqtt_send_discovery_bridge():
     status = "OFF"
     if globals.g_lf_lora.modo_op() == MODO_OP_CFG:
         status = "ON"
-        client.pub(f"{client.bridge_topic}/modo_config", 0, True, status)
+    client.pub(f"{client.bridge_topic}/modo_config", 0, True, status)
     mqtt_send_bridge_select_discovery()
 
 def mqtt_send_bridge_select_discovery():

@@ -7,8 +7,8 @@ OWNER = "Leonardo Figueiró"
 HA_PREFIX = "homeassistant"
 
 # Constantes para Modos de Operação
-MODO_OP_CFG = 0
-MODO_OP_LOOP = 1
+MODO_OP_LOOP = 0
+MODO_OP_CFG = 1
 
 # Constantes para Fases de Negociação de novo Slave
 FASE_NEG_INIC = 0
