@@ -54,7 +54,7 @@ def loop_serial():
                 on_lora_message(msg, index)
 
         if globals.g_lf_lora.modo_op() == MODO_OP_CFG:
-            if globals.g_lf_lora.on_lora_message(msg):
+            if globals.g_lf_lora.on_lora_message(serial_data):
                 loraLoopTime = funcs.millis()
                 lora_envia_msg_cfg()
 
