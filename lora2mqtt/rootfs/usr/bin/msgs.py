@@ -412,7 +412,7 @@ def lora_envia_msg_cfg():
     # Envio comando de configuração
     serial_data = globals.g_lf_lora.negocia_msg()
     globals.g_serial.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
-    logging.debug(f"CFG - Enviando: {serial_data}")
+    logging.info(f"CFG - Enviando: {serial_data}")
 
 def lora_ultimo_cmd_retornou():
     global lastIdRec, lastIdSent, loraCommandTime, tentativasCmd
