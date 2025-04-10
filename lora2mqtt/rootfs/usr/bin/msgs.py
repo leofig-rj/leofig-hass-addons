@@ -144,13 +144,15 @@ def mqtt_bridge_proc_command(entity, pay):
                 client.setup_mqtt_topics()
     if entity == "modo_config":
         logging.info(f"Processando comando para Bridge {entity}: {pay}")
+        status = funcs.char_to_state("0")
         if (pay.find("ON")!=-1):
             # ON
             globals.g_lf_lora.set_modo_op(MODO_OP_CFG)
+            status = funcs.char_to_state("1")
         else:
             # OFF
             globals.g_lf_lora.set_modo_op(MODO_OP_LOOP)
-        client.pub(f"{client.bridge_topic}/modo_config/status", 0, True, pay)
+        client.pub(f"{client.bridge_topic}/modo_config/status", 0, True, status)
 
 def mqtt_send_online():
     global online
