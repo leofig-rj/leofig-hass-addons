@@ -145,14 +145,14 @@ class LFLoraClass:
     def on_lora_message(self, msg):
 
         logging.info(f"CFG - MSG: {msg} Len: {len(msg)}")
-        if msg[0] != '!':
-            return False
-        if msg[7] != '!':
-            return False
-        if msg[14] != '!':
-            return False
-        if msg[18] != '!':
-            return False
+#        if msg[0] != '!':
+#            return False
+#        if msg[7] != '!':
+#            return False
+#        if msg[14] != '!':
+#            return False
+#        if msg[18] != '!':
+#            return False
         de = msg[1:7]
         para = msg[8:14]
         cmd = msg[15:18]
