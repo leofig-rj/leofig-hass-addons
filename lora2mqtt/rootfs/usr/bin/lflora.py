@@ -1,4 +1,7 @@
-from consts import MSG_CHECK_OK, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR
+import logging
+
+from consts import MODO_OP_CFG, MODO_OP_LOOP, FASE_NEG_INIC, FASE_NEG_CFG, CMD_NEGOCIA_INIC, \
+    MSG_CHECK_OK, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR
 
 class RegRec:
     def __init__(self, de=0, para=0, id=0):
@@ -13,12 +16,42 @@ class LFLoraClass:
         self._lastSendId = 255
         self._regRecs = []
         self._lastRegRec = RegRec()
+        self._modoOp = MODO_OP_LOOP
+        self._lastModoOp = -1  # Valor indevido para enviar na primeira vez
+        self._faseNegocia = FASE_NEG_INIC
+        self._loraCfg = "12345678"
+        self._negociaMsg = ""
+        self._negociaDe = ""
+        self._negociaMac = ""
+        self._negociaModelo = ""
+        self._negociaAddrSlave = ""
+        self._slaveAddr = 3
 
     def set_my_addr(self, addr):
         self._myAddr = addr
 
     def my_addr(self):
         return self._myAddr
+
+    def set_modo_op(self, modo):
+        self._modoOp = modo
+        if self._modoOp == MODO_OP_CFG:
+            self._negociaMsg = CMD_NEGOCIA_INIC
+            self._faseNegocia == FASE_NEG_INIC
+
+    def modo_op(self):
+        return self._modoOp
+
+    def fase_negocia(self):
+        return self._faseNegocia
+
+    def set_fase_negocia(self, fase):
+        self._faseNegocia = fase
+        if self._faseNegocia == FASE_NEG_INIC:
+            self._negociaMsg = CMD_NEGOCIA_INIC
+
+    def negocia_msg(self):
+        return self._negociaMsg
 
     def last_reg_rec(self):
         return self._lastRegRec
@@ -102,3 +135,72 @@ class LFLoraClass:
     
     def clear_reg_recs(self):
         self._regRecs.clear()  # Limpa a lista de registros
+
+    def is_mode_op_to_send(self):
+        if self._lastModoOp != self._modoOp:
+            self._lastModoOp = self._modoOp
+            return True
+        return False
+
+    def on_lora_message(self, msg):
+
+        logging.info(f"CFG - MSG: {msg} Len: {len(msg)}")
+        if msg[0] != '!':
+            return False
+        if msg[7] != '!':
+            return False
+        if msg[14] != '!':
+            return False
+        if msg[18] != '!':
+            return False
+        de = msg[1:7]
+        para = msg[8:14]
+        cmd = msg[15:18]
+        logging.info(f"CFG - De: {de} Para: {para} Cmd: {cmd}")
+
+        if self._faseNegocia == FASE_NEG_INIC:
+            if (len(msg)) < 34:
+                return False
+            if msg[31] != '!':
+                return False
+            if para != "FFFFFF":
+                return False
+            if cmd != "100":
+                return False
+            self._negociaDe = de
+            self._negociaMac = msg[19:31]
+            self._negociaModelo = msg[32:]
+            logging.info(f"CFG - MAC: {self._negociaMac} Modelo: {self._negociaModelo}")
+            self._negociaAddrSlave = globals.g_devices.get_ram_addr_by_mac(self._negociaMac)
+            self._negociaMsg = f"!{self._negociaDe}!FFFFFF!101!{self._loraCfg}!{self._myAddr:03}!{self._negociaAddrSlave:03}"
+            logging.info(f"CFG - Resposta CFG: {self._negociaMsg}")
+            self.set_fase_negocia(FASE_NEG_CFG)
+            return True
+  
+        if self._faseNegocia == FASE_NEG_CFG:
+            if (len(msg)) != 35:
+                return False
+            if msg[27] != '!':
+                return False
+            if msg[31] != '!':
+                return False
+            if para != "FFFFFF":
+                return False
+            if de != self._negociaDe:
+                return False
+            if cmd != "101":
+                return False
+            loaraCfg = msg[19:27]
+            masterAddr = msg[28:31]
+            slaveAddr = msg[32:35]
+            if loaraCfg != f"{self._loraCfg}":
+                return False
+            if masterAddr != f"{self._myAddr:03}":
+                return False
+            if slaveAddr != f"{self._negociaAddrSlave:03}":
+                return False
+            logging.info(f"CFG - modelo: {self._negociaModelo} mac: {self._negociaMac} slaveAddr: {slaveAddr}")
+            # Salvando o Slave, se não existir, cria
+            globals.g_devices.save_slave(self._negociaAddrSlave, self._negociaModelo, self._negociaMac)
+            self.set_fase_negocia(FASE_NEG_INIC)
+            return True

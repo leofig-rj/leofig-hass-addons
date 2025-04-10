@@ -159,10 +159,69 @@ class DeviceManager:
 
         return None
 
-    def find_device_by_name(self, name):
-        """Busca um dispositivo específico pelo slug."""
+    def find_device_ram_by_name(self, name):
+        """Busca um dispositivo específico pelo nome."""
         for i in range(len(self.dev_rams)):
             if name == self.dev_rams[i].slaveName:
                 return i
         return None
+
+    def find_device_ram_by_mac(self, mac):
+        """Busca um dispositivo específico pelo nome."""
+        for i in range(len(self.dev_rams)):
+            if mac == self.dev_rams[i].slaveMac:
+                return i
+        return None
+
+    def get_next_ram_addr(self):
+        """Pega o próxiom endereço de Slave."""
+        addr = 2
+        i = 0
+        j = len(self.dev_rams)
+        while i < j:
+            if addr == self.dev_rams[i].slaveAddr:
+                addr = addr + 1
+                i = 0
+            else:
+                i += 1    
+        return addr
+
+    def get_ram_addr_by_mac(self, mac):
+        """Pega o endereço do Slave com Mac."""
+        addr = 0
+        for i in range(len(self.dev_rams)):
+            if mac == self.dev_rams[i].slaveMac:
+                addr = self.slaveAddr
+                break
+        if addr == 0:
+            addr = self.get_next_ram_addr()
+        return addr
+
+    def save_slave(self, addr, model, mac):
+        index = self.find_device_ram_by_mac(mac)
+        if index is not None:
+            ram_dev = self.dev_rams[index]
+            ram_dev.slaveAddr = addr
+            # Vejo se o modelo existe no sistema
+            modelInst = self.get_model(model)
+            obj = None
+            if model:
+                obj = modelInst.model_obj
+            ram_dev.slaveAddr = addr
+            ram_dev.slaveModel = model
+            ram_dev.slaveObj = obj
+            return
+        # Defino o nome como mac
+        name = mac
+        # Defino o slug do nome
+        slug = funcs.slugify(name)
+        # Vejo se o modelo existe no sistema
+        modelInst = self.get_model(model)
+        obj = None
+        if model:
+            obj = modelInst.model_obj
+        logging.info(f"DEVICE {addr} {name} {slug} {mac} {obj.ver} {obj.chip} {model} {obj.man} {obj}")
+        self.dev_rams.append(DeviceRAM(i, addr, name, slug, mac, obj.ver, obj.chip, model, obj.man, obj))
+
+
 

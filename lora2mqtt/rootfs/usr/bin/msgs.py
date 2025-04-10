@@ -5,7 +5,7 @@ import funcs
 import globals
 
 # Constantes para LFLoRa
-from consts import  MSG_CHECK_OK
+from consts import  MODO_OP_CFG, MODO_OP_LOOP, FASE_NEG_INIC, MSG_CHECK_OK
 
 # Para LoRa
 from consts import LORA_FIFO_LEN, LORA_NUM_TENTATIVAS_CMD, LORA_TEMPO_CMD, LORA_TEMPO_OUT, LORA_TEMPO_LOOP
@@ -33,24 +33,30 @@ mqttLastBridgeSelect = ""
 
 
 def loop_serial():
-    global lastIdRec
+    global lastIdRec, loraLoopTime
     # Verifico se tem dado na serial
     if globals.g_serial.in_waiting > 0:
         # Pegando o dado e deixando como string
         serial_data = globals.g_serial.readline().decode('utf-8').strip()
-        # Tratando o dado
-        result, de, para, id, msg = globals.g_lf_lora.lora_check_msg_ini(serial_data)
-        logging.debug(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
-        # Trato a mensagem
-        if result == MSG_CHECK_OK:
-            # Preservando o ID
-            lastIdRec = id
-            # Tratando a msg conforme remetente
-            index = funcs.get_index_from_addr(de)
-            if index is None:
-                return
-            logging.debug(f"Índice do dispositivo: {index}")
-            on_lora_message(msg, index)
+        if globals.g_lf_lora.modo_op() == MODO_OP_LOOP:
+            # Tratando o dado
+            result, de, para, id, msg = globals.g_lf_lora.lora_check_msg_ini(serial_data)
+            logging.debug(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
+            # Trato a mensagem
+            if result == MSG_CHECK_OK:
+                # Preservando o ID
+                lastIdRec = id
+                # Tratando a msg conforme remetente
+                index = funcs.get_index_from_addr(de)
+                if index is None:
+                    return
+                logging.debug(f"Índice do dispositivo: {index}")
+                on_lora_message(msg, index)
+
+        if globals.g_lf_lora.modo_op() == MODO_OP_CFG:
+            if globals.g_lf_lora.on_lora_message(msg):
+                loraLoopTime = funcs.millis()
+                lora_envia_msg_cfg()
 
 def loop_mqtt():
     global online
@@ -100,7 +106,7 @@ def on_mqtt_message(topic, payload):
             mqtt_bridge_proc_command(entity, pay)
         else:
             # Procura nos dispositivo
-            index = globals.g_devices.find_device_by_name(device)
+            index = globals.g_devices.find_device_ram_by_name(device)
             if index is not None:
                 ram_dev = globals.g_devices.get_dev_rams()[index]
                 ram_dev.slaveObj.proc_command(entity, pay, index)
@@ -136,6 +142,15 @@ def mqtt_bridge_proc_command(entity, pay):
                 mqtt_send_bridge_select_discovery()
                 # Refresco os tópicos de cliente
                 client.setup_mqtt_topics()
+    if entity == "modo_config":
+        logging.info(f"Processando comando para Bridge {entity}: {pay}")
+        if (pay.find("ON")!=-1):
+            # ON
+            globals.g_lf_lora.set_modo_op(MODO_OP_CFG)
+        else:
+            # OFF
+            globals.g_lf_lora.set_modo_op(MODO_OP_LOOP)
+        client.pub(f"{client.bridge_topic}/modo_config/status", 0, True, pay)
 
 def mqtt_send_online():
     global online
@@ -150,6 +165,7 @@ def mqtt_send_discovery_bridge():
     client = globals.g_cli_mqtt
     client.send_connectivity_discovery()
     client.send_bridge_button_discovery("Excluir Disp", EC_NONE, DEVICE_CLASS_UPDATE)
+    client.send_bridge_switch_discovery("Modo Config", EC_NONE)
     mqtt_send_bridge_select_discovery()
 
 def mqtt_send_bridge_select_discovery():
@@ -266,37 +282,54 @@ def mqtt_send_light_switch_discovery(index, name, entity_category):
 def loop_lora():
     global loraCommandTime, loraLoopTime, loraUltimoDestinoCmd
 
-    ram_devs = globals.g_devices.get_dev_rams()
+    if globals.g_lf_lora.modo_op() == MODO_OP_LOOP:
+        
+        ram_devs = globals.g_devices.get_dev_rams()
 
-    if len(ram_devs) == 0:
-        return
+        if len(ram_devs) == 0:
+            return
 
-    # Verifico Time out dos dispositivos para informar desconexão
-    for i in range(len(ram_devs)):
-        tempoOut = funcs.pega_delta_millis(ram_devs[i].loraTimeOut)
-        if tempoOut > LORA_TEMPO_OUT:
-            ram_devs[i].loraTimeOut = funcs.millis()
-            ram_devs[i].loraCom = False
-    
-    # Verifico se a última mensagem retornou...
-    if not lora_ultimo_cmd_retornou():
-        return
+        # Verifico Time out dos dispositivos para informar desconexão
+        for i in range(len(ram_devs)):
+            tempoOut = funcs.pega_delta_millis(ram_devs[i].loraTimeOut)
+            if tempoOut > LORA_TEMPO_OUT:
+                ram_devs[i].loraTimeOut = funcs.millis()
+                ram_devs[i].loraCom = False
+        
+        # Verifico se a última mensagem retornou...
+        if not lora_ultimo_cmd_retornou():
+            return
 
-    # Verifico se tem comando no FiFo para enviar...
-    lora_fifo_verifica()
+        # Verifico se tem comando no FiFo para enviar...
+        lora_fifo_verifica()
 
-    # Vejo se o tempo de loop já passou
-    tempoLoop = funcs.pega_delta_millis(loraLoopTime)
-    if tempoLoop <= LORA_TEMPO_LOOP:
-        return
+        # Vejo se o tempo de loop já passou
+        tempoLoop = funcs.pega_delta_millis(loraLoopTime)
+        if tempoLoop <= LORA_TEMPO_LOOP:
+            return
 
-    # Solicito estado periodicamente...
-    tempoCmd = funcs.pega_delta_millis(loraCommandTime)
-    if tempoCmd > LORA_TEMPO_CMD:
-        lora_fifo_tenta_enviar("000", loraUltimoDestinoCmd)
-        # Defino o próximo destino para solicitar estado...
-        lora_proximo_destino_cmd()
+        # Solicito estado periodicamente...
+        tempoCmd = funcs.pega_delta_millis(loraCommandTime)
+        if tempoCmd > LORA_TEMPO_CMD:
+            lora_fifo_tenta_enviar("000", loraUltimoDestinoCmd)
+            # Defino o próximo destino para solicitar estado...
+            lora_proximo_destino_cmd()
 
+    if globals.g_lf_lora.modo_op() == MODO_OP_CFG:
+
+        # Vejo se o tempo de loop já passou
+        tempoLoop = funcs.pega_delta_millis(loraLoopTime)
+        if tempoLoop <= LORA_TEMPO_LOOP:
+            loraLoopTime = funcs.millis()
+            globals.g_lf_lora.set_fase_negocia(FASE_NEG_INIC)
+
+        # Solicito estado periodicamente...
+        tempoCmd = funcs.pega_delta_millis(loraCommandTime)
+        if tempoCmd > LORA_TEMPO_CMD:
+            if globals.g_lf_lora.fase_negocia() == FASE_NEG_INIC:
+                lora_envia_msg_cfg()
+        
+        
 def on_lora_message(sMsg, index):
 #    global loraFiFoPrimeiro, loraFiFoUltimo
     logging.debug(f"LoRa - Tamanho da MSG: {len(sMsg)} Índice {index}")
@@ -366,6 +399,16 @@ def lora_reenvia_mensagem():
     serial_data = lastMsgSent
     globals.g_serial.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
     logging.debug(f"Renviado {serial_data}")
+
+def lora_envia_msg_cfg():
+    global loraCommandTime
+    
+    loraCommandTime = funcs.millis()
+
+    # Envio comando de configuração
+    serial_data = globals.g_lf_lora.negocia_msg()
+    globals.g_serial.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
+    logging.debug(f"CFG - Enviando: {serial_data}")
 
 def lora_ultimo_cmd_retornou():
     global lastIdRec, lastIdSent, loraCommandTime, tentativasCmd

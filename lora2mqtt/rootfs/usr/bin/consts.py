@@ -6,6 +6,14 @@ UINQUE = "290146823516"
 OWNER = "Leonardo Figueiró"
 HA_PREFIX = "homeassistant"
 
+# Constantes para Modos de Operação
+MODO_OP_CFG = 0
+MODO_OP_LOOP = 1
+
+# Constantes para Fases de Negociação de novo Slave
+FASE_NEG_INIC = 0
+FASE_NEG_CFG = 1
+
 # Constantes para LFLoRa
 LFLORA_MAX_PACKET_SIZE = 255
 MSG_CHECK_OK = 0
@@ -13,6 +21,8 @@ MSG_CHECK_NOT_MASTER = 1
 MSG_CHECK_NOT_ME = 2
 MSG_CHECK_ALREADY_REC = 3
 MSG_CHECK_ERROR = 4
+CMD_GET_USB_MODEL = "!000000!FFFFFF!000"
+CMD_NEGOCIA_INIC = "!000000!FFFFFF!100"
 
 # Constantes para mensagens
 LORA_FIFO_LEN = 10

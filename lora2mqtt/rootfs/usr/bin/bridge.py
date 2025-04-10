@@ -14,7 +14,7 @@ import globals
 
 # Para MQTT
 from consts import ADDON_NAME, ADDON_SLUG, VERSION, UINQUE, OWNER, HA_PREFIX, LWT_MSG, LWT_QOS, \
-    LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID
+    LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID, CMD_GET_USB_MODEL
 
 ########### MAIN ############
 def main(broker, port, broker_user, broker_pass):
@@ -59,7 +59,8 @@ def main(broker, port, broker_user, broker_pass):
         # Iniciando o Loop geral se serial OK
         if ser:
             # Enviando comando de solicitação de estado da dongue
-            ser.write("!000000!FFFFFF!000".encode('utf-8'))    # Enviando uma string (precisa ser em bytes)
+            cmdUsb = CMD_GET_USB_MODEL
+            ser.write(cmdUsb.encode('utf-8'))    # Enviando uma string (precisa ser em bytes)
             logging.debug("Enviado comando solicita estado do adaptador")
             time.sleep(2)  # Aguarda 2 segundos
             # Verificando se tem dado na serial
@@ -556,6 +557,26 @@ class LoRa2MQTTClient(mqtt.Client):
             payload["dev_cla"] = device_class
 
         topic = f"{HA_PREFIX}/button/{self.addon_slug}_{UINQUE}/{slug}/config"
+        payload_json = json.dumps(payload)
+        return self.pub(topic, 0, True, payload_json)
+
+    def send_bridge_switch_discovery(self, name, entity_category):
+        """
+        Envia a descoberta de um interruptor para a ponte via MQTT.
+        """
+        slug = funcs.slugify(name)
+        payload = self.common_discovery()
+        payload.update({
+            "~": self.bridge_topic,
+            "name": name,
+            "uniq_id": f"{self.addon_slug}_{UINQUE}_{slug}",
+            "avty_t": "~/status",
+            "stat_t": f"~/{slug}",
+            "cmd_t": f"~/{slug}/set",
+            "entity_category": entity_category,
+        })
+
+        topic = f"{HA_PREFIX}/switch/{self.addon_slug}_{UINQUE}/{slug}/config"
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
