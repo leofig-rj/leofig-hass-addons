@@ -1,5 +1,7 @@
 import logging
 
+import globals
+
 from consts import MODO_OP_CFG, MODO_OP_LOOP, FASE_NEG_INIC, FASE_NEG_CFG, CMD_NEGOCIA_INIC, \
     MSG_CHECK_OK, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR
 
