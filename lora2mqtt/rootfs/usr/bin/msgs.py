@@ -166,6 +166,10 @@ def mqtt_send_discovery_bridge():
     client.send_connectivity_discovery()
     client.send_bridge_button_discovery("Excluir Disp", EC_NONE, DEVICE_CLASS_UPDATE)
     client.send_bridge_switch_discovery("Modo Config", EC_NONE)
+    status = "OFF"
+    if globals.g_lf_lora.modo_op() == MODO_OP_CFG:
+        status = "ON"
+        client.pub(f"{client.bridge_topic}/modo_config", 0, True, status)
     mqtt_send_bridge_select_discovery()
 
 def mqtt_send_bridge_select_discovery():
