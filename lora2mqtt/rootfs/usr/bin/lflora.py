@@ -142,8 +142,8 @@ class LFLoraClass:
             return True
         return False
 
-    def on_lora_message(self, msg):
-
+    def on_lora_message(self, msg_):
+        msg = msg_[1:]
         logging.info(f"CFG - MSG: {msg} Len: {len(msg)}")
 #        if msg[0] != '!':
 #            return False
