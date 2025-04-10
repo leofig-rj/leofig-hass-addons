@@ -191,7 +191,7 @@ class DeviceManager:
         addr = 0
         for i in range(len(self.dev_rams)):
             if mac == self.dev_rams[i].slaveMac:
-                addr = self.slaveAddr
+                addr = self.dev_rams[i].slaveAddr
                 break
         if addr == 0:
             addr = self.get_next_ram_addr()
