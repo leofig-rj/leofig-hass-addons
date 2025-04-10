@@ -437,8 +437,9 @@ class LoRa2MQTTClient(mqtt.Client):
             "avty_t": "~/com_lora",
             "stat_t": f"~/{slug}",
             "cmd_t": f"~/{slug}/set",
-            "entity_category": entity_category,
         })
+        if entity_category:
+            payload["entity_category"] = entity_category
 
         topic = self.masc_disc_topics[index] % ("switch", slug)
         payload_json = json.dumps(payload)
@@ -573,8 +574,9 @@ class LoRa2MQTTClient(mqtt.Client):
             "avty_t": "~/status",
             "stat_t": f"~/{slug}",
             "cmd_t": f"~/{slug}/set",
-            "entity_category": entity_category,
         })
+        if entity_category:
+            payload["entity_category"] = entity_category
 
         topic = f"{HA_PREFIX}/switch/{self.addon_slug}_{UINQUE}/{slug}/config"
         payload_json = json.dumps(payload)
