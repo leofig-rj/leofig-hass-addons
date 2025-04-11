@@ -127,7 +127,7 @@ def mqtt_bridge_proc_command(entity, pay):
         # Select = pay
         client.pub(f"{client.bridge_topic}/dispositivos", 0, True, pay)
         # Nome Disp = pay
-        client.pub(f"{client.bridge_topic}/nome_disp", 0, True, pay)
+        client.pub(f"{client.bridge_topic}/nome_disp/set", 0, True, pay)
         return
 
     if entity == "nome_disp":
@@ -208,7 +208,7 @@ def mqtt_send_discovery_bridge():
     mqtt_send_bridge_select_discovery()
 
 def mqtt_send_bridge_select_discovery():
-    global mqttLastBridgeSelect
+    global mqttLastBridgeSelect, mqttLastNomeDisp
     # Inicializo o último da memória
     mqttLastBridgeSelect = ""
     # Pego os Dispositivos na RAM
@@ -220,8 +220,12 @@ def mqtt_send_bridge_select_discovery():
     client = globals.g_cli_mqtt
     client.send_bridge_select_discovery("Dispositivos", EC_NONE, devs)
     if len(ram_devs) > 0:
+        # Inicializo Dispositivos
         client.pub(f"{client.bridge_topic}/dispositivos", 0, True, ram_devs[0].slaveName)
         mqttLastBridgeSelect = ram_devs[0].slaveName
+        # Inicializo Nome Disp
+        client.pub(f"{client.bridge_topic}/nome_disp/set", 0, True, ram_devs[0].slaveName)
+        mqttLastNomeDisp = ram_devs[0].slaveName
 
 
 def mqtt_send_discovery_entities():
