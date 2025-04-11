@@ -152,7 +152,7 @@ def mqtt_bridge_proc_command(entity, pay):
             globals.g_lf_lora.set_modo_op(MODO_OP_LOOP)
         client.pub(f"{client.bridge_topic}/modo_config", 0, True, pay)
 
-def mqtt_bridge_refresh(entit):
+def mqtt_bridge_refresh():
     """Refresco o dicovery de select."""
     client = globals.g_cli_mqtt
     # Refresco o select de dispositivos
