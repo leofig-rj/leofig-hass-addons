@@ -155,10 +155,10 @@ def mqtt_bridge_proc_command(entity, pay):
 def mqtt_bridge_refresh():
     """Refresco o dicovery de select."""
     client = globals.g_cli_mqtt
-    # Refresco o select de dispositivos
-    mqtt_send_bridge_select_discovery()
     # Refresco os tópicos de cliente
     client.setup_mqtt_topics()
+    # Refresco o select de dispositivos
+    mqtt_send_bridge_select_discovery()
     # Refresco o discovery de entidades (dispositivos)
     mqtt_send_discovery_entities()
 

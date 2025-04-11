@@ -1,5 +1,6 @@
 import os
 import yaml
+import time
 import logging
 import importlib
 
@@ -221,7 +222,8 @@ class DeviceManager:
         if model:
             obj = modelInst.model_obj
         index = len(self.dev_rams)
-        logging.info(f"DEVICE {index} {addr} {name} {slug} {mac} {obj.ver} {obj.chip} {model} {obj.man} {obj}")
         self.dev_rams.append(DeviceRAM(index, addr, name, slug, mac, obj.ver, obj.chip, model, obj.man, obj))
+        logging.info(f"DEVICE {index} {addr} {name} {slug} {mac} {obj.ver} {obj.chip} {model} {obj.man} {obj}")
+        time.sleep(0.1)
 
 
