@@ -192,10 +192,10 @@ class LFLoraClass:
                 return False
             if cmd != "101":
                 return False
-            loaraCfg = msg[19:27]
+            loraCfg = msg[19:27]
             masterAddr = msg[28:31]
             slaveAddr = msg[32:35]
-            if loaraCfg != f"{self._loraCfg}":
+            if loraCfg != f"{self._loraCfg}":
                 return False
             if masterAddr != f"{self._myAddr:03}":
                 return False
@@ -204,6 +204,6 @@ class LFLoraClass:
             # Salvando o Slave, se não existir, cria
             msgs.disp_save_slave(self._negociaAddrSlave, self._negociaModelo, self._negociaMac)
             self.set_fase_negocia(FASE_NEG_INIC)
-            logging.info(f"CFG - modelo: {self._negociaModelo} mac: {self._negociaMac} slaveAddr: {slaveAddr}")
+            logging.info(f"CFG - modelo: {self._negociaModelo} mac: {self._negociaMac} slaveAddr: {self._negociaAddrSlave:03}")
             return True
         return False
