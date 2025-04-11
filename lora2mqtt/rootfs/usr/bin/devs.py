@@ -225,5 +225,3 @@ class DeviceManager:
         self.dev_rams.append(DeviceRAM(index, addr, name, slug, mac, obj.ver, obj.chip, model, obj.man, obj))
         logging.info(f"DEVICE {index} {addr} {name} {slug} {mac} {obj.ver} {obj.chip} {model} {obj.man} {obj}")
         time.sleep(0.1)
-
-

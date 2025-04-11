@@ -91,27 +91,27 @@ def on_mqtt_message(topic, payload):
             logging.error(f"Na msg recebida de MQTT não encontrado /set: | {top} para {pay}")
             return
         entity = top[entity_pos + 1:set_pos]
-        logging.debug(f"Set | {entity} para {pay}")
+        logging.info(f"Set | {entity} para {pay}")
         
         # Para pegar o dispositivo que enviou o comando
         device_pos = top.rfind("/", 0, entity_pos)
         if device_pos == -1:
             logging.error(f"Na msg recebida de MQTT não encontrado o dispositivo: | {top} para {pay}")
             return
-        device = top[device_pos + 1:entity_pos]
-        logging.debug(f"Dispositivo {device}")
+        device_name = top[device_pos + 1:entity_pos]
+        logging.info(f"Dispositivo {device_name}")
 
-        if device == 'bridge':
+        if device_name == 'bridge':
             # Trata comando de Bridge
             mqtt_bridge_proc_command(entity, pay)
         else:
             # Procura nos dispositivo
-            index = globals.g_devices.find_device_ram_by_name(device)
+            index = globals.g_devices.find_device_ram_by_name(device_name)
             if index is not None:
                 ram_dev = globals.g_devices.get_dev_rams()[index]
                 ram_dev.slaveObj.proc_command(entity, pay, index)
             else:
-                logging.debug(f"Não encontrado dispositivo {device}")
+                logging.info(f"Não encontrado dispositivo {device_name}")
     else:
         logging.error(f"A msg recebida de MQTT não foi tratada: | {top} para {pay}")
 
