@@ -180,6 +180,7 @@ class LFLoraClass:
             return True
   
         if self._faseNegocia == FASE_NEG_CFG:
+            logging.info(f"CFG 1 - modelo: {self._negociaModelo} mac: {self._negociaMac} slaveAddr: {self._negociaAddrSlave:03}")
             if (len(msg)) != 35:
                 return False
             if msg[27] != '!':
@@ -192,7 +193,6 @@ class LFLoraClass:
                 return False
             if cmd != "101":
                 return False
-            logging.info(f"CFG 1 - modelo: {self._negociaModelo} mac: {self._negociaMac} slaveAddr: {self._negociaAddrSlave:03}")
             loraCfg = msg[19:27]
             masterAddr = msg[28:31]
             slaveAddr = msg[32:35]
