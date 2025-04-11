@@ -156,6 +156,12 @@ def mqtt_bridge_proc_command(entity, pay):
         logging.debug(f"Processando comando para renomear_disp de Bridge {entity}: {pay}")
         for i in range(len(ram_devs)):
             if ram_devs[i].slaveName == mqttLastBridgeSelect:
+                # Vou tentar excluir o discovery do dispositivo indice i
+                client.send_delete_discovery_x(i, "binary_sensor", "Com LoRa")
+                client.send_delete_discovery_x(i, "sensor", "RSSI")
+                obj = ram_devs[i].slaveObj
+                for j in range(len(obj.entityNames)):
+                    client.send_delete_discovery_x(i, obj.entityDomains[j], obj.entityNames[j])
                 # Vou tentar renomear o dispositivo indice i
                 ram_devs[i].slaveName = mqttLastNomeDisp
                 ram_devs[i].slaveSlug = funcs.slugify(ram_devs[i].slaveName)
