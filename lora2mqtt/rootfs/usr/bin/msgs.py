@@ -124,8 +124,10 @@ def mqtt_bridge_proc_command(entity, pay):
     if entity == "dispositivos":
         mqttLastBridgeSelect = pay
         logging.debug(f"Processando comando para dispositivos de Bridge {entity}: {pay}")
+        # Select = pay
         client.pub(f"{client.bridge_topic}/dispositivos", 0, True, pay)
-        client.pub(f"{client.bridge_topic}/nome_disp", 0, True, pay)
+        # Nome Disp = pay
+        client.pub(f"{client.bridge_topic}/nome_disp/set", 0, True, pay)
         return
 
     if entity == "nome_disp":
