@@ -331,13 +331,13 @@ def loop_lora():
 
         # Vejo se o tempo de loop já passou
         tempoLoop = funcs.pega_delta_millis(loraLoopTime)
-        if tempoLoop <= LORA_TEMPO_LOOP:
+        if tempoLoop > LORA_TEMPO_LOOP:
             loraLoopTime = funcs.millis()
             globals.g_lf_lora.set_fase_negocia(FASE_NEG_INIC)
 
         # Solicito estado periodicamente...
         tempoCmd = funcs.pega_delta_millis(loraCommandTime)
-        if tempoCmd > LORA_TEMPO_CMD * 3:
+        if tempoCmd > LORA_TEMPO_CMD * 2:
             if globals.g_lf_lora.fase_negocia() == FASE_NEG_INIC:
                 lora_envia_msg_cfg()
         

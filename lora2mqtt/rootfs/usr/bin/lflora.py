@@ -39,7 +39,7 @@ class LFLoraClass:
         self._modoOp = modo
         if self._modoOp == MODO_OP_CFG:
             self._negociaMsg = CMD_NEGOCIA_INIC
-            self._faseNegocia == FASE_NEG_INIC
+            self._faseNegocia = FASE_NEG_INIC
 
     def modo_op(self):
         return self._modoOp
