@@ -67,10 +67,10 @@ class DeviceLZ01:
             return True
         return False
  
-    def proc_publish(self, index):
+    def proc_publish(self, index, force):
 
         for i in range(len(self.entityNames)):
-            if self.entityLastValStr[i] != self.entityValStr[i]:
+            if (self.entityLastValStr[i] != self.entityValStr[i]) or force:
                 self.entityLastValStr[i] = self.entityValStr[i]
                 logging.debug(f"LZ01 - entityValStr {i} {self.entitySlugs[i]} {self.entityValStr[i]}")
                 mqtt_pub(index, self.entitySlugs[i], self.entityValStr[i])

@@ -72,7 +72,7 @@ def loop_mqtt():
     time.sleep(0.01)
 
     if online:
-        mqtt_send_com_lora()
+        mqtt_send_com_lora(False)
 
     # Outra pausa
     time.sleep(0.01)
@@ -167,6 +167,15 @@ def mqtt_bridge_proc_command(entity, pay):
                 ram_devs[i].slaveSlug = funcs.slugify(ram_devs[i].slaveName)
                 # Refresco dispositivos da bridge
                 mqtt_bridge_refresh()
+                # Envio os estados das entidades forçados
+                for i in range(len(ram_devs)):
+                    # Publica Com LoRa
+                    mqtt_send_com_lora(True)
+                    # Publica RSSI do dispositivo
+                    mqtt_pub(i, "rssi", str(ram_devs[i].loraRSSI))
+                    # Publica entidades do dispositivo (modelo)
+                    ram_devs[i].slaveObj.proc_publish(i, True)
+
 
     if entity == "modo_config":
         logging.info(f"Processando comando para modo_config de Bridge {entity}: {pay}")
@@ -249,12 +258,12 @@ def mqtt_send_discovery_entities():
         ram_devs[i].slaveObj.proc_discovery(i)
         logging.debug(f"Discovery Entity {i}")
 
-def mqtt_send_com_lora():
+def mqtt_send_com_lora(force):
     # Pego oo Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
 
     for i in range(len(ram_devs)):
-        if ram_devs[i].loraLastCom != ram_devs[i].loraCom:
+        if (ram_devs[i].loraLastCom != ram_devs[i].loraCom) or force:
             ram_devs[i].loraLastCom = ram_devs[i].loraCom
 
             s_com_lora = "online" if ram_devs[i].loraCom else "offline"
@@ -282,7 +291,7 @@ def mqtt_send_entities():
                 ram_devs[i].loraLastRSSI = ram_devs[i].loraRSSI
                 mqtt_pub(i, "rssi", str(ram_devs[i].loraRSSI))
             # Publica entidades do dispositivo (modelo)
-            ram_devs[i].slaveObj.proc_publish(i)
+            ram_devs[i].slaveObj.proc_publish(i, False)
 
 def mqtt_pub(index, slug, val):
     client = globals.g_cli_mqtt

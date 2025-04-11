@@ -75,10 +75,10 @@ class DevicePW01:
             return True
         return False
  
-    def proc_publish(self, index):
+    def proc_publish(self, index, force):
 
         for i in range(len(self.entityValNumFator)):
-            if self.entityLastValNum[i] != self.entityValNum[i]:
+            if (self.entityLastValNum[i] != self.entityValNum[i]) or force:
                 self.entityLastValNum[i] = self.entityValNum[i]
                 aAux = "{:.1f}".format(self.entityValNum[i]*self.entityValNumFator[i])
                 logging.debug(f"PW01 - entityValNum {i} {self.entitySlugs[i]} {aAux}")
