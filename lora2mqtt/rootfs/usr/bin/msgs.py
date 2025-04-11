@@ -157,6 +157,8 @@ def mqtt_bridge_refresh():
     client = globals.g_cli_mqtt
     # Refresco os tópicos de cliente
     client.setup_mqtt_topics()
+    # Assino os tópicos 
+    client.on_mqtt_connect()
     # Refresco o select de dispositivos
     mqtt_send_bridge_select_discovery()
     # Refresco o discovery de entidades (dispositivos)
