@@ -551,7 +551,7 @@ class LoRa2MQTTClient(mqtt.Client):
             "avty_t": "~/status",
             "stat_t": f"~/{slug}",
             "cmd_t": f"~/{slug}/set",
-            "min": 4,
+            "min": 2,
         })
         if entity_category:
             payload["entity_category"] = entity_category

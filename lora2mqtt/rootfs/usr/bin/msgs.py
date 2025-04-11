@@ -127,7 +127,7 @@ def mqtt_bridge_proc_command(entity, pay):
         # Select = pay
         client.pub(f"{client.bridge_topic}/dispositivos", 0, True, pay)
         # Nome Disp = pay
-        client.pub(f"{client.bridge_topic}/nome_disp/set", 0, True, pay)
+        client.pub(f"{client.bridge_topic}/nome_disp", 0, True, pay)
         return
 
     if entity == "nome_disp":
@@ -224,7 +224,7 @@ def mqtt_send_bridge_select_discovery():
         client.pub(f"{client.bridge_topic}/dispositivos", 0, True, ram_devs[0].slaveName)
         mqttLastBridgeSelect = ram_devs[0].slaveName
         # Inicializo Nome Disp
-        client.pub(f"{client.bridge_topic}/nome_disp/set", 0, True, ram_devs[0].slaveName)
+        client.pub(f"{client.bridge_topic}/nome_disp", 0, True, ram_devs[0].slaveName)
         mqttLastNomeDisp = ram_devs[0].slaveName
 
 
