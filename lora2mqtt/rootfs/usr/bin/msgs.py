@@ -125,6 +125,7 @@ def mqtt_bridge_proc_command(entity, pay):
         logging.info(f"Processando comando para Bridge {entity}: {pay}")
         client.pub(f"{client.bridge_topic}/{entity}/status", 0, True, pay)
         return
+
     if entity == "excluir_disp":
         logging.info(f"Processando comando para Bridge {entity}: {pay}")
         for i in range(len(ram_devs)):
@@ -139,9 +140,8 @@ def mqtt_bridge_proc_command(entity, pay):
                 # Excluo da lista de slaves
                 ram_devs.remove(ram_devs[i])
                 # Refresco o select de dispositivos
-                mqtt_send_bridge_select_discovery()
-                # Refresco os tópicos de cliente
-                client.setup_mqtt_topics()
+                mqtt_bridge_refresh()
+
     if entity == "modo_config":
         logging.info(f"Processando comando para Bridge {entity}: {pay}")
         if (pay.find("ON")!=-1):
@@ -151,6 +151,14 @@ def mqtt_bridge_proc_command(entity, pay):
             # OFF
             globals.g_lf_lora.set_modo_op(MODO_OP_LOOP)
         client.pub(f"{client.bridge_topic}/modo_config", 0, True, pay)
+
+def mqtt_bridge_refresh(entit):
+    """Refresco o dicovery de select."""
+    client = globals.g_cli_mqtt
+    # Refresco o select de dispositivos
+    mqtt_send_bridge_select_discovery()
+    # Refresco os tópicos de cliente
+    client.setup_mqtt_topics()
 
 def mqtt_send_online():
     global online
@@ -447,3 +455,10 @@ def lora_pega_ultimo_destino_cmd():
     global loraUltimoDestinoCmd
     return loraUltimoDestinoCmd
 
+def disp_get_ram_addr_by_mac(mac):
+    # Redireciono para a função em globals.g_devices
+    return globals.g_devices.get_ram_addr_by_mac(mac)
+
+def disp_save_slave(addr, model, mac):
+    globals.g_devices.save_slave(addr, model, mac)
+    mqtt_bridge_refresh()

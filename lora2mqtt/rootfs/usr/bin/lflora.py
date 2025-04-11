@@ -1,6 +1,6 @@
 import logging
 
-import globals
+import msgs
 
 from consts import MODO_OP_CFG, MODO_OP_LOOP, FASE_NEG_INIC, FASE_NEG_CFG, CMD_NEGOCIA_INIC, \
     MSG_CHECK_OK, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR
@@ -173,7 +173,7 @@ class LFLoraClass:
             self._negociaMac = msg[19:31]
             self._negociaModelo = msg[32:]
             logging.info(f"CFG - MAC: {self._negociaMac} Modelo: {self._negociaModelo}")
-            self._negociaAddrSlave = globals.g_devices.get_ram_addr_by_mac(self._negociaMac)
+            self._negociaAddrSlave = msgs.disp_get_ram_addr_by_mac(self._negociaMac)
             self._negociaMsg = f"!{self._negociaDe}!FFFFFF!101!{self._loraCfg}!{self._myAddr:03}!{self._negociaAddrSlave:03}"
             logging.info(f"CFG - Resposta CFG: {self._negociaMsg}")
             self.set_fase_negocia(FASE_NEG_CFG)
@@ -203,7 +203,7 @@ class LFLoraClass:
                 return False
             logging.info(f"CFG - modelo: {self._negociaModelo} mac: {self._negociaMac} slaveAddr: {slaveAddr}")
             # Salvando o Slave, se não existir, cria
-            globals.g_devices.save_slave(self._negociaAddrSlave, self._negociaModelo, self._negociaMac)
+            msgs.disp_save_slave(self._negociaAddrSlave, self._negociaModelo, self._negociaMac)
             self.set_fase_negocia(FASE_NEG_INIC)
             return True
         return False
