@@ -159,6 +159,9 @@ def mqtt_bridge_refresh():
     mqtt_send_bridge_select_discovery()
     # Refresco os tópicos de cliente
     client.setup_mqtt_topics()
+    # Refresco o discovery de entidades (dispositivos)
+    mqtt_send_discovery_entities()
+
 
 def mqtt_send_online():
     global online

@@ -220,7 +220,7 @@ class DeviceManager:
         obj = None
         if model:
             obj = modelInst.model_obj
-        index = len(self.dev_rams)-1
+        index = len(self.dev_rams)
         logging.info(f"DEVICE {index} {addr} {name} {slug} {mac} {obj.ver} {obj.chip} {model} {obj.man} {obj}")
         self.dev_rams.append(DeviceRAM(index, addr, name, slug, mac, obj.ver, obj.chip, model, obj.man, obj))
 
