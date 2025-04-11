@@ -30,6 +30,7 @@ loraFiFoDestinoBuffer = [0] * LORA_FIFO_LEN
 loraUltimoDestinoCmd = 0
 
 mqttLastBridgeSelect = ""
+mqttLastNomeDisp = ""
 
 
 def loop_serial():
@@ -91,7 +92,7 @@ def on_mqtt_message(topic, payload):
             logging.error(f"Na msg recebida de MQTT não encontrado /set: | {top} para {pay}")
             return
         entity = top[entity_pos + 1:set_pos]
-        logging.info(f"Set | {entity} para {pay}")
+        logging.debug(f"Set | {entity} para {pay}")
         
         # Para pegar o dispositivo que enviou o comando
         device_pos = top.rfind("/", 0, entity_pos)
@@ -99,7 +100,7 @@ def on_mqtt_message(topic, payload):
             logging.error(f"Na msg recebida de MQTT não encontrado o dispositivo: | {top} para {pay}")
             return
         device_name = top[device_pos + 1:entity_pos]
-        logging.info(f"Dispositivo {device_name}")
+        logging.debug(f"Dispositivo {device_name}")
 
         if device_name == 'bridge':
             # Trata comando de Bridge
@@ -111,23 +112,31 @@ def on_mqtt_message(topic, payload):
                 ram_dev = globals.g_devices.get_dev_rams()[index]
                 ram_dev.slaveObj.proc_command(entity, pay, index)
             else:
-                logging.info(f"Não encontrado dispositivo {device_name}")
+                logging.debug(f"Não encontrado dispositivo {device_name}")
     else:
         logging.error(f"A msg recebida de MQTT não foi tratada: | {top} para {pay}")
 
 def mqtt_bridge_proc_command(entity, pay):
     """Processa comando para Bridge recebidas do MQTT)."""
-    global mqttLastBridgeSelect
+    global mqttLastBridgeSelect, mqttLastNomeDisp
     ram_devs = globals.g_devices.get_dev_rams()
     client = globals.g_cli_mqtt
     if entity == "dispositivos":
         mqttLastBridgeSelect = pay
-        logging.info(f"Processando comando para Bridge {entity}: {pay}")
-        client.pub(f"{client.bridge_topic}/{entity}/status", 0, True, pay)
+        logging.debug(f"Processando comando para dispositivos de Bridge {entity}: {pay}")
+        client.pub(f"{client.bridge_topic}/dispositivos", 0, True, pay)
+        client.pub(f"{client.bridge_topic}/nome_disp", 0, True, pay)
+        return
+
+    if entity == "nome_disp":
+        mqttLastNomeDisp = pay
+        logging.debug(f"Processando comando para dispositivos de Bridge {entity}: {pay}")
+        client.pub(f"{client.bridge_topic}/dispositivos", 0, True, pay)
+        client.pub(f"{client.bridge_topic}/nome_disp", 0, True, pay)
         return
 
     if entity == "excluir_disp":
-        logging.info(f"Processando comando para Bridge {entity}: {pay}")
+        logging.debug(f"Processando comando para excluir_disp de Bridge {entity}: {pay}")
         for i in range(len(ram_devs)):
             if ram_devs[i].slaveName == mqttLastBridgeSelect:
                 # Vou tentar excluir o dispositivo indice i
@@ -135,15 +144,25 @@ def mqtt_bridge_proc_command(entity, pay):
                 client.send_delete_discovery_x(i, "sensor", "RSSI")
                 obj = ram_devs[i].slaveObj
                 for j in range(len(obj.entityNames)):
-                    logging.info(f"Dev {ram_devs[i].slaveName} Entidade {j} Domínio {obj.entityDomains[j]} Nome {obj.entityNames[j]}")
+                    logging.info(f"Dev Excluido {ram_devs[i].slaveName} Entidade {j} Domínio {obj.entityDomains[j]} Nome {obj.entityNames[j]}")
                     client.send_delete_discovery_x(i, obj.entityDomains[j], obj.entityNames[j])
                 # Excluo da lista de slaves
                 ram_devs.remove(ram_devs[i])
-                # Refresco o select de dispositivos
+                # Refresco dispositivos da bridge
+                mqtt_bridge_refresh()
+
+    if entity == "renomear_disp":
+        logging.debug(f"Processando comando para renomear_disp de Bridge {entity}: {pay}")
+        for i in range(len(ram_devs)):
+            if ram_devs[i].slaveName == mqttLastBridgeSelect:
+                # Vou tentar renomear o dispositivo indice i
+                ram_devs[i].slaveName = mqttLastNomeDisp
+                ram_devs[i].slaveSlug = funcs.slugify(ram_devs[i].slaveName)
+                # Refresco dispositivos da bridge
                 mqtt_bridge_refresh()
 
     if entity == "modo_config":
-        logging.info(f"Processando comando para Bridge {entity}: {pay}")
+        logging.info(f"Processando comando para modo_config de Bridge {entity}: {pay}")
         if (pay.find("ON")!=-1):
             # ON
             globals.g_lf_lora.set_modo_op(MODO_OP_CFG)
@@ -155,7 +174,7 @@ def mqtt_bridge_proc_command(entity, pay):
 def mqtt_bridge_refresh():
     """Refresco o dicovery de select."""
     client = globals.g_cli_mqtt
-    # Refresco os tópicos de cliente
+    # Refresco os tópicos
     client.setup_mqtt_topics()
     # Assino os tópicos 
     client.on_mqtt_connect()
@@ -177,6 +196,8 @@ def mqtt_send_online():
 def mqtt_send_discovery_bridge():
     client = globals.g_cli_mqtt
     client.send_connectivity_discovery()
+    client.send_bridge_text_discovery("Nome Disp", EC_NONE)
+    client.send_bridge_button_discovery("Renomear Disp", EC_NONE, DEVICE_CLASS_UPDATE)
     client.send_bridge_button_discovery("Excluir Disp", EC_NONE, DEVICE_CLASS_UPDATE)
     client.send_bridge_switch_discovery("Modo Config", EC_NONE)
     status = "OFF"
@@ -198,7 +219,7 @@ def mqtt_send_bridge_select_discovery():
     client = globals.g_cli_mqtt
     client.send_bridge_select_discovery("Dispositivos", EC_NONE, devs)
     if len(ram_devs) > 0:
-        client.pub(f"{client.bridge_topic}/dispositivos/status", 0, True, ram_devs[0].slaveName)
+        client.pub(f"{client.bridge_topic}/dispositivos", 0, True, ram_devs[0].slaveName)
         mqttLastBridgeSelect = ram_devs[0].slaveName
 
 
@@ -465,5 +486,7 @@ def disp_get_ram_addr_by_mac(mac):
     return globals.g_devices.get_ram_addr_by_mac(mac)
 
 def disp_save_slave(addr, model, mac):
+    # Salvo o slave em ram_devs
     globals.g_devices.save_slave(addr, model, mac)
+    # Refresco dispositivos da bridge
     mqtt_bridge_refresh()

@@ -527,7 +527,7 @@ class LoRa2MQTTClient(mqtt.Client):
             "name": name,
             "uniq_id": f"{self.addon_slug}_{UINQUE}_{slug}",
             "avty_t": "~/status",
-            "stat_t": f"~/{slug}/status",
+            "stat_t": f"~/{slug}",
             "cmd_t": f"~/{slug}/set",
             "options": options,
         })
@@ -535,6 +535,28 @@ class LoRa2MQTTClient(mqtt.Client):
             payload["entity_category"] = entity_category
 
         topic = f"{HA_PREFIX}/select/{self.addon_slug}_{UINQUE}/{slug}/config"
+        payload_json = json.dumps(payload)
+        return self.pub(topic, 0, True, payload_json)
+
+    def send_bridge_text_discovery(self, name, entity_category):
+        """
+        Envia a descoberta de um select para a ponte via MQTT.
+        """
+        slug = funcs.slugify(name)
+        payload = self.common_discovery()
+        payload.update({
+            "~": self.bridge_topic,
+            "name": name,
+            "uniq_id": f"{self.addon_slug}_{UINQUE}_{slug}",
+            "avty_t": "~/status",
+            "stat_t": f"~/{slug}",
+            "cmd_t": f"~/{slug}/set",
+            "min": 4,
+        })
+        if entity_category:
+            payload["entity_category"] = entity_category
+
+        topic = f"{HA_PREFIX}/text/{self.addon_slug}_{UINQUE}/{slug}/config"
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
