@@ -41,7 +41,7 @@ def loop_serial():
         serial_data = globals.g_serial.readline().decode('utf-8').strip()
         if globals.g_lf_lora.modo_op() == MODO_OP_LOOP:
             # Tratando o dado
-            result, de, para, id, msg = globals.g_lf_lora.lora_check_msg_ini(serial_data)
+            result, de, para, id, rssi, msg = globals.g_lf_lora.lora_check_msg_ini(serial_data)
             logging.debug(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
             # Trato a mensagem
             if result == MSG_CHECK_OK:
@@ -52,7 +52,7 @@ def loop_serial():
                 if index is None:
                     return
                 logging.debug(f"Índice do dispositivo: {index}")
-                on_lora_message(msg, index)
+                on_lora_message(msg, rssi, index)
 
         if globals.g_lf_lora.modo_op() == MODO_OP_CFG:
             if globals.g_lf_lora.on_lora_message(serial_data):
@@ -271,11 +271,6 @@ def mqtt_send_com_lora(force):
 
             globals.g_cli_mqtt.pub(f"{globals.g_cli_mqtt.work_topics[i]}/com_lora", 0, True, s_com_lora)
 
-def mqtt_set_rssi(index, rssi):
-    # Salvo RSSI do Dispositivo na RAM
-    ram_devs = globals.g_devices.get_dev_rams()
-    ram_devs[index].loraRSSI = rssi
-
 def mqtt_send_entities():
     # Pego oo Dispositivos na RAM
     ram_devs = globals.g_devices.get_dev_rams()
@@ -388,7 +383,7 @@ def loop_lora():
                 lora_envia_msg_cfg()
         
         
-def on_lora_message(sMsg, index):
+def on_lora_message(sMsg, rssi, index):
 #    global loraFiFoPrimeiro, loraFiFoUltimo
     logging.debug(f"LoRa - Tamanho da MSG: {len(sMsg)} Índice {index}")
     
@@ -403,6 +398,7 @@ def on_lora_message(sMsg, index):
         ram_dev.slaveObj.proc_rec_msg(sMsg, index)
 
         # Atualizo variáveis de contexto do dispositivo na RAM
+        ram_dev.loraRSSI = rssi
         ram_dev.loraTimeOut = funcs.millis()
         ram_dev.loraCom = True
         if lora_pega_ultimo_destino_cmd() == index:

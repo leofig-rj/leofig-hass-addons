@@ -1,7 +1,7 @@
 import logging
 
 from funcs import slugify, char_to_state, char_to_on_off
-from msgs import lora_fifo_tenta_enviar, mqtt_set_rssi, mqtt_pub, mqtt_send_light_switch_discovery, \
+from msgs import lora_fifo_tenta_enviar, mqtt_pub, mqtt_send_light_switch_discovery, \
                     mqtt_send_binary_sensor_discovery
 
 from consts import EC_NONE
@@ -18,7 +18,6 @@ class DeviceLZ01:
         self.entitySlugs = []
         self.entityValStr = []
         self.entityLastValStr = []
-        self.entityRSSI = -20
 
         for i in range(len(self.entityNames)):
             self.entitySlugs.append(slugify(self.entityNames[i]))
@@ -27,29 +26,21 @@ class DeviceLZ01:
 
     def proc_rec_msg(self, sMsg, index):
 
-#        if len(sMsg) != 9:
         if len(sMsg) != 4:
             logging.info(f"LZ01 - Erro no tamanho da mensagem! {len(sMsg)}")
             return
         
         partes = sMsg.split('#')
-#        if len(partes) != 4:
         if len(partes) != 3:
             logging.info("LZ01 - Erro ao dividir a mensagem!")
             return
         
-#        if len(partes[1]) != 1 or len(partes[2]) != 1 or len(partes[3]) != 4:
         if len(partes[1]) != 1 or len(partes[2]) != 1:
             logging.info("LZ01 - Erro no tamanho dos dados!")
             return
         
         self.entityValStr[0] = char_to_state(partes[1])
         self.entityValStr[1] = char_to_on_off(partes[2])
-#        mqtt_set_rssi(index, int(partes[3]))
-        mqtt_set_rssi(index, self.entityRSSI)
-        self.entityRSSI = self.entityRSSI -1
-        if self.entityRSSI < -150:
-            self.entityRSSI = -20
         
         logging.debug(f"LZ01 - Lâmpada1: {self.entityValStr[0]} Input1: {self.entityValStr[1]}")
             

@@ -74,24 +74,25 @@ class LFLoraClass:
         out = ""
 
         if input_str[0] != '#':
-            return MSG_CHECK_ERROR, 0, 0, 0, out
+            return MSG_CHECK_ERROR, 0, 0, 0, 0, out
 
-        for i in range(10):
+        for i in range(14):
             try:
                 char = input_str[i+1:i+2]
                 if char not in "0123456789ABCDEFabcdef":
-                    return MSG_CHECK_ERROR, 0, 0, 0, out
+                    return MSG_CHECK_ERROR, 0, 0, 0, 0, out
             except UnicodeDecodeError:
-                return MSG_CHECK_ERROR, 0, 0, 0, out
+                return MSG_CHECK_ERROR, 0, 0, 0, 0, out
 
-        de = int(input_str[1:3], 16)
-        para = int(input_str[3:5], 16)
-        id = int(input_str[5:7], 16)
-        len_in_msg = int(input_str[7:11], 16)
+        rssi = int(input_str[1:5], 10)
+        de = int(input_str[5:7], 16)
+        para = int(input_str[7:9], 16)
+        id = int(input_str[9:11], 16)
+        len_in_msg = int(input_str[11:15], 16)
 
-        # input_str tem um caracter a maias (o # no início)
-        if len_in_msg != len(input_str) - 1:
-            return MSG_CHECK_ERROR, 0, 0, 0, out
+        # input_str tem cinco caracteres a mais (#rssi)
+        if len_in_msg != len(input_str) - 5:
+            return MSG_CHECK_ERROR, 0, 0, 0, 0, out
 
         out = input_str[11:]
 
@@ -102,14 +103,14 @@ class LFLoraClass:
             self.add_reg_rec(de, para, id)
         else:
             if self._regRecs[index].id == id:
-                return MSG_CHECK_ALREADY_REC, de, para, id, out
+                return MSG_CHECK_ALREADY_REC, de, para, id, rssi, out
             self._regRecs[index].id = id
 
-        return MSG_CHECK_OK, de, para, id, out
+        return MSG_CHECK_OK, de, para, id, rssi, out
 
     def lora_check_msg(self, input_str, length):
         out = []
-        result, de, para, id, out = self.lora_check_msg_ini(input_str, length)
+        result, de, para, id, rssi, out = self.lora_check_msg_ini(input_str, length)
         if result != MSG_CHECK_OK:
             return result, out
         if para != self._myAddr:
@@ -144,8 +145,7 @@ class LFLoraClass:
             return True
         return False
 
-    def on_lora_message(self, msg_):
-        msg = msg_[1:]
+    def on_lora_message(self, msg):
         logging.info(f"CFG - MSG: {msg} Len: {len(msg)}")
         if msg[0] != '!':
             return False
