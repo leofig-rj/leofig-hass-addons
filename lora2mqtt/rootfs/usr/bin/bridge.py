@@ -617,8 +617,10 @@ class LoRa2MQTTClient(mqtt.Client):
         Envia uma mensagem para deletar descoberta de um slave LoRa.
         """
         slug = funcs.slugify(name)
-        topic = f"{HA_PREFIX}/{domain}/{self.addon_slug}_{self.ram_devs[index].slaveMac}/{slug}/config"
-        return self.pub(topic, 0, False, "")
+        topic = self.masc_disc_topics[index] % (domain, slug)
+        if self.pub(topic, 0, False, ""):
+            topic = self.work_topics[index]
+            return self.pub(topic, 0, False, "")
 
     def send_online(self):
         """
