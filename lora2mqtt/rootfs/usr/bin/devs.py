@@ -38,9 +38,8 @@ class Model:
             return None
 
 class DeviceRAM:
-    def __init__(self, slaveIndex=0, slaveAddr=0, slaveName="", slaveSlug="", slaveMac="", slaveVer="", slaveChip="", \
+    def __init__(self, slaveAddr=0, slaveName="", slaveSlug="", slaveMac="", slaveVer="", slaveChip="", \
                  slaveModel="", slaveMan="", slaveObj=None):
-        self.slaveIndex = slaveIndex
         self.slaveAddr = slaveAddr
         self.slaveName = slaveName
         self.slaveSlug = slaveSlug
@@ -93,29 +92,35 @@ class DeviceManager:
         with open(self.config_file_path, "w") as arquivo_yaml:
             yaml.dump({"devices": devices}, arquivo_yaml, default_flow_style=False)
 
-    def add_device(self, device):
+    def add_device(self, addr, name, mac, model):
         """Adiciona um novo dispositivo ao arquivo."""
+        device = {
+            "address": addr,
+            "name": name,
+            "mac": mac,
+            "model": model
+            }
         devices = self.load_devices()
         devices.append(device)
         self.save_devices(devices)
         logging.debug(f"Dispositivo adicionado: {device}")
 
-    def find_device_by_id(self, id_device):
-        """Busca um dispositivo específico pelo ID."""
+    def find_device_by_mac(self, mac):
+        """Busca um dispositivo específico pelo MAC."""
         devices = self.load_devices()
         for device in devices:
-            if device["id"] == id_device:
+            if device["mac"] == mac:
                 return device
         return None
 
-    def delete_device_by_id(self, id_device):
-        """Exclui um dispositivo específico pelo ID."""
+    def delete_device_by_mac(self, mac):
+        """Exclui um dispositivo específico pelo MAC."""
         devices = self.load_devices()
         devices_filtered = [
-            device for device in devices if device["id"] != id_device
+            device for device in devices if device["mac"] != mac
         ]
         self.save_devices(devices_filtered)
-        logging.debug(f"Dispositivo com ID '{id_device}' excluído com sucesso!")
+        logging.debug(f"Dispositivo com MAC '{mac}' excluído com sucesso!")
 
     def load_devices_to_ram(self):
         """Carrega todos os dispositivos cadastrados na DeviceRAM."""
@@ -125,9 +130,9 @@ class DeviceManager:
         if devices:
             for device in devices:
                 # Vejo se friendly_name foi definido
-                name = device['friendly_name']
+                name = device['name']
                 if funcs.is_empty_str(name):
-                    name = device['id']
+                    name = device['mac']
                 # Defino o slug do nome
                 slug = funcs.slugify(name)
                 # Vejo se o modelo existe no sistema
@@ -137,7 +142,7 @@ class DeviceManager:
                     obj = model.model_obj
                 logging.info(f"DEVICE {device['address']} {name} {slug} {device['mac']} {obj.ver} " \
                               f"{obj.chip} {device['model']} {obj.man} {obj}")
-                self.dev_rams.append(DeviceRAM(i, device['address'], name, slug, device['mac'], obj.ver, \
+                self.dev_rams.append(DeviceRAM(device['address'], name, slug, device['mac'], obj.ver, \
                                                obj.chip, device['model'], obj.man, obj))
                 i = i + 1
         else:
@@ -145,20 +150,6 @@ class DeviceManager:
     
     def get_dev_rams(self):
         return self.dev_rams
-
-    def get_model(self, modelo):
-        # Procuro o modelo em self.models
-        for i in range(len(self.models)):
-            if self.models[i].model_name == modelo:
-                return self.models[i]
-        # Não achou, tento criar
-        obj = Model.pega_obj(modelo)
-        if obj:
-            model = Model(modelo, obj)
-            self.models.append(model)
-            return model
-
-        return None
 
     def find_device_ram_by_name(self, name):
         """Busca um dispositivo específico pelo nome."""
@@ -198,6 +189,20 @@ class DeviceManager:
             addr = self.get_next_ram_addr()
         return addr
 
+    def get_model(self, modelo):
+        # Procuro o modelo em self.models
+        for i in range(len(self.models)):
+            if self.models[i].model_name == modelo:
+                return self.models[i]
+        # Não achou, tento criar
+        obj = Model.pega_obj(modelo)
+        if obj:
+            model = Model(modelo, obj)
+            self.models.append(model)
+            return model
+
+        return None
+
     def save_slave(self, addr, model, mac):
         index = self.find_device_ram_by_mac(mac)
         if index is not None:
@@ -211,6 +216,10 @@ class DeviceManager:
             ram_dev.slaveAddr = addr
             ram_dev.slaveModel = model
             ram_dev.slaveObj = obj
+            # Excluo no arquivo config.yaml
+            self.delete_device_by_mac(mac)
+            # Crio com nova configuração no arquivo config.yaml
+            self.add_device(addr, ram_dev.slaveName, mac, model)
             return
         # Defino o nome como mac
         name = mac
@@ -222,6 +231,8 @@ class DeviceManager:
         if model:
             obj = modelInst.model_obj
         index = len(self.dev_rams)
-        self.dev_rams.append(DeviceRAM(index, addr, name, slug, mac, obj.ver, obj.chip, model, obj.man, obj))
+        self.dev_rams.append(DeviceRAM(addr, name, slug, mac, obj.ver, obj.chip, model, obj.man, obj))
+        # Crio no arquivo config.yaml
+        self.add_device(addr, name, mac, model)
         logging.info(f"DEVICE {index} {addr} {name} {slug} {mac} {obj.ver} {obj.chip} {model} {obj.man} {obj}")
         time.sleep(0.1)
