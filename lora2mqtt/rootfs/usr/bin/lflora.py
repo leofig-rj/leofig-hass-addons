@@ -79,7 +79,7 @@ class LFLoraClass:
         for i in range(14):
             try:
                 char = input_str[i+1:i+2]
-                if char not in "0123456789ABCDEFabcdef":
+                if char not in "-0123456789ABCDEFabcdef":
                     return MSG_CHECK_ERROR, 0, 0, 0, 0, out
             except UnicodeDecodeError:
                 return MSG_CHECK_ERROR, 0, 0, 0, 0, out
