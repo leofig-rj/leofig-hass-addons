@@ -195,6 +195,19 @@ class DeviceManager:
         # Excluo no config.yaml
         self.delete_device_by_mac(mac)
 
+    def rename_ram_dev(self, index, name):
+        # Pego o addr, mac e model
+        addr = self.dev_rams[index].slaveAddr
+        mac = self.dev_rams[index].slaveMac
+        model = self.dev_rams[index].slaveMac
+        # Renomeio na RAM
+        self.dev_rams[index].slaveName = name
+        self.dev_rams[index].slaveSlug = funcs.slugify(name)
+        # Excluo no config.yaml
+        self.delete_device_by_mac(mac)
+        # Excluo com novo nome no config.yaml
+        self.add_device(addr, name, mac, model)
+
     def get_model(self, modelo):
         # Procuro o modelo em self.models
         for i in range(len(self.models)):

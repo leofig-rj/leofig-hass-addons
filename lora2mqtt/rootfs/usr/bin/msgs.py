@@ -140,40 +140,39 @@ def mqtt_bridge_proc_command(entity, pay):
         logging.debug(f"Processando comando para excluir_disp de Bridge {entity}: {pay}")
         for i in range(len(ram_devs)):
             if ram_devs[i].slaveName == mqttLastBridgeSelect:
-                # Vou tentar excluir o dispositivo indice i
+                # Excluindo o dispositivo indice i
                 client.send_delete_discovery_x(i, "binary_sensor", "Com LoRa")
                 client.send_delete_discovery_x(i, "sensor", "RSSI")
                 obj = ram_devs[i].slaveObj
                 for j in range(len(obj.entityNames)):
                     logging.info(f"Dev Excluido {ram_devs[i].slaveName} Entidade {j} Domínio {obj.entityDomains[j]} Nome {obj.entityNames[j]}")
                     client.send_delete_discovery_x(i, obj.entityDomains[j], obj.entityNames[j])
-                # Excluo da lista de slaves na RAM e no arquivo config.yaml
+                # Excluindo da lista de slaves na RAM e no arquivo config.yaml
                 globals.g_devices.delete_ram_dev(i)
-                # Refresco dispositivos da bridge
+                # Refrescando dispositivos da bridge
                 mqtt_bridge_refresh()
 
     if entity == "renomear_disp":
         logging.debug(f"Processando comando para renomear_disp de Bridge {entity}: {pay}")
         for i in range(len(ram_devs)):
             if ram_devs[i].slaveName == mqttLastBridgeSelect:
-                # Vou tentar excluir o discovery do dispositivo indice i
+                # Excluindo o discovery do dispositivo indice i
                 client.send_delete_discovery_x(i, "binary_sensor", "Com LoRa")
                 client.send_delete_discovery_x(i, "sensor", "RSSI")
                 obj = ram_devs[i].slaveObj
                 for j in range(len(obj.entityNames)):
                     client.send_delete_discovery_x(i, obj.entityDomains[j], obj.entityNames[j])
-                # Vou tentar renomear o dispositivo indice i
-                ram_devs[i].slaveName = mqttLastNomeDisp
-                ram_devs[i].slaveSlug = funcs.slugify(ram_devs[i].slaveName)
-                # Refresco dispositivos da bridge
+                # Renomeaando o dispositivo indice i
+                globals.g_devices.rename_ram_dev(i, mqttLastNomeDisp)
+                # Refrescando dispositivos da bridge
                 mqtt_bridge_refresh()
-                # Envio os estados das entidades forçados
+                # Enviando os estados das entidades forçados
                 for i in range(len(ram_devs)):
-                    # Publica Com LoRa
+                    # Publicando Com LoRa
                     mqtt_send_com_lora(True)
-                    # Publica RSSI do dispositivo
+                    # Publicando RSSI do dispositivo
                     mqtt_pub(i, "rssi", str(ram_devs[i].loraRSSI))
-                    # Publica entidades do dispositivo (modelo)
+                    # Publicando entidades do dispositivo (modelo)
                     ram_devs[i].slaveObj.proc_publish(i, True)
 
 
