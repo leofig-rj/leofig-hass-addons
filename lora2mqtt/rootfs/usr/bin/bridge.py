@@ -619,7 +619,7 @@ class LoRa2MQTTClient(mqtt.Client):
         slug = funcs.slugify(name)
         topic = self.masc_disc_topics[index] % (domain, slug)
         if self.pub(topic, 0, True, ""):
-            topic = self.work_topics[index]
+            topic = f"{self.work_topics[index]}/#"
             return self.pub(topic, 0, True, "")
 
     def send_online(self):
