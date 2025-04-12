@@ -94,7 +94,7 @@ class LFLoraClass:
         if len_in_msg != len(input_str) - 5:
             return MSG_CHECK_ERROR, 0, 0, 0, 0, out
 
-        out = input_str[11:]
+        out = input_str[15:]
 
         self._lastRegRec = RegRec(de, para, id)
 
