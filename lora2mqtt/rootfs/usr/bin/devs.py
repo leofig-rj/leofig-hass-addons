@@ -199,7 +199,7 @@ class DeviceManager:
         # Pego o addr, mac e model
         addr = self.dev_rams[index].slaveAddr
         mac = self.dev_rams[index].slaveMac
-        model = self.dev_rams[index].slaveMac
+        model = self.dev_rams[index].slaveModel
         # Renomeio na RAM
         self.dev_rams[index].slaveName = name
         self.dev_rams[index].slaveSlug = funcs.slugify(name)
