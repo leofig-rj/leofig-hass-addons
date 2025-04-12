@@ -147,8 +147,8 @@ def mqtt_bridge_proc_command(entity, pay):
                 for j in range(len(obj.entityNames)):
                     logging.info(f"Dev Excluido {ram_devs[i].slaveName} Entidade {j} Domínio {obj.entityDomains[j]} Nome {obj.entityNames[j]}")
                     client.send_delete_discovery_x(i, obj.entityDomains[j], obj.entityNames[j])
-                # Excluo da lista de slaves
-                ram_devs.remove(ram_devs[i])
+                # Excluo da lista de slaves na RAM e no arquivo config.yaml
+                globals.g_devices.delete_ram_dev(i)
                 # Refresco dispositivos da bridge
                 mqtt_bridge_refresh()
 

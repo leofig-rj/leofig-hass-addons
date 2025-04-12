@@ -126,25 +126,23 @@ class DeviceManager:
         """Carrega todos os dispositivos cadastrados na DeviceRAM."""
         devices = self.load_devices()
         self.dev_rams.clear()
-        i = 0
         if devices:
             for device in devices:
-                # Vejo se friendly_name foi definido
+                # Vejo se name foi definido
                 name = device['name']
                 if funcs.is_empty_str(name):
                     name = device['mac']
                 # Defino o slug do nome
                 slug = funcs.slugify(name)
                 # Vejo se o modelo existe no sistema
-                model = self.get_model(device['model'])
+                model_sis = self.get_model(device['model'])
                 obj = None
-                if model:
-                    obj = model.model_obj
+                if model_sis:
+                    obj = model_sis.model_obj
                 logging.info(f"DEVICE {device['address']} {name} {slug} {device['mac']} {obj.ver} " \
                               f"{obj.chip} {device['model']} {obj.man} {obj}")
                 self.dev_rams.append(DeviceRAM(device['address'], name, slug, device['mac'], obj.ver, \
                                                obj.chip, device['model'], obj.man, obj))
-                i = i + 1
         else:
             logging.debug("Nenhum dispositivo cadastrado.")
     
@@ -188,6 +186,14 @@ class DeviceManager:
         if addr == 0:
             addr = self.get_next_ram_addr()
         return addr
+
+    def delete_ram_dev(self, index):
+        # Excluo da lista de slaves
+        mac = self.dev_rams[index].slaveMac
+        # Excluo na RAM
+        self.dev_rams.remove(self.dev_rams[index])
+        # Excluo no config.yaml
+        self.delete_device_by_mac(mac)
 
     def get_model(self, modelo):
         # Procuro o modelo em self.models
