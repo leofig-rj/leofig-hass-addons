@@ -1,0 +1,9 @@
+devices:
+- address: 3
+  mac: A0DD6C982725
+  model: LZ01
+  name: Luz
+- address: 2
+  mac: '234567890123'
+  model: PW01
+  name: Eletricidade
