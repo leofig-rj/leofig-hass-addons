@@ -26,12 +26,12 @@ data_path:  is the path to the config.yaml used to save LoRa2MQTT data.
 Example add-on configuration:
 
 ```yaml
+serial:
+    port: /dev/ttyACM0 
 loglevel: INFO
 ```
 
-### Options: `serial`
-
-port: /dev/ttyACM0 
+### Option: `serial`
 
 ### Option: `loglevel`
 
@@ -40,5 +40,5 @@ port: /dev/ttyACM0
 - `WARNING`: Little alerts.
 - `ERROR`:  Only errors.
 
-### Options: `data_path`
+### Option: `data_path`
 
