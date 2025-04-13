@@ -70,7 +70,7 @@ class DeviceManager:
         # Acessa o caminho configurado
 #        self.data_path = globals.g_data_path
 #        self.config_file_path = f"{self.data_path}/config.yaml"
-        self.data_path = "/config/addons/lora2mqtt"
+        self.data_path = "/tmp"
         self.config_file_path = f"{self.data_path}/teste.yaml"
 
         # Verifica se o arquivo existe, caso contrário, cria um arquivo vazio
