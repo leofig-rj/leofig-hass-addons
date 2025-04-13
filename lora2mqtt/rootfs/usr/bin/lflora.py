@@ -203,7 +203,7 @@ class LFLoraClass:
             if slaveAddr != f"{self._negociaAddrSlave:03}":
                 return False
             # Salvando o Slave, se não existir, cria
-            msgs.disp_save_slave(self._negociaAddrSlave, self._negociaModelo, self._negociaMac)
+            msgs.disp_save_ram_dev(self._negociaAddrSlave, self._negociaModelo, self._negociaMac)
             self.set_fase_negocia(FASE_NEG_INIC)
             logging.info(f"CFG 2 - modelo: {self._negociaModelo} mac: {self._negociaMac} slaveAddr: {self._negociaAddrSlave:03}")
             return True

@@ -500,8 +500,8 @@ def disp_get_ram_dev_addr_by_mac(mac):
     # Redireciono para a função em globals.g_devices
     return globals.g_devices.get_ram_dev_addr_by_mac(mac)
 
-def disp_save_slave(addr, model, mac):
+def disp_save_ram_dev(addr, model, mac):
     # Salvo o slave em ram_devs
-    globals.g_devices.save_slave(addr, model, mac)
+    globals.g_devices.save_ram_dev(addr, model, mac)
     # Refresco dispositivos da bridge
     mqtt_bridge_refresh()

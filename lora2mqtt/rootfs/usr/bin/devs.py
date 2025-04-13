@@ -222,7 +222,7 @@ class DeviceManager:
 
         return None
 
-    def save_slave(self, addr, model, mac):
+    def save_ram_dev(self, addr, model, mac):
         index = self.find_ram_dev_by_mac(mac)
         if index is not None:
             ram_dev = self.dev_rams[index]
