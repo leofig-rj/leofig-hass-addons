@@ -146,24 +146,24 @@ class DeviceManager:
         else:
             logging.debug("Nenhum dispositivo cadastrado.")
     
-    def get_dev_rams(self):
+    def get_ram_devs(self):
         return self.dev_rams
 
-    def find_device_ram_by_name(self, name):
-        """Busca um dispositivo específico pelo nome."""
+    def find_ram_dev_by_name(self, name):
+        """Busca um dispositivo da RAM específico pelo nome."""
         for i in range(len(self.dev_rams)):
             if name == self.dev_rams[i].slaveName:
                 return i
         return None
 
-    def find_device_ram_by_mac(self, mac):
-        """Busca um dispositivo específico pelo nome."""
+    def find_ram_dev_by_mac(self, mac):
+        """Busca um dispositivo da RAM específico pelo mac."""
         for i in range(len(self.dev_rams)):
             if mac == self.dev_rams[i].slaveMac:
                 return i
         return None
 
-    def get_next_ram_addr(self):
+    def get_next_ram_dev_addr(self):
         """Pega o próxiom endereço de Slave."""
         addr = 2
         i = 0
@@ -176,7 +176,7 @@ class DeviceManager:
                 i += 1    
         return addr
 
-    def get_ram_addr_by_mac(self, mac):
+    def get_ram_dev_addr_by_mac(self, mac):
         """Pega o endereço do Slave com Mac."""
         addr = 0
         for i in range(len(self.dev_rams)):
@@ -184,7 +184,7 @@ class DeviceManager:
                 addr = self.dev_rams[i].slaveAddr
                 break
         if addr == 0:
-            addr = self.get_next_ram_addr()
+            addr = self.get_next_ram_dev_addr()
         return addr
 
     def delete_ram_dev(self, index):
@@ -223,7 +223,7 @@ class DeviceManager:
         return None
 
     def save_slave(self, addr, model, mac):
-        index = self.find_device_ram_by_mac(mac)
+        index = self.find_ram_dev_by_mac(mac)
         if index is not None:
             ram_dev = self.dev_rams[index]
             ram_dev.slaveAddr = addr

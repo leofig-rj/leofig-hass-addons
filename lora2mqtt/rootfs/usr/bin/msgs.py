@@ -107,9 +107,9 @@ def on_mqtt_message(topic, payload):
             mqtt_bridge_proc_command(entity, pay)
         else:
             # Procura nos dispositivo
-            index = globals.g_devices.find_device_ram_by_name(device_name)
+            index = globals.g_devices.find_ram_dev_by_name(device_name)
             if index is not None:
-                ram_dev = globals.g_devices.get_dev_rams()[index]
+                ram_dev = globals.g_devices.get_ram_devs()[index]
                 ram_dev.slaveObj.proc_command(entity, pay, index)
             else:
                 logging.debug(f"Não encontrado dispositivo {device_name}")
@@ -119,7 +119,7 @@ def on_mqtt_message(topic, payload):
 def mqtt_bridge_proc_command(entity, pay):
     """Processa comando para Bridge recebidas do MQTT)."""
     global mqttLastBridgeSelect, mqttLastNomeDisp
-    ram_devs = globals.g_devices.get_dev_rams()
+    ram_devs = globals.g_devices.get_ram_devs()
     client = globals.g_cli_mqtt
     if entity == "dispositivos":
         mqttLastBridgeSelect = pay
@@ -226,7 +226,7 @@ def mqtt_send_bridge_select_discovery():
     # Inicializo o último da memória
     mqttLastBridgeSelect = ""
     # Pego os Dispositivos na RAM
-    ram_devs = globals.g_devices.get_dev_rams()
+    ram_devs = globals.g_devices.get_ram_devs()
     # Crio lista com nomes dos dispositivos
     devs = []
     for i in range(len(ram_devs)):
@@ -244,7 +244,7 @@ def mqtt_send_bridge_select_discovery():
 
 def mqtt_send_discovery_entities():
     # Pego oo Dispositivos na RAM
-    ram_devs = globals.g_devices.get_dev_rams()
+    ram_devs = globals.g_devices.get_ram_devs()
 
     if len(ram_devs) == 0:
         return
@@ -259,7 +259,7 @@ def mqtt_send_discovery_entities():
 
 def mqtt_send_com_lora(force):
     # Pego oo Dispositivos na RAM
-    ram_devs = globals.g_devices.get_dev_rams()
+    ram_devs = globals.g_devices.get_ram_devs()
 
     for i in range(len(ram_devs)):
         if (ram_devs[i].loraLastCom != ram_devs[i].loraCom) or force:
@@ -272,7 +272,7 @@ def mqtt_send_com_lora(force):
 
 def mqtt_send_entities():
     # Pego oo Dispositivos na RAM
-    ram_devs = globals.g_devices.get_dev_rams()
+    ram_devs = globals.g_devices.get_ram_devs()
 
     if len(ram_devs) == 0:
         return
@@ -336,7 +336,7 @@ def loop_lora():
 
     if globals.g_lf_lora.modo_op() == MODO_OP_LOOP:
         
-        ram_devs = globals.g_devices.get_dev_rams()
+        ram_devs = globals.g_devices.get_ram_devs()
 
         if len(ram_devs) == 0:
             return
@@ -391,7 +391,7 @@ def on_lora_message(sMsg, rssi, index):
 #        return
     try:
         # Pego o Dispositivo na RAM
-        ram_dev = globals.g_devices.get_dev_rams()[index]
+        ram_dev = globals.g_devices.get_ram_devs()[index]
 
         # Executa a rotina no dispositivo Moodelo
         ram_dev.slaveObj.proc_rec_msg(sMsg, index)
@@ -423,7 +423,7 @@ def lora_fifo_tenta_enviar(sMsg, index):
 
 def lora_envia_mensagem_index(sMsg, index):
     # Pego oo Dispositivos na RAM
-    ram_devs = globals.g_devices.get_dev_rams()
+    ram_devs = globals.g_devices.get_ram_devs()
 
     lora_envia_mensagem(sMsg, ram_devs[index].slaveAddr)
 
@@ -488,7 +488,7 @@ def lora_proximo_destino_cmd():
     global loraUltimoDestinoCmd, loraLoopTime
 
     loraUltimoDestinoCmd = (loraUltimoDestinoCmd + 1)
-    if loraUltimoDestinoCmd >= len(globals.g_devices.get_dev_rams()):
+    if loraUltimoDestinoCmd >= len(globals.g_devices.get_ram_devs()):
         loraUltimoDestinoCmd = 0
         loraLoopTime = funcs.millis()
 
@@ -496,9 +496,9 @@ def lora_pega_ultimo_destino_cmd():
     global loraUltimoDestinoCmd
     return loraUltimoDestinoCmd
 
-def disp_get_ram_addr_by_mac(mac):
+def disp_get_ram_dev_addr_by_mac(mac):
     # Redireciono para a função em globals.g_devices
-    return globals.g_devices.get_ram_addr_by_mac(mac)
+    return globals.g_devices.get_ram_dev_addr_by_mac(mac)
 
 def disp_save_slave(addr, model, mac):
     # Salvo o slave em ram_devs

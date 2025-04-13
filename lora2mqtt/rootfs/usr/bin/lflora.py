@@ -173,7 +173,7 @@ class LFLoraClass:
             self._negociaMac = msg[19:31]
             self._negociaModelo = msg[32:]
             logging.info(f"CFG - MAC: {self._negociaMac} Modelo: {self._negociaModelo}")
-            self._negociaAddrSlave = msgs.disp_get_ram_addr_by_mac(self._negociaMac)
+            self._negociaAddrSlave = msgs.disp_get_ram_dev_addr_by_mac(self._negociaMac)
             self._negociaMsg = f"!{self._negociaDe}!FFFFFF!101!{self._loraCfg}!{self._myAddr:03}!{self._negociaAddrSlave:03}"
             logging.info(f"CFG - Resposta CFG: {self._negociaMsg}")
             self.set_fase_negocia(FASE_NEG_CFG)
