@@ -40,4 +40,3 @@ schema:
     rtscts": "bool?"
   log_level: "list(DEBUG|INFO|WARNING|ERROR)?"
   data_path: "str?"
-  max_threads: "int?"

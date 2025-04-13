@@ -22,8 +22,6 @@ def main(broker, port, broker_user, broker_pass):
     with open("/data/options.json") as config_file:
         options = json.load(config_file)
 
-    max_threads = options.get("max_threads", 200)
-    logging.debug(f"max_threads: {max_threads}")
     serial_obj = options.get("serial", {"port": "/dev/ttyACM0"})
     logging.debug(f"serial_obj: {serial_obj}")
     data_path = options.get("data_path", "/config/lora2mqtt")
