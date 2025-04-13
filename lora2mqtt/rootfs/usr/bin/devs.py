@@ -15,7 +15,8 @@ class Model:
     def pega_obj(name):
         try:
             # Importa dinamicamente o módulo correspondente em dispositivos
-            module_name = f"models.{funcs.slugify(name)}"
+#            module_name = f"models.{funcs.slugify(name)}"
+            module_name = f"/config/lora2mqtt/models.{funcs.slugify(name)}"
             module = importlib.import_module(module_name)
 
             # Obtém a classe com o nome esperado (DeviceXX)
