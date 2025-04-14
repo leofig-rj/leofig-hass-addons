@@ -105,8 +105,7 @@ class DeviceManager:
                 logging.error(f"Erro ao criar o arquivo: {e}")
                 logging.error("Certifique-se de que o diretório possui permissões de gravação.")
 
-        # Copiando os arquivos de modelos do usuário
-        # Definindo o caminho da pasta de origem
+        # Copiando os arquivos de modelos do usuário. Definindo o caminho da pasta de origem
         pasta_origem = f"{self.data_path}/models"
 
         # Definindo o caminho da pasta de destino
@@ -116,14 +115,14 @@ class DeviceManager:
         if not os.path.exists(pasta_destino):
             os.makedirs(pasta_destino)
 
-        # Excluindo todos os arquivos da pasta de destino
-        for arquivo in os.listdir(pasta_destino):
-            caminho_arquivo_destino = os.path.join(pasta_destino, arquivo)
-            
-            # Verificando se é um arquivo antes de excluir (ignora pastas)
-            if os.path.isfile(caminho_arquivo_destino):
-                os.remove(caminho_arquivo_destino)
-                logging.info(f"Arquivo {arquivo} excluído do AddOn")
+#        # Excluindo todos os arquivos da pasta de destino
+#        for arquivo in os.listdir(pasta_destino):
+#            caminho_arquivo_destino = os.path.join(pasta_destino, arquivo)
+#            
+#            # Verificando se é um arquivo antes de excluir (ignora pastas)
+#            if os.path.isfile(caminho_arquivo_destino):
+#                os.remove(caminho_arquivo_destino)
+#                logging.info(f"Arquivo {arquivo} excluído do AddOn")
 
         # Copiaando os arquivos da pasta de origem para a pasta de destino
         for arquivo in os.listdir(pasta_origem):
