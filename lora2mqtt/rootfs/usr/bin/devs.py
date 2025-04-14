@@ -17,7 +17,7 @@ class Model:
         try:
             # Importa dinamicamente o módulo correspondente em dispositivos
 #            module_name = f"models.{funcs.slugify(name)}"
-            module_name = f"models_import.{funcs.slugify(name)}"
+            module_name = f"teste.{funcs.slugify(name)}"
             module = importlib.import_module(module_name)
 
             # Obtém a classe com o nome esperado (DeviceXX)
@@ -30,8 +30,30 @@ class Model:
             return obj
 
         except ModuleNotFoundError:
-            logging.error(f"Erro: O módulo '{name}' não foi encontrado.")
-            return None
+
+            try:
+                # Importa dinamicamente o módulo correspondente em dispositivos
+                module_name = f"models_import.{funcs.slugify(name)}"
+                module = importlib.import_module(module_name)
+
+                # Obtém a classe com o nome esperado (DeviceXX)
+                class_name = f"Device{name}"
+                cls = getattr(module, class_name)
+
+                # Crio uma instância
+                obj = cls()
+
+                return obj
+
+            except ModuleNotFoundError:
+                logging.error(f"Erro: O módulo '{name}' não foi encontrado.")
+                return None
+            except AttributeError:
+                logging.error(f"Erro: A classe 'Dev{name}' não foi encontrada no módulo.")
+                return None
+            except Exception as e:
+                logging.error(f"Erro inesperado: {e}") 
+                return None
         except AttributeError:
             logging.error(f"Erro: A classe 'Dev{name}' não foi encontrada no módulo.")
             return None
@@ -86,7 +108,7 @@ class DeviceManager:
 
         # Copiando os arquivos de modelos do usuário
         # Definindo o caminho da pasta de origem
-        pasta_origem = "/config/lora2mqtt/models"
+        pasta_origem = f"{self.data_path}/models"
 
         # Definindo o caminho da pasta de destino
         pasta_destino = "/usr/bin/models_import"
