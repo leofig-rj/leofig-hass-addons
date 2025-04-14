@@ -84,24 +84,31 @@ class DeviceManager:
                 logging.error(f"Erro ao criar o arquivo: {e}")
                 logging.error("Certifique-se de que o diretório possui permissões de gravação.")
 
-
-
-        # Defina o caminho da pasta de origem (source)
+        # Copiando os arquivos de modelos do usuário
+        # Definindo o caminho da pasta de origem
         pasta_origem = "/config/lora2mqtt/models"
 
-        # Defina o caminho da pasta de destino (target)
-        # Aqui você aponta para a subpasta no AddOn do Home Assistant
+        # Definindo o caminho da pasta de destino
         pasta_destino = "/usr/bin/models_import"
 
-        # Certifique-se de que a pasta de destino existe, caso contrário, crie-a
+        # Certificando-se de que a pasta de destino existe, caso contrário, criar
         if not os.path.exists(pasta_destino):
             os.makedirs(pasta_destino)
 
-        # Itere sobre todos os arquivos na pasta de origem e copie para a pasta de destino
+        # Excluindo todos os arquivos da pasta de destino
+        for arquivo in os.listdir(pasta_destino):
+            caminho_arquivo_destino = os.path.join(pasta_destino, arquivo)
+            
+            # Verificando se é um arquivo antes de excluir (ignora pastas)
+            if os.path.isfile(caminho_arquivo_destino):
+                os.remove(caminho_arquivo_destino)
+                logging.info(f"Arquivo {arquivo} excluído de {pasta_destino}")
+
+        # Copiaando os arquivos da pasta de origem para a pasta de destino
         for arquivo in os.listdir(pasta_origem):
             caminho_arquivo_origem = os.path.join(pasta_origem, arquivo)
             
-            # Verifique se é um arquivo antes de copiar (ignora pastas)
+            # Verificando se é um arquivo antes de copiar (ignora pastas)
             if os.path.isfile(caminho_arquivo_origem):
                 shutil.copy(caminho_arquivo_origem, pasta_destino)
                 logging.info(f"Arquivo {arquivo} copiado para {pasta_destino}")
