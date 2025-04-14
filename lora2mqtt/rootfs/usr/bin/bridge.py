@@ -246,7 +246,8 @@ class LoRa2MQTTClient(mqtt.Client):
             "dev": {
                 "ids": [f"{self.addon_slug}_{self.ram_devs[index].slaveMac}"],
                 "cns": [["mac", self.ram_devs[index].slaveMac]],
-                "name": f"{self.ram_devs[index].slaveName} {funcs.last4(self.ram_devs[index].slaveMac)}",
+#                "name": f"{self.ram_devs[index].slaveName} {funcs.last4(self.ram_devs[index].slaveMac)}",
+                "name": f"{self.ram_devs[index].slaveName}",
                 "sw": self.ram_devs[index].slaveVer,
                 "mf": self.ram_devs[index].slaveMan,
                 "mdl": self.ram_devs[index].slaveModel,
