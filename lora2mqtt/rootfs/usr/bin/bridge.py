@@ -13,7 +13,7 @@ import funcs
 import globals
 
 # Para MQTT
-from consts import ADDON_NAME, ADDON_SLUG, VERSION, UINQUE, OWNER, HA_PREFIX, LWT_MSG, LWT_QOS, \
+from consts import ADDON_NAME, ADDON_SLUG, VERSION, UNIQUE, OWNER, HA_PREFIX, LWT_MSG, LWT_QOS, \
     LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID, CMD_GET_USB_MODEL
 
 ########### MAIN ############
@@ -228,7 +228,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """
         payload = {
             "dev": {
-                "ids": [f"{self.addon_slug}_{UINQUE}"],
+                "ids": [f"{self.addon_slug}_{UNIQUE}"],
                 "name": f"{self.addon_name} Bridge",
                 "sw": VERSION,
                 "hw": self.usb_id,
@@ -251,7 +251,7 @@ class LoRa2MQTTClient(mqtt.Client):
                 "sw": self.ram_devs[index].slaveVer,
                 "mf": self.ram_devs[index].slaveMan,
                 "mdl": self.ram_devs[index].slaveModel,
-                "via_device" : f"{self.addon_slug}_{UINQUE}"
+                "via_device" : f"{self.addon_slug}_{UNIQUE}"
             }
         }
         return payload
@@ -264,7 +264,7 @@ class LoRa2MQTTClient(mqtt.Client):
         payload.update({
             "~": self.bridge_topic,
             "name": "Conectividade",
-            "uniq_id": f"{self.addon_slug}_{UINQUE}_conectividade",
+            "uniq_id": f"{self.addon_slug}_{UNIQUE}_conectividade",
             "json_attr_t": "~/telemetry",
             "stat_t": "~/status",
             "dev_cla": "connectivity",
@@ -272,7 +272,7 @@ class LoRa2MQTTClient(mqtt.Client):
             "pl_off": "offline"
         })
 
-        topic = f"{HA_PREFIX}/binary_sensor/{self.addon_slug}_{UINQUE}/conectividade/config"
+        topic = f"{HA_PREFIX}/binary_sensor/{self.addon_slug}_{UNIQUE}/conectividade/config"
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
@@ -519,7 +519,7 @@ class LoRa2MQTTClient(mqtt.Client):
         payload.update({
             "~": self.bridge_topic,
             "name": name,
-            "uniq_id": f"{self.addon_slug}_{UINQUE}_{slug}",
+            "uniq_id": f"{self.addon_slug}_{UNIQUE}_{slug}",
             "avty_t": "~/status",
             "stat_t": f"~/{slug}",
             "cmd_t": f"~/{slug}/set",
@@ -528,7 +528,7 @@ class LoRa2MQTTClient(mqtt.Client):
         if entity_category:
             payload["entity_category"] = entity_category
 
-        topic = f"{HA_PREFIX}/select/{self.addon_slug}_{UINQUE}/{slug}/config"
+        topic = f"{HA_PREFIX}/select/{self.addon_slug}_{UNIQUE}/{slug}/config"
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
@@ -541,7 +541,7 @@ class LoRa2MQTTClient(mqtt.Client):
         payload.update({
             "~": self.bridge_topic,
             "name": name,
-            "uniq_id": f"{self.addon_slug}_{UINQUE}_{slug}",
+            "uniq_id": f"{self.addon_slug}_{UNIQUE}_{slug}",
             "avty_t": "~/status",
             "stat_t": f"~/{slug}",
             "cmd_t": f"~/{slug}/set",
@@ -550,7 +550,7 @@ class LoRa2MQTTClient(mqtt.Client):
         if entity_category:
             payload["entity_category"] = entity_category
 
-        topic = f"{HA_PREFIX}/text/{self.addon_slug}_{UINQUE}/{slug}/config"
+        topic = f"{HA_PREFIX}/text/{self.addon_slug}_{UNIQUE}/{slug}/config"
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
@@ -563,7 +563,7 @@ class LoRa2MQTTClient(mqtt.Client):
         payload.update({
             "~": self.bridge_topic,
             "name": name,
-            "uniq_id": f"{self.addon_slug}_{UINQUE}_{slug}",
+            "uniq_id": f"{self.addon_slug}_{UNIQUE}_{slug}",
             "avty_t": "~/status",
             "stat_t": f"~/{slug}",
             "cmd_t": f"~/{slug}/set",
@@ -573,7 +573,7 @@ class LoRa2MQTTClient(mqtt.Client):
         if device_class:
             payload["dev_cla"] = device_class
 
-        topic = f"{HA_PREFIX}/button/{self.addon_slug}_{UINQUE}/{slug}/config"
+        topic = f"{HA_PREFIX}/button/{self.addon_slug}_{UNIQUE}/{slug}/config"
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
@@ -586,7 +586,7 @@ class LoRa2MQTTClient(mqtt.Client):
         payload.update({
             "~": self.bridge_topic,
             "name": name,
-            "uniq_id": f"{self.addon_slug}_{UINQUE}_{slug}",
+            "uniq_id": f"{self.addon_slug}_{UNIQUE}_{slug}",
             "avty_t": "~/status",
             "stat_t": f"~/{slug}",
             "cmd_t": f"~/{slug}/set",
@@ -594,7 +594,7 @@ class LoRa2MQTTClient(mqtt.Client):
         if entity_category:
             payload["entity_category"] = entity_category
 
-        topic = f"{HA_PREFIX}/switch/{self.addon_slug}_{UINQUE}/{slug}/config"
+        topic = f"{HA_PREFIX}/switch/{self.addon_slug}_{UNIQUE}/{slug}/config"
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
@@ -603,7 +603,7 @@ class LoRa2MQTTClient(mqtt.Client):
         Envia uma mensagem para deletar descoberta da ponte .
         """
         slug = funcs.slugify(name)
-        topic = f"{HA_PREFIX}/{domain}/{self.addon_slug}_{UINQUE}/{slug}/config"
+        topic = f"{HA_PREFIX}/{domain}/{self.addon_slug}_{UNIQUE}/{slug}/config"
         return self.pub(topic, 0, False, "")
 
     def send_delete_discovery_x(self, index, domain, name):

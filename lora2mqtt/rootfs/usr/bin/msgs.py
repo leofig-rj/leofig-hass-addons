@@ -8,7 +8,7 @@ import globals
 from consts import  MODO_OP_CFG, MODO_OP_LOOP, FASE_NEG_INIC, MSG_CHECK_OK
 
 # Para LoRa
-from consts import LORA_FIFO_LEN, LORA_NUM_TENTATIVAS_CMD, LORA_TEMPO_CMD, LORA_TEMPO_OUT, LORA_TEMPO_LOOP
+from consts import LORA_FIFO_LEN, LORA_NUM_ATTEMPTS_CMD, LORA_TIME_CMD, LORA_TIME_OUT, LORA_TEMPO_LOOP
 
 # Para MQTT
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_CLASS_UPDATE
@@ -343,8 +343,8 @@ def loop_lora():
 
         # Verifico Time out dos dispositivos para informar desconexão
         for i in range(len(ram_devs)):
-            tempoOut = funcs.pega_delta_millis(ram_devs[i].loraTimeOut)
-            if tempoOut > LORA_TEMPO_OUT:
+            timeOut = funcs.get_delta_millis(ram_devs[i].loraTimeOut)
+            if timeOut > LORA_TIME_OUT:
                 ram_devs[i].loraTimeOut = funcs.millis()
                 ram_devs[i].loraCom = False
         
@@ -356,13 +356,13 @@ def loop_lora():
         lora_fifo_check()
 
         # Vejo se o tempo de loop já passou
-        tempoLoop = funcs.pega_delta_millis(loraLoopTime)
-        if tempoLoop <= LORA_TEMPO_LOOP:
+        timeLoop = funcs.get_delta_millis(loraLoopTime)
+        if timeLoop <= LORA_TEMPO_LOOP:
             return
 
         # Solicito estado periodicamente...
-        tempoCmd = funcs.pega_delta_millis(loraCommandTime)
-        if tempoCmd > LORA_TEMPO_CMD:
+        timeCmd = funcs.get_delta_millis(loraCommandTime)
+        if timeCmd > LORA_TIME_CMD:
             lora_fifo_try_to_send("000", loraLastTargetCmd)
             # Defino o próximo destino para solicitar estado...
             lora_next_target_cmd()
@@ -370,14 +370,14 @@ def loop_lora():
     if globals.g_lf_lora.modo_op() == MODO_OP_CFG:
 
         # Vejo se o tempo de loop já passou
-        tempoLoop = funcs.pega_delta_millis(loraLoopTime)
-        if tempoLoop > LORA_TEMPO_LOOP:
+        timeLoop = funcs.get_delta_millis(loraLoopTime)
+        if timeLoop > LORA_TEMPO_LOOP:
             loraLoopTime = funcs.millis()
             globals.g_lf_lora.set_fase_negocia(FASE_NEG_INIC)
 
         # Solicito estado periodicamente...
-        tempoCmd = funcs.pega_delta_millis(loraCommandTime)
-        if tempoCmd > LORA_TEMPO_CMD * 2:
+        timeCmd = funcs.get_delta_millis(loraCommandTime)
+        if timeCmd > LORA_TIME_CMD * 2:
             if globals.g_lf_lora.fase_negocia() == FASE_NEG_INIC:
                 lora_send_msg_cfg()
         
@@ -469,8 +469,8 @@ def lora_last_cmd_returned():
     if lastIdRec == lastIdSent:
         return True
     
-    if funcs.pega_delta_millis(loraCommandTime) > LORA_TEMPO_CMD:
-        if attemptsCmd >= LORA_NUM_TENTATIVAS_CMD:
+    if funcs.get_delta_millis(loraCommandTime) > LORA_TIME_CMD:
+        if attemptsCmd >= LORA_NUM_ATTEMPTS_CMD:
             return True
         lora_resend_msg()
     return False

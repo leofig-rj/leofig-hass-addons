@@ -16,18 +16,18 @@ def slugify(text):
     """Converte um texto em formato 'slug' (substitui espaços por _ e coloca tudo em minúsculas)."""
     return text.lower().replace(' ', '_')
 
-def nome_com_lora(index):
+def name_com_lora(index):
     """Retorna o nome básico para um dispositivo LoRa."""
     return LORA_COM_NAME
 
 def slug_com_lora(index):
     """Retorna o nome slugificado de um dispositivo LoRa."""
-    return slugify(nome_com_lora(index))
+    return slugify(name_com_lora(index))
 
 def millis():
     return int(time.time() * 1000)
 
-def pega_delta_millis(tempo_anterior):
+def get_delta_millis(tempo_anterior):
     auxMillis = int(time.time() * 1000)
     if auxMillis < tempo_anterior:
         return (auxMillis + 0xFFFFFFFF) - tempo_anterior

@@ -2,7 +2,7 @@
 ADDON_SLUG = "lora2mqtt"
 ADDON_NAME = "LoRa2MQTT"
 VERSION = "0.0.1"
-UINQUE = "290146823516"
+UNIQUE = "290146823516"
 OWNER = "Leonardo Figueiró"
 HA_PREFIX = "homeassistant"
 
@@ -27,9 +27,9 @@ CMD_NEGOCIA_INIC = "!000000!FFFFFF!100"
 # Constantes para mensagens
 LORA_FIFO_LEN = 10
 LORA_TEMPO_LOOP = 5000
-LORA_NUM_TENTATIVAS_CMD = 3
-LORA_TEMPO_OUT = 60000
-LORA_TEMPO_CMD = 2000
+LORA_NUM_ATTEMPTS_CMD = 3
+LORA_TIME_OUT = 60000
+LORA_TIME_CMD = 2000
 
 ##### Constantes para MQTT
 # Constantes de uso geral
