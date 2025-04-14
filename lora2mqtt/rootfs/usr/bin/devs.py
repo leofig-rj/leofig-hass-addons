@@ -15,7 +15,7 @@ class Model:
 
     def pega_obj(name):
         try:
-            # Importa dinamicamente o módulo correspondente em dispositivos
+            # Importa dinamicamente o módulo correspondente em dispositivos (internos)
 #            module_name = f"models.{funcs.slugify(name)}"
             module_name = f"teste.{funcs.slugify(name)}"
             module = importlib.import_module(module_name)
@@ -32,7 +32,7 @@ class Model:
         except ModuleNotFoundError:
 
             try:
-                # Importa dinamicamente o módulo correspondente em dispositivos
+                # Importa dinamicamente o módulo correspondente em dispositivos (do usuário)
                 module_name = f"models_import.{funcs.slugify(name)}"
                 module = importlib.import_module(module_name)
 
@@ -91,11 +91,11 @@ class DeviceManager:
         self.dev_rams = []
         self.models = []
 
-        # Acessa o caminho configurado
+        # Acessando o caminho do arquivo config.yaml com os dispositivos
         self.data_path = globals.g_data_path
         self.config_file_path = f"{self.data_path}/config.yaml"
 
-        # Verifica se o arquivo existe, caso contrário, cria um arquivo vazio
+        # Verificando se o arquivo existe, caso contrário, cria um arquivo vazio
         if not os.path.exists(self.config_file_path):
             try:
                 with open(self.config_file_path, "w") as arquivo_yaml:
@@ -124,7 +124,7 @@ class DeviceManager:
             # Verificando se é um arquivo antes de excluir (ignora pastas)
             if os.path.isfile(caminho_arquivo_destino):
                 os.remove(caminho_arquivo_destino)
-                logging.info(f"Arquivo {arquivo} excluído de {pasta_destino}")
+                logging.info(f"Arquivo {arquivo} excluído do AddOn")
 
         # Copiaando os arquivos da pasta de origem para a pasta de destino
         for arquivo in os.listdir(pasta_origem):
@@ -133,7 +133,7 @@ class DeviceManager:
             # Verificando se é um arquivo antes de copiar (ignora pastas)
             if os.path.isfile(caminho_arquivo_origem):
                 shutil.copy(caminho_arquivo_origem, pasta_destino)
-                logging.info(f"Arquivo {arquivo} copiado para {pasta_destino}")
+                logging.info(f"Arquivo {arquivo} copiado parao AddOn")
 
 
     def load_devices(self):
