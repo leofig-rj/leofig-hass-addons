@@ -110,7 +110,6 @@ class LoRa2MQTTClient(mqtt.Client):
         self.bridge_status_topic = None   # Definido em _setup_mqtt_topics
         self.todos_topic = None           # Definido em _setup_mqtt_topics
         self.work_topics = []             # Definido em _setup_mqtt_topics
-        self.tele_topics = []             # Definido em _setup_mqtt_topics
         self.set_topics = []              # Definido em _setup_mqtt_topics
         self.masc_uniq_topics = []        # Definido em _setup_mqtt_topics
         self.masc_disc_topics = []        # Definido em _setup_mqtt_topics
@@ -145,19 +144,16 @@ class LoRa2MQTTClient(mqtt.Client):
 
         # Configura os tópicos para cada slave
         self.work_topics.clear()
-        self.tele_topics.clear()
         self.set_topics.clear()
         self.masc_uniq_topics.clear()
         self.masc_disc_topics.clear()
         for i in range(self.num_slaves):
             work_topic = f"{self.addon_slug}/{self.ram_devs[i].slaveName}"
-            tele_topic = f"{work_topic}/telemetry"
             set_topic = f"{work_topic}/+/set"
             masc_uniq_topic = f"{self.addon_slug}_{self.ram_devs[i].slaveMac}_%s"
             masc_disc_topic = f"{HA_PREFIX}/%s/{self.addon_slug}_{self.ram_devs[i].slaveMac}/%s/config"
 
             self.work_topics.append(work_topic)
-            self.tele_topics.append(tele_topic)
             self.set_topics.append(set_topic)
             self.masc_uniq_topics.append(masc_uniq_topic)
             self.masc_disc_topics.append(masc_disc_topic)
@@ -165,7 +161,6 @@ class LoRa2MQTTClient(mqtt.Client):
         # Logging para verificar se os tópicos foram configurados
         logging.debug("Topicos MQTT configurado com sucesso.")
         logging.debug(f"Bridge Topic: {self.bridge_topic}")
-        logging.debug(f"Telemetry Topics: {self.tele_topics}")
         logging.debug(f"Set Topics: {self.set_topics}")
         logging.debug(f"Masc Disc Topics: {self.masc_disc_topics}")
 
@@ -636,22 +631,6 @@ class LoRa2MQTTClient(mqtt.Client):
                 self.last_lora_com[i] = self.lora_com[i]
                 status = "online" if self.lora_com[i] else "offline"
                 self.pub(f"{self.work_topics[i]}/com_lora", 0, True, status)
-
-#    def send_telemetry(self):
-#        """
-#        Envia telemetria dos dispositivos LoRa.
-#        """
-#        tempo_loop = funcs.pega_delta_millis(self.last_tele_millis)
-#        if tempo_loop < self.refresh_telemetry:
-#            return
-#
-#        self.last_tele_millis = self.millis()
-#        for i in range(self.num_slaves):
-#            payload = {
-#                "rssi": str(self.lora_rssi[i])
-#            }
-#            payload_json = json.dumps(payload)
-#            self.pub(self.tele_topics[i], 0, False, payload_json)
 
     def pub(self, topic, qos, retain, payload):
         """
