@@ -1,3 +1,4 @@
+import shutil
 import os
 import yaml
 import time
@@ -16,7 +17,7 @@ class Model:
         try:
             # Importa dinamicamente o módulo correspondente em dispositivos
 #            module_name = f"models.{funcs.slugify(name)}"
-            module_name = f"/config/lora2mqtt/models.{funcs.slugify(name)}"
+            module_name = f"models_import.{funcs.slugify(name)}"
             module = importlib.import_module(module_name)
 
             # Obtém a classe com o nome esperado (DeviceXX)
@@ -82,6 +83,29 @@ class DeviceManager:
             except OSError as e:
                 logging.error(f"Erro ao criar o arquivo: {e}")
                 logging.error("Certifique-se de que o diretório possui permissões de gravação.")
+
+
+
+        # Defina o caminho da pasta de origem (source)
+        pasta_origem = "/config/lora2mqtt/models"
+
+        # Defina o caminho da pasta de destino (target)
+        # Aqui você aponta para a subpasta no AddOn do Home Assistant
+        pasta_destino = "/usr/bin/models_import"
+
+        # Certifique-se de que a pasta de destino existe, caso contrário, crie-a
+        if not os.path.exists(pasta_destino):
+            os.makedirs(pasta_destino)
+
+        # Itere sobre todos os arquivos na pasta de origem e copie para a pasta de destino
+        for arquivo in os.listdir(pasta_origem):
+            caminho_arquivo_origem = os.path.join(pasta_origem, arquivo)
+            
+            # Verifique se é um arquivo antes de copiar (ignora pastas)
+            if os.path.isfile(caminho_arquivo_origem):
+                shutil.copy(caminho_arquivo_origem, pasta_destino)
+                logging.info(f"Arquivo {arquivo} copiado para {pasta_destino}")
+
 
     def load_devices(self):
         """Carrega todos os dispositivos do arquivo config.yaml."""
