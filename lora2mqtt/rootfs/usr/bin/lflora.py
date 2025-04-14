@@ -2,7 +2,7 @@ import logging
 
 import msgs
 
-from consts import MODO_OP_CFG, MODO_OP_LOOP, FASE_NEG_INIC, FASE_NEG_CFG, CMD_NEGOCIA_INIC, \
+from consts import MODE_OP_CFG, MODE_OP_LOOP, STEP_NEG_INIC, STEP_NEG_CFG, CMD_NEGOCIA_INIC, \
     MSG_CHECK_OK, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR
 
 class RegRec:
@@ -18,9 +18,9 @@ class LFLoraClass:
         self._lastSendId = 255
         self._regRecs = []
         self._lastRegRec = RegRec()
-        self._modoOp = MODO_OP_LOOP
+        self._modoOp = MODE_OP_LOOP
         self._lastModoOp = -1  # Valor indevido para enviar na primeira vez
-        self._faseNegocia = FASE_NEG_INIC
+        self._faseNegocia = STEP_NEG_INIC
         self._loraCfg = "12345678"
         self._negociaMsg = ""
         self._negociaDe = ""
@@ -37,9 +37,9 @@ class LFLoraClass:
 
     def set_modo_op(self, modo):
         self._modoOp = modo
-        if self._modoOp == MODO_OP_CFG:
+        if self._modoOp == MODE_OP_CFG:
             self._negociaMsg = CMD_NEGOCIA_INIC
-            self._faseNegocia = FASE_NEG_INIC
+            self._faseNegocia = STEP_NEG_INIC
 
     def modo_op(self):
         return self._modoOp
@@ -49,7 +49,7 @@ class LFLoraClass:
 
     def set_fase_negocia(self, fase):
         self._faseNegocia = fase
-        if self._faseNegocia == FASE_NEG_INIC:
+        if self._faseNegocia == STEP_NEG_INIC:
             self._negociaMsg = CMD_NEGOCIA_INIC
 
     def negocia_msg(self):
@@ -160,7 +160,7 @@ class LFLoraClass:
         cmd = msg[15:18]
         logging.info(f"CFG - De: {de} Para: {para} Cmd: {cmd}")
 
-        if self._faseNegocia == FASE_NEG_INIC:
+        if self._faseNegocia == STEP_NEG_INIC:
             if (len(msg)) < 34:
                 return False
             if msg[31] != '!':
@@ -176,10 +176,10 @@ class LFLoraClass:
             self._negociaAddrSlave = msgs.disp_get_ram_dev_addr_by_mac(self._negociaMac)
             self._negociaMsg = f"!{self._negociaDe}!FFFFFF!101!{self._loraCfg}!{self._myAddr:03}!{self._negociaAddrSlave:03}"
             logging.info(f"CFG - Resposta CFG: {self._negociaMsg}")
-            self.set_fase_negocia(FASE_NEG_CFG)
+            self.set_fase_negocia(STEP_NEG_CFG)
             return True
   
-        if self._faseNegocia == FASE_NEG_CFG:
+        if self._faseNegocia == STEP_NEG_CFG:
             logging.info(f"CFG 1 - modelo: {self._negociaModelo} mac: {self._negociaMac} slaveAddr: {self._negociaAddrSlave:03}")
             if (len(msg)) != 35:
                 return False
@@ -204,7 +204,7 @@ class LFLoraClass:
                 return False
             # Salvando o Slave, se não existir, cria
             msgs.disp_save_ram_dev(self._negociaAddrSlave, self._negociaModelo, self._negociaMac)
-            self.set_fase_negocia(FASE_NEG_INIC)
+            self.set_fase_negocia(STEP_NEG_INIC)
             logging.info(f"CFG 2 - modelo: {self._negociaModelo} mac: {self._negociaMac} slaveAddr: {self._negociaAddrSlave:03}")
             return True
         return False

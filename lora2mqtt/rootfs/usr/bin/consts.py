@@ -7,12 +7,12 @@ OWNER = "Leonardo Figueiró"
 HA_PREFIX = "homeassistant"
 
 # Constantes para Modos de Operação
-MODO_OP_LOOP = 0
-MODO_OP_CFG = 1
+MODE_OP_LOOP = 0
+MODE_OP_CFG = 1
 
 # Constantes para Fases de Negociação de novo Slave
-FASE_NEG_INIC = 0
-FASE_NEG_CFG = 1
+STEP_NEG_INIC = 0
+STEP_NEG_CFG = 1
 
 # Constantes para LFLoRa
 LFLORA_MAX_PACKET_SIZE = 255

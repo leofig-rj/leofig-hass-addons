@@ -5,7 +5,7 @@ import funcs
 import globals
 
 # Constantes para LFLoRa
-from consts import  MODO_OP_CFG, MODO_OP_LOOP, FASE_NEG_INIC, MSG_CHECK_OK
+from consts import  MODE_OP_CFG, MODE_OP_LOOP, STEP_NEG_INIC, MSG_CHECK_OK
 
 # Para LoRa
 from consts import LORA_FIFO_LEN, LORA_NUM_ATTEMPTS_CMD, LORA_TIME_CMD, LORA_TIME_OUT, LORA_TEMPO_LOOP
@@ -39,7 +39,7 @@ def loop_serial():
     if globals.g_serial.in_waiting > 0:
         # Pegando o dado e deixando como string
         serial_data = globals.g_serial.readline().decode('utf-8').strip()
-        if globals.g_lf_lora.modo_op() == MODO_OP_LOOP:
+        if globals.g_lf_lora.modo_op() == MODE_OP_LOOP:
             # Tratando o dado
             result, de, para, id, rssi, msg = globals.g_lf_lora.lora_check_msg_ini(serial_data)
             logging.debug(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
@@ -54,7 +54,7 @@ def loop_serial():
                 logging.debug(f"Índice do dispositivo: {index}")
                 on_lora_message(msg, rssi, index)
 
-        if globals.g_lf_lora.modo_op() == MODO_OP_CFG:
+        if globals.g_lf_lora.modo_op() == MODE_OP_CFG:
             if globals.g_lf_lora.on_lora_message(serial_data):
                 loraLoopTime = funcs.millis()
                 lora_send_msg_cfg()
@@ -180,10 +180,10 @@ def mqtt_bridge_proc_command(entity, pay):
         logging.info(f"Processando comando para modo_config de Bridge {entity}: {pay}")
         if (pay.find("ON")!=-1):
             # ON
-            globals.g_lf_lora.set_modo_op(MODO_OP_CFG)
+            globals.g_lf_lora.set_modo_op(MODE_OP_CFG)
         else:
             # OFF
-            globals.g_lf_lora.set_modo_op(MODO_OP_LOOP)
+            globals.g_lf_lora.set_modo_op(MODE_OP_LOOP)
         client.pub(f"{client.bridge_topic}/modo_config", 0, True, pay)
 
 def mqtt_bridge_refresh():
@@ -216,7 +216,7 @@ def mqtt_send_discovery_bridge():
     client.send_bridge_button_discovery("Excluir Disp", EC_NONE, DEVICE_CLASS_UPDATE)
     client.send_bridge_switch_discovery("Modo Config", EC_NONE)
     status = "OFF"
-    if globals.g_lf_lora.modo_op() == MODO_OP_CFG:
+    if globals.g_lf_lora.modo_op() == MODE_OP_CFG:
         status = "ON"
     client.pub(f"{client.bridge_topic}/modo_config", 0, True, status)
     mqtt_send_bridge_select_discovery()
@@ -334,7 +334,7 @@ def mqtt_send_light_switch_discovery(index, name, entity_category):
 def loop_lora():
     global loraCommandTime, loraLoopTime, loraLastTargetCmd
 
-    if globals.g_lf_lora.modo_op() == MODO_OP_LOOP:
+    if globals.g_lf_lora.modo_op() == MODE_OP_LOOP:
         
         ram_devs = globals.g_devices.get_ram_devs()
 
@@ -367,18 +367,18 @@ def loop_lora():
             # Defino o próximo destino para solicitar estado...
             lora_next_target_cmd()
 
-    if globals.g_lf_lora.modo_op() == MODO_OP_CFG:
+    if globals.g_lf_lora.modo_op() == MODE_OP_CFG:
 
         # Vejo se o tempo de loop já passou
         timeLoop = funcs.get_delta_millis(loraLoopTime)
         if timeLoop > LORA_TEMPO_LOOP:
             loraLoopTime = funcs.millis()
-            globals.g_lf_lora.set_fase_negocia(FASE_NEG_INIC)
+            globals.g_lf_lora.set_fase_negocia(STEP_NEG_INIC)
 
         # Solicito estado periodicamente...
         timeCmd = funcs.get_delta_millis(loraCommandTime)
         if timeCmd > LORA_TIME_CMD * 2:
-            if globals.g_lf_lora.fase_negocia() == FASE_NEG_INIC:
+            if globals.g_lf_lora.fase_negocia() == STEP_NEG_INIC:
                 lora_send_msg_cfg()
         
         
