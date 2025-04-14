@@ -1,7 +1,7 @@
 import logging
 
 from funcs import slugify
-from msgs import lora_fifo_tenta_enviar, mqtt_pub, mqtt_send_sensor_discovery, \
+from msgs import lora_fifo_try_to_send, mqtt_pub, mqtt_send_sensor_discovery, \
                     mqtt_send_button_discovery
 
 from consts import EC_NONE, DEVICE_CLASS_VOLTAGE, DEVICE_CLASS_POWER, DEVICE_CLASS_CURRENT, \
@@ -59,10 +59,10 @@ class DevicePW01:
     def proc_command(self, entity, pay, index):
 
         if entity == self.entitySlugs[5]:
-            lora_fifo_tenta_enviar("100", index)
+            lora_fifo_try_to_send("100", index)
             return True
         if entity == self.entitySlugs[6]:
-            lora_fifo_tenta_enviar("110", index)
+            lora_fifo_try_to_send("110", index)
             return True
         return False
  

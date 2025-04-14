@@ -21,16 +21,16 @@ loraLoopTime = 0
 lastMsgSent = ""
 lastIdRec = 0
 lastIdSent = 0
-tentativasCmd = 0
+attemptsCmd = 0
 
-loraFiFoPrimeiro = 0
-loraFiFoUltimo = 0
+loraFiFoFirst = 0
+loraFiFoLast = 0
 loraFiFoMsgBuffer = [""] * LORA_FIFO_LEN
-loraFiFoDestinoBuffer = [0] * LORA_FIFO_LEN
-loraUltimoDestinoCmd = 0
+loraFiFoTargetBuffer = [0] * LORA_FIFO_LEN
+loraLastTargetCmd = 0
 
 mqttLastBridgeSelect = ""
-mqttLastNomeDisp = ""
+mqttLastNameDisp = ""
 
 
 def loop_serial():
@@ -57,7 +57,7 @@ def loop_serial():
         if globals.g_lf_lora.modo_op() == MODO_OP_CFG:
             if globals.g_lf_lora.on_lora_message(serial_data):
                 loraLoopTime = funcs.millis()
-                lora_envia_msg_cfg()
+                lora_send_msg_cfg()
 
 def loop_mqtt():
     global online
@@ -118,7 +118,7 @@ def on_mqtt_message(topic, payload):
 
 def mqtt_bridge_proc_command(entity, pay):
     """Processa comando para Bridge recebidas do MQTT)."""
-    global mqttLastBridgeSelect, mqttLastNomeDisp
+    global mqttLastBridgeSelect, mqttLastNameDisp
     ram_devs = globals.g_devices.get_ram_devs()
     client = globals.g_cli_mqtt
     if entity == "dispositivos":
@@ -131,7 +131,7 @@ def mqtt_bridge_proc_command(entity, pay):
         return
 
     if entity == "nome_disp":
-        mqttLastNomeDisp = pay
+        mqttLastNameDisp = pay
         logging.debug(f"Processando comando para dispositivos de Bridge {entity}: {pay}")
         client.pub(f"{client.bridge_topic}/nome_disp", 0, True, pay)
         return
@@ -163,7 +163,7 @@ def mqtt_bridge_proc_command(entity, pay):
                 for j in range(len(obj.entityNames)):
                     client.send_delete_discovery_x(i, obj.entityDomains[j], obj.entityNames[j])
                 # Renomeaando o dispositivo indice i
-                globals.g_devices.rename_ram_dev(i, mqttLastNomeDisp)
+                globals.g_devices.rename_ram_dev(i, mqttLastNameDisp)
                 # Refrescando dispositivos da bridge
                 mqtt_bridge_refresh()
                 # Enviando os estados das entidades forçados
@@ -222,7 +222,7 @@ def mqtt_send_discovery_bridge():
     mqtt_send_bridge_select_discovery()
 
 def mqtt_send_bridge_select_discovery():
-    global mqttLastBridgeSelect, mqttLastNomeDisp
+    global mqttLastBridgeSelect, mqttLastNameDisp
     # Inicializo o último da memória
     mqttLastBridgeSelect = ""
     # Pego os Dispositivos na RAM
@@ -239,7 +239,7 @@ def mqtt_send_bridge_select_discovery():
         mqttLastBridgeSelect = ram_devs[0].slaveName
         # Inicializo Nome Disp
         client.pub(f"{client.bridge_topic}/nome_disp", 0, True, ram_devs[0].slaveName)
-        mqttLastNomeDisp = ram_devs[0].slaveName
+        mqttLastNameDisp = ram_devs[0].slaveName
 
 
 def mqtt_send_discovery_entities():
@@ -332,7 +332,7 @@ def mqtt_send_light_switch_discovery(index, name, entity_category):
     return client.send_light_switch_discovery(index, name, entity_category)
 
 def loop_lora():
-    global loraCommandTime, loraLoopTime, loraUltimoDestinoCmd
+    global loraCommandTime, loraLoopTime, loraLastTargetCmd
 
     if globals.g_lf_lora.modo_op() == MODO_OP_LOOP:
         
@@ -349,11 +349,11 @@ def loop_lora():
                 ram_devs[i].loraCom = False
         
         # Verifico se a última mensagem retornou...
-        if not lora_ultimo_cmd_retornou():
+        if not lora_last_cmd_returned():
             return
 
         # Verifico se tem comando no FiFo para enviar...
-        lora_fifo_verifica()
+        lora_fifo_check()
 
         # Vejo se o tempo de loop já passou
         tempoLoop = funcs.pega_delta_millis(loraLoopTime)
@@ -363,9 +363,9 @@ def loop_lora():
         # Solicito estado periodicamente...
         tempoCmd = funcs.pega_delta_millis(loraCommandTime)
         if tempoCmd > LORA_TEMPO_CMD:
-            lora_fifo_tenta_enviar("000", loraUltimoDestinoCmd)
+            lora_fifo_try_to_send("000", loraLastTargetCmd)
             # Defino o próximo destino para solicitar estado...
-            lora_proximo_destino_cmd()
+            lora_next_target_cmd()
 
     if globals.g_lf_lora.modo_op() == MODO_OP_CFG:
 
@@ -379,14 +379,14 @@ def loop_lora():
         tempoCmd = funcs.pega_delta_millis(loraCommandTime)
         if tempoCmd > LORA_TEMPO_CMD * 2:
             if globals.g_lf_lora.fase_negocia() == FASE_NEG_INIC:
-                lora_envia_msg_cfg()
+                lora_send_msg_cfg()
         
         
 def on_lora_message(sMsg, rssi, index):
-#    global loraFiFoPrimeiro, loraFiFoUltimo
+#    global loraFiFoFirst, loraFiFoLast
     logging.debug(f"LoRa - Tamanho da MSG: {len(sMsg)} Índice {index}")
     
-#    if loraFiFoPrimeiro != loraFiFoUltimo:
+#    if loraFiFoFirst != loraFiFoLast:
 #        logging.info("FiFo não está vazia!")
 #        return
     try:
@@ -400,39 +400,39 @@ def on_lora_message(sMsg, rssi, index):
         ram_dev.loraRSSI = rssi
         ram_dev.loraTimeOut = funcs.millis()
         ram_dev.loraCom = True
-        if lora_pega_ultimo_destino_cmd() == index:
-            lora_proximo_destino_cmd()
+        if lora_get_last_target_cmd() == index:
+            lora_next_target_cmd()
     except Exception as e:
         logging.error(f"Erro: {e}")
 
-def lora_fifo_tenta_enviar(sMsg, index):
-    global loraFiFoPrimeiro, loraFiFoUltimo, loraFiFoMsgBuffer, loraFiFoDestinoBuffer
+def lora_fifo_try_to_send(sMsg, index):
+    global loraFiFoFirst, loraFiFoLast, loraFiFoMsgBuffer, loraFiFoTargetBuffer
     
-    if loraFiFoPrimeiro == loraFiFoUltimo:
-        if lora_ultimo_cmd_retornou():
-            lora_envia_mensagem_index(sMsg, index)
+    if loraFiFoFirst == loraFiFoLast:
+        if lora_last_cmd_returned():
+            lora_send_msg_index(sMsg, index)
             return
     
-    aux = (loraFiFoUltimo + 1) % LORA_FIFO_LEN
-    if aux == loraFiFoPrimeiro:
+    aux = (loraFiFoLast + 1) % LORA_FIFO_LEN
+    if aux == loraFiFoFirst:
         return
     
-    loraFiFoMsgBuffer[loraFiFoUltimo] = sMsg
-    loraFiFoDestinoBuffer[loraFiFoUltimo] = index
-    loraFiFoUltimo = aux
+    loraFiFoMsgBuffer[loraFiFoLast] = sMsg
+    loraFiFoTargetBuffer[loraFiFoLast] = index
+    loraFiFoLast = aux
 
-def lora_envia_mensagem_index(sMsg, index):
+def lora_send_msg_index(sMsg, index):
     # Pego oo Dispositivos na RAM
     ram_devs = globals.g_devices.get_ram_devs()
 
-    lora_envia_mensagem(sMsg, ram_devs[index].slaveAddr)
+    lora_send_msg(sMsg, ram_devs[index].slaveAddr)
 
 
-def lora_envia_mensagem(sMsg, para):
-    global loraCommandTime, tentativasCmd, lastIdSent, lastMsgSent
+def lora_send_msg(sMsg, para):
+    global loraCommandTime, attemptsCmd, lastIdSent, lastMsgSent
     
     loraCommandTime = funcs.millis()
-    tentativasCmd = 0
+    attemptsCmd = 0
     
     # Envio comando de solicitação de estado
     serial_data = globals.g_lf_lora.lora_add_header(sMsg, para)
@@ -442,18 +442,18 @@ def lora_envia_mensagem(sMsg, para):
     lastIdSent = globals.g_lf_lora.last_sent_id()
     lastMsgSent = serial_data
 
-def lora_reenvia_mensagem():
-    global loraCommandTime, tentativasCmd
+def lora_resend_msg():
+    global loraCommandTime, attemptsCmd
     
     loraCommandTime = funcs.millis()
-    tentativasCmd += 1
+    attemptsCmd += 1
 
     # Reenvio último comando
     serial_data = lastMsgSent
     globals.g_serial.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
     logging.debug(f"Renviado {serial_data}")
 
-def lora_envia_msg_cfg():
+def lora_send_msg_cfg():
     global loraCommandTime
     
     loraCommandTime = funcs.millis()
@@ -463,38 +463,38 @@ def lora_envia_msg_cfg():
     globals.g_serial.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
     logging.info(f"CFG - Enviando: {serial_data}")
 
-def lora_ultimo_cmd_retornou():
-    global lastIdRec, lastIdSent, loraCommandTime, tentativasCmd
+def lora_last_cmd_returned():
+    global lastIdRec, lastIdSent, loraCommandTime, attemptsCmd
     
     if lastIdRec == lastIdSent:
         return True
     
     if funcs.pega_delta_millis(loraCommandTime) > LORA_TEMPO_CMD:
-        if tentativasCmd >= LORA_NUM_TENTATIVAS_CMD:
+        if attemptsCmd >= LORA_NUM_TENTATIVAS_CMD:
             return True
-        lora_reenvia_mensagem()
+        lora_resend_msg()
     return False
 
-def lora_fifo_verifica():
-    global loraFiFoPrimeiro, loraFiFoUltimo, loraFiFoMsgBuffer, loraFiFoDestinoBuffer
+def lora_fifo_check():
+    global loraFiFoFirst, loraFiFoLast, loraFiFoMsgBuffer, loraFiFoTargetBuffer
     
-    if loraFiFoPrimeiro != loraFiFoUltimo:
-        if lora_ultimo_cmd_retornou():
-            lora_envia_mensagem_index(loraFiFoMsgBuffer[loraFiFoPrimeiro], \
-                                      loraFiFoDestinoBuffer[loraFiFoPrimeiro])
-            loraFiFoPrimeiro = (loraFiFoPrimeiro + 1) % LORA_FIFO_LEN
+    if loraFiFoFirst != loraFiFoLast:
+        if lora_last_cmd_returned():
+            lora_send_msg_index(loraFiFoMsgBuffer[loraFiFoFirst], \
+                                      loraFiFoTargetBuffer[loraFiFoFirst])
+            loraFiFoFirst = (loraFiFoFirst + 1) % LORA_FIFO_LEN
 
-def lora_proximo_destino_cmd():
-    global loraUltimoDestinoCmd, loraLoopTime
+def lora_next_target_cmd():
+    global loraLastTargetCmd, loraLoopTime
 
-    loraUltimoDestinoCmd = (loraUltimoDestinoCmd + 1)
-    if loraUltimoDestinoCmd >= len(globals.g_devices.get_ram_devs()):
-        loraUltimoDestinoCmd = 0
+    loraLastTargetCmd = (loraLastTargetCmd + 1)
+    if loraLastTargetCmd >= len(globals.g_devices.get_ram_devs()):
+        loraLastTargetCmd = 0
         loraLoopTime = funcs.millis()
 
-def lora_pega_ultimo_destino_cmd():
-    global loraUltimoDestinoCmd
-    return loraUltimoDestinoCmd
+def lora_get_last_target_cmd():
+    global loraLastTargetCmd
+    return loraLastTargetCmd
 
 def disp_get_ram_dev_addr_by_mac(mac):
     # Redireciono para a função em globals.g_devices
