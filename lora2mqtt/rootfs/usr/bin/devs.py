@@ -188,13 +188,12 @@ class DeviceManager:
                 slug = funcs.slugify(name)
                 # Vejo se o modelo existe no sistema
                 model_sis = self.get_model(device['model'])
-                obj = None
-                if model_sis:
+                if model_sis is not None:
                     obj = model_sis.model_obj
-                logging.info(f"DEVICE {device['address']} {name} {slug} {device['mac']} {obj.ver} " \
-                              f"{obj.chip} {device['model']} {obj.man} {obj}")
-                self.dev_rams.append(DeviceRAM(device['address'], name, slug, device['mac'], obj.ver, \
-                                               obj.chip, device['model'], obj.man, obj))
+                    logging.info(f"DEVICE {device['address']} {name} {slug} {device['mac']} {obj.ver} " \
+                                f"{obj.chip} {device['model']} {obj.man} {obj}")
+                    self.dev_rams.append(DeviceRAM(device['address'], name, slug, device['mac'], obj.ver, \
+                                                obj.chip, device['model'], obj.man, obj))
         else:
             logging.debug("Nenhum dispositivo cadastrado.")
     
@@ -267,7 +266,7 @@ class DeviceManager:
                 return self.models[i]
         # Não achou, tento criar
         obj = Model.pega_obj(modelo)
-        if obj:
+        if obj is not None:
             model = Model(modelo, obj)
             self.models.append(model)
             return model
@@ -281,29 +280,28 @@ class DeviceManager:
             ram_dev.slaveAddr = addr
             # Vejo se o modelo existe no sistema
             modelInst = self.get_model(model)
-            obj = None
-            if model:
+            if modelInst is not None:
                 obj = modelInst.model_obj
-            ram_dev.slaveAddr = addr
-            ram_dev.slaveModel = model
-            ram_dev.slaveObj = obj
-            # Excluo no arquivo config.yaml
-            self.delete_device_by_mac(mac)
-            # Crio com nova configuração no arquivo config.yaml
-            self.add_device(addr, ram_dev.slaveName, mac, model)
-            return
+                ram_dev.slaveAddr = addr
+                ram_dev.slaveModel = model
+                ram_dev.slaveObj = obj
+                # Excluo no arquivo config.yaml
+                self.delete_device_by_mac(mac)
+                # Crio com nova configuração no arquivo config.yaml
+                self.add_device(addr, ram_dev.slaveName, mac, model)
+                return
         # Defino o nome como mac
         name = mac
         # Defino o slug do nome
         slug = funcs.slugify(name)
         # Vejo se o modelo existe no sistema
         modelInst = self.get_model(model)
-        obj = None
-        if model:
+        if modelInst is not None:
             obj = modelInst.model_obj
-        index = len(self.dev_rams)
-        self.dev_rams.append(DeviceRAM(addr, name, slug, mac, obj.ver, obj.chip, model, obj.man, obj))
-        # Crio no arquivo config.yaml
-        self.add_device(addr, name, mac, model)
-        logging.info(f"DEVICE {index} {addr} {name} {slug} {mac} {obj.ver} {obj.chip} {model} {obj.man} {obj}")
-        time.sleep(0.1)
+            index = len(self.dev_rams)
+            self.dev_rams.append(DeviceRAM(addr, name, slug, mac, obj.ver, obj.chip, model, obj.man, obj))
+            # Crio no arquivo config.yaml
+            self.add_device(addr, name, mac, model)
+            logging.info(f"DEVICE {index} {addr} {name} {slug} {mac} {obj.ver} {obj.chip} {model} {obj.man} {obj}")
+            time.sleep(0.1)
+            return
