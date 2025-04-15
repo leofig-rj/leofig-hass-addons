@@ -505,3 +505,8 @@ def disp_save_ram_dev(addr, model, mac):
     globals.g_devices.save_ram_dev(addr, model, mac)
     # Refresco dispositivos da bridge
     mqtt_bridge_refresh()
+
+def disp_check_model(model):
+    if globals.g_devices.get_model(model) is not None:
+        return True
+    return False

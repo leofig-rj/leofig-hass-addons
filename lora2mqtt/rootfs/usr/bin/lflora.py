@@ -173,11 +173,14 @@ class LFLoraClass:
             self._negociaMac = msg[19:31]
             self._negociaModelo = msg[32:]
             logging.info(f"CFG - MAC: {self._negociaMac} Modelo: {self._negociaModelo}")
-            self._negociaAddrSlave = msgs.disp_get_ram_dev_addr_by_mac(self._negociaMac)
-            self._negociaMsg = f"!{self._negociaDe}!FFFFFF!101!{self._loraCfg}!{self._myAddr:03}!{self._negociaAddrSlave:03}"
-            logging.info(f"CFG - Resposta CFG: {self._negociaMsg}")
-            self.set_fase_negocia(STEP_NEG_CFG)
-            return True
+            # Verificando se modelo existe no sistema
+            if msgs.disp_check_model(self._negociaModelo):
+                self._negociaAddrSlave = msgs.disp_get_ram_dev_addr_by_mac(self._negociaMac)
+                self._negociaMsg = f"!{self._negociaDe}!FFFFFF!101!{self._loraCfg}!{self._myAddr:03}!{self._negociaAddrSlave:03}"
+                logging.info(f"CFG - Resposta CFG: {self._negociaMsg}")
+                self.set_fase_negocia(STEP_NEG_CFG)
+                return True
+            return False
   
         if self._faseNegocia == STEP_NEG_CFG:
             logging.info(f"CFG 1 - modelo: {self._negociaModelo} mac: {self._negociaMac} slaveAddr: {self._negociaAddrSlave:03}")
