@@ -45,6 +45,19 @@ def char_to_state(c):
         ret = {"state": "ON"}
     return json.dumps(ret)       # Serializa o JSON em uma string
 
+def light2Pay(state, brightness):
+    data = {}
+    data["state"] = state
+    if brightness is not None:
+        data["brightness"] = brightness
+    return json.dumps(data)       # Serializa o JSON em uma string
+
+def pay2Light(pay):
+    data = json.loads(pay)
+    state = data.get('state')
+    brightness = data.get('brightness')
+    return state, brightness
+
 def bool_to_on_off(b):
     return "ON" if b else "OFF"
 
