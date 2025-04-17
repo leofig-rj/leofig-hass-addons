@@ -11,7 +11,7 @@ from consts import  MODE_OP_CFG, MODE_OP_LOOP, STEP_NEG_INIC, MSG_CHECK_OK
 from consts import LORA_FIFO_LEN, LORA_NUM_ATTEMPTS_CMD, LORA_TIME_CMD, LORA_TIME_OUT, LORA_TEMPO_LOOP
 
 # Para MQTT
-from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_CLASS_UPDATE
+from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_NONE, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_CLASS_UPDATE
 
 # Variáveis globais
 online = False
@@ -215,12 +215,12 @@ def mqtt_send_discovery_bridge():
     client.send_bridge_button_discovery("Renomear Disp", EC_NONE, DEVICE_CLASS_UPDATE)
     client.send_bridge_button_discovery("Excluir Disp", EC_NONE, DEVICE_CLASS_UPDATE)
     client.send_bridge_switch_discovery("Modo Config", EC_NONE)
-    client.send_bridge_sensor_discovery("xInfo", EC_NONE)
+    client.send_bridge_sensor_discovery("Info", EC_NONE, DEVICE_CLASS_NONE)
     status = "OFF"
     if globals.g_lf_lora.modo_op() == MODE_OP_CFG:
         status = "ON"
     client.pub(f"{client.bridge_topic}/modo_config", 0, True, status)
-    client.pub(f"{client.bridge_topic}/xinfo", 0, True, "Idle")
+    client.pub(f"{client.bridge_topic}/info", 0, True, "Idle")
     mqtt_send_bridge_select_discovery()
 
 def mqtt_send_bridge_select_discovery():
