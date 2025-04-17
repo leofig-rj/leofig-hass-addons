@@ -151,6 +151,7 @@ def mqtt_bridge_proc_command(entity, pay):
                 globals.g_devices.delete_ram_dev(i)
                 # Refrescando dispositivos da bridge
                 mqtt_bridge_refresh()
+                mqtt_send_bridge_info(f"Deleted: {mqttLastBridgeSelect}")
 
     if entity == "renomear_disp":
         logging.debug(f"Processando comando para renomear_disp de Bridge {entity}: {pay}")
@@ -174,10 +175,12 @@ def mqtt_bridge_proc_command(entity, pay):
                     mqtt_pub(i, "rssi", str(ram_devs[i].loraRSSI))
                     # Publicando entidades do dispositivo (modelo)
                     ram_devs[i].slaveObj.proc_publish(i, True)
+                mqtt_send_bridge_info(f"Renamed: {mqttLastBridgeSelect}")
 
 
     if entity == "modo_config":
-        logging.info(f"Changing Operation Mode {entity}: {pay}")
+        logging.info(f"Changing Operation Mode to: {pay}")
+        mqtt_send_bridge_info(f"Op Mode: {pay}")
         if (pay.find("ON")!=-1):
             # ON
             globals.g_lf_lora.set_modo_op(MODE_OP_CFG)
@@ -215,12 +218,12 @@ def mqtt_send_discovery_bridge():
     client.send_bridge_button_discovery("Renomear Disp", EC_NONE, DEVICE_CLASS_UPDATE)
     client.send_bridge_button_discovery("Excluir Disp", EC_NONE, DEVICE_CLASS_UPDATE)
     client.send_bridge_switch_discovery("Modo Config", EC_NONE)
-    client.send_bridge_sensor_discovery("Info", EC_NONE, DEVICE_CLASS_NONE)
     status = "OFF"
     if globals.g_lf_lora.modo_op() == MODE_OP_CFG:
         status = "ON"
     client.pub(f"{client.bridge_topic}/modo_config", 0, True, status)
-    client.pub(f"{client.bridge_topic}/info", 0, True, "Idle")
+    client.send_bridge_sensor_discovery("Info", EC_NONE, DEVICE_CLASS_NONE)
+    mqtt_send_bridge_info("Idle")
     mqtt_send_bridge_select_discovery()
 
 def mqtt_send_bridge_select_discovery():
@@ -243,6 +246,9 @@ def mqtt_send_bridge_select_discovery():
         client.pub(f"{client.bridge_topic}/nome_disp", 0, True, ram_devs[0].slaveName)
         mqttLastNameDisp = ram_devs[0].slaveName
 
+def mqtt_send_bridge_info(info):
+    client = globals.g_cli_mqtt
+    client.pub(f"{client.bridge_topic}/info", 0, True, info)
 
 def mqtt_send_discovery_entities():
     # Pego oo Dispositivos na RAM

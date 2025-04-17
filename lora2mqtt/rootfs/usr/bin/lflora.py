@@ -212,5 +212,6 @@ class LFLoraClass:
             msgs.disp_save_ram_dev(self._negociaAddrSlave, self._negociaModelo, self._negociaMac)
             self.set_fase_negocia(STEP_NEG_INIC)
             logging.info(f"CFG - Setting model: {self._negociaModelo} mac: {self._negociaMac} addr: {self._negociaAddrSlave:03}")
+            msgs.mqtt_send_bridge_info(f"Connected: {self._negociaMac}")
             return True
         return False
