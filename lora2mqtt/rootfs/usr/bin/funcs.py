@@ -45,7 +45,7 @@ def char_to_state(c):
         ret = {"state": "ON"}
     return json.dumps(ret)       # Serializa o JSON em uma string
 
-def light2Pay(state, brightness, r, g, b):
+def light2Pay(state, brightness=None, r=None, g=None, b=None):
     data = {}
     data["state"] = state
     if brightness is not None:
