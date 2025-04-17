@@ -11,7 +11,8 @@ from consts import  MODE_OP_CFG, MODE_OP_LOOP, STEP_NEG_INIC, MSG_CHECK_OK
 from consts import LORA_FIFO_LEN, LORA_NUM_ATTEMPTS_CMD, LORA_TIME_CMD, LORA_TIME_OUT, LORA_TEMPO_LOOP
 
 # Para MQTT
-from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_NONE, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_CLASS_UPDATE
+from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_NONE, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_CLASS_UPDATE, \
+                    UNITS_NONE, STATE_CLASS_NONE
 
 # Variáveis globais
 online = False
@@ -225,7 +226,7 @@ def mqtt_send_discovery_bridge():
     if globals.g_lf_lora.modo_op() == MODE_OP_CFG:
         status = "ON"
     client.pub(f"{client.bridge_topic}/modo_config", 0, True, status)
-    client.send_bridge_sensor_discovery("Info", EC_NONE, DEVICE_CLASS_NONE)
+    client.send_bridge_sensor_discovery("Info", EC_NONE, DEVICE_CLASS_NONE, UNITS_NONE, STATE_CLASS_NONE, "mdi:information-slab-box-outline")
     mqtt_send_bridge_info("Idle")
     mqtt_send_bridge_select_discovery()
 

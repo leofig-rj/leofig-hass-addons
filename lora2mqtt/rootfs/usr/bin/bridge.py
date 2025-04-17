@@ -510,7 +510,7 @@ class LoRa2MQTTClient(mqtt.Client):
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
-    def send_bridge_sensor_discovery(self, name, entity_category="", device_class="", units="", state_class="", force_update=True):
+    def send_bridge_sensor_discovery(self, name, entity_category="", device_class="", units="", state_class="", icon="", force_update=True):
         """
         Envia a descoberta de um sensor via MQTT.
         """
@@ -532,6 +532,8 @@ class LoRa2MQTTClient(mqtt.Client):
             payload["unit_of_meas"] = units
         if state_class:
             payload["stat_cla"] = state_class
+        if icon:
+            payload["icon"] = icon
 
         topic = f"{HA_PREFIX}/sensor/{self.addon_slug}_{UNIQUE}/{slug}/config"
         payload_json = json.dumps(payload)
