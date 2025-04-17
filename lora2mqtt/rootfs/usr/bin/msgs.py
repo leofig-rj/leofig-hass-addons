@@ -140,6 +140,7 @@ def mqtt_bridge_proc_command(entity, pay):
         logging.debug(f"Processando comando para excluir_disp de Bridge {entity}: {pay}")
         for i in range(len(ram_devs)):
             if ram_devs[i].slaveName == mqttLastBridgeSelect:
+                toDel = mqttLastBridgeSelect
                 # Excluindo o dispositivo indice i
                 client.send_delete_discovery_x(i, "binary_sensor", "Com LoRa")
                 client.send_delete_discovery_x(i, "sensor", "RSSI")
@@ -151,12 +152,14 @@ def mqtt_bridge_proc_command(entity, pay):
                 globals.g_devices.delete_ram_dev(i)
                 # Refrescando dispositivos da bridge
                 mqtt_bridge_refresh()
-                mqtt_send_bridge_info(f"Deleted: {mqttLastBridgeSelect}")
+                mqtt_send_bridge_info(f"Deleted: {toDel}")
 
     if entity == "renomear_disp":
         logging.debug(f"Processando comando para renomear_disp de Bridge {entity}: {pay}")
         for i in range(len(ram_devs)):
             if ram_devs[i].slaveName == mqttLastBridgeSelect:
+                fromRen = mqttLastBridgeSelect
+                toRen = mqttLastNameDisp
                 # Excluindo o discovery do dispositivo indice i
                 client.send_delete_discovery_x(i, "binary_sensor", "Com LoRa")
                 client.send_delete_discovery_x(i, "sensor", "RSSI")
@@ -175,7 +178,7 @@ def mqtt_bridge_proc_command(entity, pay):
                     mqtt_pub(i, "rssi", str(ram_devs[i].loraRSSI))
                     # Publicando entidades do dispositivo (modelo)
                     ram_devs[i].slaveObj.proc_publish(i, True)
-                mqtt_send_bridge_info(f"Renamed: {mqttLastBridgeSelect} to {mqttLastNameDisp}")
+                mqtt_send_bridge_info(f"Renamed: {fromRen} to {toRen}")
 
 
     if entity == "modo_config":
