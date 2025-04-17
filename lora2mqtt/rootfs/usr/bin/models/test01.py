@@ -116,7 +116,7 @@ class DeviceTEST01:
     def proc_discovery(self, index):
 
         # Publicando descobrimento das entidades no MQTT
-        if mqtt_send_light_discovery(index, self.entityNames[0], EC_NONE, True, True) and \
+        if mqtt_send_light_discovery(index, self.entityNames[0], EC_NONE, True, False) and \
             mqtt_send_binary_sensor_discovery(index, self.entityNames[1], EC_NONE, EC_NONE):
             logging.debug(f"Discovery Device TEST01 OK Índex {index}")
             return True
