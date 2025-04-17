@@ -59,9 +59,13 @@ def pay2Light(pay):
     state = data.get('state')
     brightness = data.get('brightness')
     color = data.get('color')
-    r = color.get('r')
-    g = color.get('g')
-    b = color.get('b')
+    r = None
+    g = None
+    b = None
+    if color is not None:
+        r = color.get('r')
+        g = color.get('g')
+        b = color.get('b')
     return state, brightness, r, g, b
 
 def bool_to_on_off(b):

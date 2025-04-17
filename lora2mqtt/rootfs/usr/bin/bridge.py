@@ -192,7 +192,7 @@ class LoRa2MQTTClient(mqtt.Client):
         """Callback para conexões."""
         if rc == 0:
             client.connected_flag = True
-            logging.error(f"Cliente {client._client_id.decode('utf-8')} connected successfully!")
+            logging.info(f"Client {client._client_id.decode('utf-8')} connected successfully!")
             # Publica mensagem de "online" ao conectar
             client.publish(client.lwt_topic, "online", qos=0, retain=True)
             client.on_mqtt_connect()
