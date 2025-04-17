@@ -8,7 +8,7 @@ HA_PREFIX = "homeassistant"
 
 # Constantes para Modos de Operação
 MODE_OP_LOOP = 0
-MODE_OP_CFG = 1
+MODE_OP_PAIRING = 1
 
 # Constantes para Fases de Negociação de novo Slave
 STEP_NEG_INIC = 0

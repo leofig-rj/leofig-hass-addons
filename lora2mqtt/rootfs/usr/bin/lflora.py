@@ -2,7 +2,7 @@ import logging
 
 import msgs
 
-from consts import MODE_OP_CFG, MODE_OP_LOOP, STEP_NEG_INIC, STEP_NEG_CFG, CMD_NEGOCIA_INIC, \
+from consts import MODE_OP_PAIRING, MODE_OP_LOOP, STEP_NEG_INIC, STEP_NEG_CFG, CMD_NEGOCIA_INIC, \
     MSG_CHECK_OK, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR
 
 class RegRec:
@@ -37,7 +37,7 @@ class LFLoraClass:
 
     def set_modo_op(self, modo):
         self._modoOp = modo
-        if self._modoOp == MODE_OP_CFG:
+        if self._modoOp == MODE_OP_PAIRING:
             self._negociaMsg = CMD_NEGOCIA_INIC
             self._faseNegocia = STEP_NEG_INIC
 

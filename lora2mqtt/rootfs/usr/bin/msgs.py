@@ -5,13 +5,13 @@ import funcs
 import globals
 
 # Constantes para LFLoRa
-from consts import  MODE_OP_CFG, MODE_OP_LOOP, STEP_NEG_INIC, MSG_CHECK_OK
+from consts import  MODE_OP_PAIRING, MODE_OP_LOOP, STEP_NEG_INIC, MSG_CHECK_OK
 
 # Para LoRa
 from consts import LORA_FIFO_LEN, LORA_NUM_ATTEMPTS_CMD, LORA_TIME_CMD, LORA_TIME_OUT, LORA_TEMPO_LOOP
 
 # Para MQTT
-from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_NONE, DEVICE_CLASS_SIGNAL_STRENGTH, DEVICE_CLASS_UPDATE, \
+from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_NONE, DEVICE_CLASS_SIGNAL_STRENGTH, \
                     UNITS_NONE, STATE_CLASS_NONE
 
 # Variáveis globais
@@ -55,7 +55,7 @@ def loop_serial():
                 logging.debug(f"Índice do dispositivo: {index}")
                 on_lora_message(msg, rssi, index)
 
-        if globals.g_lf_lora.modo_op() == MODE_OP_CFG:
+        if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
             if globals.g_lf_lora.on_lora_message(serial_data):
                 loraLoopTime = funcs.millis()
                 lora_send_msg_cfg()
@@ -182,16 +182,16 @@ def mqtt_bridge_proc_command(entity, pay):
                 mqtt_send_bridge_info(f"Renamed: {fromRen} to {toRen}")
 
 
-    if entity == "modo_config":
+    if entity == "modo _pareamento":
         logging.info(f"Changing Operation Mode to: {pay}")
         mqtt_send_bridge_info(f"Config Mode: {pay}")
         if (pay.find("ON")!=-1):
             # ON
-            globals.g_lf_lora.set_modo_op(MODE_OP_CFG)
+            globals.g_lf_lora.set_modo_op(MODE_OP_PAIRING)
         else:
             # OFF
             globals.g_lf_lora.set_modo_op(MODE_OP_LOOP)
-        client.pub(f"{client.bridge_topic}/modo_config", 0, True, pay)
+        client.pub(f"{client.bridge_topic}/modo _pareamento", 0, True, pay)
 
 def mqtt_bridge_refresh():
     """Refresco o dicovery de select."""
@@ -221,11 +221,11 @@ def mqtt_send_discovery_bridge():
     client.send_bridge_text_discovery("Nome Disp", EC_NONE)
     client.send_bridge_button_discovery("Renomear Disp", EC_NONE, DEVICE_CLASS_NONE, "mdi:rename")
     client.send_bridge_button_discovery("Excluir Disp", EC_NONE, DEVICE_CLASS_NONE, "mdi:delete-forever-outline")
-    client.send_bridge_switch_discovery("Modo Config", EC_NONE, "mdi:connection")
+    client.send_bridge_switch_discovery("Modo Pareamento", EC_NONE, "mdi:connection")
     status = "OFF"
-    if globals.g_lf_lora.modo_op() == MODE_OP_CFG:
+    if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
         status = "ON"
-    client.pub(f"{client.bridge_topic}/modo_config", 0, True, status)
+    client.pub(f"{client.bridge_topic}/modo _pareamento", 0, True, status)
     client.send_bridge_sensor_discovery("Info", EC_NONE, DEVICE_CLASS_NONE, UNITS_NONE, STATE_CLASS_NONE, "mdi:information-slab-box-outline")
     mqtt_send_bridge_info("Idle")
     mqtt_send_bridge_select_discovery()
@@ -379,7 +379,7 @@ def loop_lora():
             # Defino o próximo destino para solicitar estado...
             lora_next_target_cmd()
 
-    if globals.g_lf_lora.modo_op() == MODE_OP_CFG:
+    if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
 
         # Vejo se o tempo de loop já passou
         timeLoop = funcs.get_delta_millis(loraLoopTime)
