@@ -462,7 +462,7 @@ class LoRa2MQTTClient(mqtt.Client):
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
-    def send_light_discovery(self, index, name, entity_category, rgb):
+    def send_light_discovery(self, index, name, entity_category, brightness, rgb):
         """
         Envia a descoberta de uma luz via MQTT.
         """
@@ -476,9 +476,10 @@ class LoRa2MQTTClient(mqtt.Client):
             "schema": "json",
             "stat_t": f"~/{slug}",
             "cmd_t": f"~/{slug}/set",
-            "brightness": True,
-            "rgb": rgb,
+            "brightness": brightness,
         })
+        if rgb:
+            payload["supported_color_modes"] = "rgb"
         if entity_category:
             payload["entity_category"] = entity_category
 
@@ -501,7 +502,6 @@ class LoRa2MQTTClient(mqtt.Client):
             "stat_t": f"~/{slug}",
             "cmd_t": f"~/{slug}/set",
             "brightness": False,
-            "rgb": False,
         })
         if entity_category:
             payload["entity_category"] = entity_category
