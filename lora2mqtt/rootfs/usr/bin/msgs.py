@@ -184,7 +184,7 @@ def mqtt_bridge_proc_command(entity, pay):
 
     if entity == "modo_pareamento":
         logging.info(f"Changing Operation Mode to: {pay}")
-        mqtt_send_bridge_info(f"Config Mode: {pay}")
+        mqtt_send_bridge_info(f"Pairing Mode: {pay}")
         if (pay.find("ON")!=-1):
             # ON
             globals.g_lf_lora.set_modo_op(MODE_OP_PAIRING)
