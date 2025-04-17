@@ -131,7 +131,7 @@ class LoRa2MQTTClient(mqtt.Client):
         self.on_message = LoRa2MQTTClient.cb_on_message
 
         # Logging informativo
-        logging.info(f"Cliente {MQTT_CLIENT_ID} LoRa2MQTT Criado")
+        logging.info(f"Client {MQTT_CLIENT_ID} Created")
 
     def setup_mqtt_topics(self):
         """Configura os tópicos MQTT."""
@@ -185,19 +185,19 @@ class LoRa2MQTTClient(mqtt.Client):
     def cb_on_disconnect(cls, client, userdata, rc):
         """Callback para desconexões."""
         client.connected_flag = False
-        logging.info(f"Cliente {client._client_id.decode('utf-8')} desconectado!")
+        logging.error(f"Client {client._client_id.decode('utf-8')} disconnected!")
 
     @classmethod
     def cb_on_connect(cls, client, userdata, flags, rc):
         """Callback para conexões."""
         if rc == 0:
             client.connected_flag = True
-            logging.info(f"Cliente {client._client_id.decode('utf-8')} conectado com sucesso!")
+            logging.error(f"Cliente {client._client_id.decode('utf-8')} connected successfully!")
             # Publica mensagem de "online" ao conectar
             client.publish(client.lwt_topic, "online", qos=0, retain=True)
             client.on_mqtt_connect()
         else:
-            logging.error(f"Falha ao conectar co código {rc}")
+            logging.error(f"Failed to connect with code {rc}")
 
     def handle_message(self, message):
         """Processa mensagens recebidas do MQTT)."""
@@ -217,10 +217,10 @@ class LoRa2MQTTClient(mqtt.Client):
 
             # Atualiza status online
             self.online = False
-            logging.info("Assinanados com sucesso a todos os topicos relevantes.")
+            logging.debug("Assinanados com sucesso a todos os topicos relevantes.")
 
         except Exception as e:
-            logging.error(f"Erro na assinatura de topico MQTT: {e}")
+            logging.error(f"Error subscribing to MQTT topic: {e}")
 
     def common_discovery(self):
         """
@@ -696,7 +696,7 @@ if __name__ == '__main__':
                         format='%(asctime)-15s - [%(levelname)s] LoRa2MQTT: %(message)s', )
     
     logger = logging.getLogger(__name__)
-    logger.info("Nível de logging configurado para: %s", log_level)  
+    logger.info("Logging level: %s", log_level)  
     logger.debug(f"Options: {broker}, {port}, {broker_user}, {broker_pass}")
     
     main(broker, port, broker_user, broker_pass)

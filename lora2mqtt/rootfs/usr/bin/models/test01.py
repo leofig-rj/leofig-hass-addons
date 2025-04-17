@@ -98,10 +98,10 @@ class DeviceTEST01:
             val = None
             if self.lampadaState == "ON":
                 # Quando ligado o estado e o brilho são publicados
-                val = light2Pay(self.lampadaState, self.lampadaBrig)
+                val = light2Pay(self.lampadaState, self.lampadaBrig, 255, 255, 255)
             else:
                 # Quando desligado somente o estado é publicado
-                val = light2Pay(self.lampadaState, None)
+                val = light2Pay(self.lampadaState, None, None, None, None)
             # Publicando o estado completo da lâmpada no MQTT (formato string json)
             mqtt_pub(index, self.entitySlugs[0], val)
             logging.debug(f"TEST01 - entityVal {0} {self.entitySlugs[0]} {val}")

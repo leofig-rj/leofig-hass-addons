@@ -131,7 +131,7 @@ class DeviceManager:
             # Verificando se é um arquivo antes de copiar (ignora pastas)
             if os.path.isfile(caminho_arquivo_origem):
                 shutil.copy(caminho_arquivo_origem, pasta_destino)
-                logging.info(f"Arquivo {arquivo} copiado parao AddOn")
+                logging.info(f"File {arquivo} copied to the AddOn")
 
 
     def load_devices(self):
