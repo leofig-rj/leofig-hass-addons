@@ -183,7 +183,7 @@ def mqtt_bridge_proc_command(entity, pay):
 
     if entity == "modo_config":
         logging.info(f"Changing Operation Mode to: {pay}")
-        mqtt_send_bridge_info(f"Op Mode: {pay}")
+        mqtt_send_bridge_info(f"Config Mode: {pay}")
         if (pay.find("ON")!=-1):
             # ON
             globals.g_lf_lora.set_modo_op(MODE_OP_CFG)
