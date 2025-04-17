@@ -215,11 +215,11 @@ def mqtt_send_discovery_bridge():
     client.send_bridge_button_discovery("Renomear Disp", EC_NONE, DEVICE_CLASS_UPDATE)
     client.send_bridge_button_discovery("Excluir Disp", EC_NONE, DEVICE_CLASS_UPDATE)
     client.send_bridge_switch_discovery("Modo Config", EC_NONE)
+    client.send_bridge_sensor_discovery("xInfo", EC_NONE)
     status = "OFF"
     if globals.g_lf_lora.modo_op() == MODE_OP_CFG:
         status = "ON"
     client.pub(f"{client.bridge_topic}/modo_config", 0, True, status)
-    client.send_bridge_sensor_discovery("xInfo", EC_NONE)
     client.pub(f"{client.bridge_topic}/xinfo", 0, True, "Idle")
     mqtt_send_bridge_select_discovery()
 

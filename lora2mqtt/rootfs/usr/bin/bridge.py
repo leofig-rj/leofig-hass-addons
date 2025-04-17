@@ -533,7 +533,7 @@ class LoRa2MQTTClient(mqtt.Client):
         if state_class is not None:
             payload["stat_cla"] = state_class
 
-        topic = f"{HA_PREFIX}/select/{self.addon_slug}_{UNIQUE}/{slug}/config"
+        topic = f"{HA_PREFIX}/sensor/{self.addon_slug}_{UNIQUE}/{slug}/config"
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
