@@ -182,7 +182,7 @@ def mqtt_bridge_proc_command(entity, pay):
                 mqtt_send_bridge_info(f"Renamed: {fromRen} to {toRen}")
 
 
-    if entity == "modo _pareamento":
+    if entity == "modo_pareamento":
         logging.info(f"Changing Operation Mode to: {pay}")
         mqtt_send_bridge_info(f"Config Mode: {pay}")
         if (pay.find("ON")!=-1):
@@ -191,7 +191,7 @@ def mqtt_bridge_proc_command(entity, pay):
         else:
             # OFF
             globals.g_lf_lora.set_modo_op(MODE_OP_LOOP)
-        client.pub(f"{client.bridge_topic}/modo _pareamento", 0, True, pay)
+        client.pub(f"{client.bridge_topic}/modo_pareamento", 0, True, pay)
 
 def mqtt_bridge_refresh():
     """Refresco o dicovery de select."""
@@ -225,7 +225,7 @@ def mqtt_send_discovery_bridge():
     status = "OFF"
     if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
         status = "ON"
-    client.pub(f"{client.bridge_topic}/modo _pareamento", 0, True, status)
+    client.pub(f"{client.bridge_topic}/modo_pareamento", 0, True, status)
     client.send_bridge_sensor_discovery("Info", EC_NONE, DEVICE_CLASS_NONE, UNITS_NONE, STATE_CLASS_NONE, "mdi:information-slab-box-outline")
     mqtt_send_bridge_info("Idle")
     mqtt_send_bridge_select_discovery()
