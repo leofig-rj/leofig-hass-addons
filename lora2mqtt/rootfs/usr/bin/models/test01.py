@@ -64,7 +64,7 @@ class DeviceTEST01:
         # Só tem comando de "Lampada", índice 0
         if entity == self.entitySlugs[0]:
             # Pegando o estado e o brilho da lâmpada
-            state, brightness = pay2Light(pay)
+            state, brightness, r, g, b = pay2Light(pay)
             logging.debug(f"TEST01 - state: {state} brightness: {brightness}")
             if state == "ON":
                 # ON -> Cmd 101
