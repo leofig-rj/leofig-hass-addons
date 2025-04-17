@@ -608,7 +608,7 @@ class LoRa2MQTTClient(mqtt.Client):
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
-    def send_bridge_switch_discovery(self, name, entity_category):
+    def send_bridge_switch_discovery(self, name, entity_category, icon=""):
         """
         Envia a descoberta de um interruptor para a ponte via MQTT.
         """
@@ -624,6 +624,8 @@ class LoRa2MQTTClient(mqtt.Client):
         })
         if entity_category:
             payload["entity_category"] = entity_category
+        if icon:
+            payload["icon"] = icon
 
         topic = f"{HA_PREFIX}/switch/{self.addon_slug}_{UNIQUE}/{slug}/config"
         payload_json = json.dumps(payload)

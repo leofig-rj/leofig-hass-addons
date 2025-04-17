@@ -221,7 +221,7 @@ def mqtt_send_discovery_bridge():
     client.send_bridge_text_discovery("Nome Disp", EC_NONE)
     client.send_bridge_button_discovery("Renomear Disp", EC_NONE, DEVICE_CLASS_NONE, "mdi:rename")
     client.send_bridge_button_discovery("Excluir Disp", EC_NONE, DEVICE_CLASS_NONE, "mdi:delete-forever-outline")
-    client.send_bridge_switch_discovery("Modo Config", EC_NONE)
+    client.send_bridge_switch_discovery("Modo Config", EC_NONE, "mdi:connection")
     status = "OFF"
     if globals.g_lf_lora.modo_op() == MODE_OP_CFG:
         status = "ON"
