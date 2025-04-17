@@ -145,7 +145,7 @@ def mqtt_bridge_proc_command(entity, pay):
                 client.send_delete_discovery_x(i, "sensor", "RSSI")
                 obj = ram_devs[i].slaveObj
                 for j in range(len(obj.entityNames)):
-                    logging.info(f"Dev Excluido {ram_devs[i].slaveName} Entidade {j} Domínio {obj.entityDomains[j]} Nome {obj.entityNames[j]}")
+                    logging.info(f"Dev Deleted {ram_devs[i].slaveName} Entity {j} Domain{obj.entityDomains[j]} Name {obj.entityNames[j]}")
                     client.send_delete_discovery_x(i, obj.entityDomains[j], obj.entityNames[j])
                 # Excluindo da lista de slaves na RAM e no arquivo config.yaml
                 globals.g_devices.delete_ram_dev(i)
@@ -177,7 +177,7 @@ def mqtt_bridge_proc_command(entity, pay):
 
 
     if entity == "modo_config":
-        logging.info(f"Processando comando para modo_config de Bridge {entity}: {pay}")
+        logging.info(f"Changing Operation Mode {entity}: {pay}")
         if (pay.find("ON")!=-1):
             # ON
             globals.g_lf_lora.set_modo_op(MODE_OP_CFG)
@@ -386,9 +386,6 @@ def on_lora_message(sMsg, rssi, index):
 #    global loraFiFoFirst, loraFiFoLast
     logging.debug(f"LoRa - Tamanho da MSG: {len(sMsg)} Índice {index}")
     
-#    if loraFiFoFirst != loraFiFoLast:
-#        logging.info("FiFo não está vazia!")
-#        return
     try:
         # Pego o Dispositivo na RAM
         ram_dev = globals.g_devices.get_ram_devs()[index]
@@ -461,7 +458,7 @@ def lora_send_msg_cfg():
     # Envio comando de configuração
     serial_data = globals.g_lf_lora.negocia_msg()
     globals.g_serial.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
-    logging.info(f"CFG - Enviando: {serial_data}")
+    logging.debug(f"CFG - Enviando: {serial_data}")
 
 def lora_last_cmd_returned():
     global lastIdRec, lastIdSent, loraCommandTime, attemptsCmd
