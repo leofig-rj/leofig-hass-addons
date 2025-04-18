@@ -1,6 +1,6 @@
 # https://developers.home-assistant.io/docs/add-ons/configuration#add-on-dockerfile
 build_from:
-  aarch64: "home-assistant/aarch64-base-python"
+  aarch64: "homeassistant/aarch64-base-python:3.9-alpine3.15"
   amd64: "homeassistant/amd64-base-python"
   armhf: "homeassistant/armhf-base-python"
   armv7: "homeassistant/armv7-base-python"
