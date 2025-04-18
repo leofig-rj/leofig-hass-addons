@@ -1,10 +1,10 @@
 # https://developers.home-assistant.io/docs/add-ons/configuration#add-on-dockerfile
 build_from:
-  aarch64: "homeassistant/aarch64-base-python":3.15
-  amd64: "homeassistant/amd64-base-python":3.15
-  armhf: "homeassistant/armhf-base-python":3.15
-  armv7: "homeassistant/armv7-base-python":3.15
-  i386: "homeassistant/i386-base-python":3.15
+  aarch64: "homeassistant/aarch64-base-python"
+  amd64: "homeassistant/amd64-base-python"
+  armhf: "homeassistant/armhf-base-python"
+  armv7: "homeassistant/armv7-base-python"
+  i386: "homeassistant/i386-base-python"
 labels:
   org.opencontainers.image.title: "Home Assistant Add-on: LoRa2MQTT"
   org.opencontainers.image.description: "Connection between LoRa devices with Home Assistant using MQTT."
