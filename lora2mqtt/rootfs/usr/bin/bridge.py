@@ -462,7 +462,7 @@ class LoRa2MQTTClient(mqtt.Client):
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
-    def send_light_discovery(self, index, name, entity_category, brightness, rgb):
+    def send_light_discovery(self, index, name, entity_category, brightness=False, rgb=False):
         """
         Envia a descoberta de uma luz via MQTT.
         """
@@ -480,29 +480,7 @@ class LoRa2MQTTClient(mqtt.Client):
         })
         if rgb:
             payload["supported_color_modes"] = "rgb"
-        if entity_category:
-            payload["entity_category"] = entity_category
-
-        topic = self.masc_disc_topics[index] % ("light", slug)
-        payload_json = json.dumps(payload)
-        return self.pub(topic, 0, True, payload_json)
-
-    def send_light_switch_discovery(self, index, name, entity_category):
-        """
-        Envia a descoberta de uma luz (liga/deslia) via MQTT.
-        """
-        slug = funcs.slugify(name)
-        payload = self.common_discovery_ind(index)
-        payload.update({
-            "~": self.work_topics[index],
-            "name": name,
-            "uniq_id": self.masc_uniq_topics[index] % slug,
-            "avty_t": "~/com_lora",
-            "schema": "json",
-            "stat_t": f"~/{slug}",
-            "cmd_t": f"~/{slug}/set",
-            "brightness": False,
-        })
+            payload["effect_list "] = ["Efeito 1", "Efeito 2"]
         if entity_category:
             payload["entity_category"] = entity_category
 

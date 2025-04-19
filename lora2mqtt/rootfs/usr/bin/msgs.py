@@ -339,10 +339,6 @@ def mqtt_send_light_discovery(index, name, entity_category, brightness, rgb):
     client = globals.g_cli_mqtt
     return client.send_light_discovery(index, name, entity_category, brightness, rgb)
 
-def mqtt_send_light_switch_discovery(index, name, entity_category):
-    client = globals.g_cli_mqtt
-    return client.send_light_switch_discovery(index, name, entity_category)
-
 def loop_lora():
     global loraCommandTime, loraLoopTime, loraLastTargetCmd
 
