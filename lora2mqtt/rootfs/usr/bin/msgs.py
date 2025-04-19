@@ -335,7 +335,7 @@ def mqtt_send_number_discovery(index, name, entity_category, step):
     client = globals.g_cli_mqtt
     return client.send_number_discovery(index, name, entity_category, step)
 
-def mqtt_send_light_discovery(index, name, entity_category, brightness, rgb):
+def mqtt_send_light_discovery(index, name, entity_category, brightness=False, rgb=False):
     client = globals.g_cli_mqtt
     return client.send_light_discovery(index, name, entity_category, brightness, rgb)
 
