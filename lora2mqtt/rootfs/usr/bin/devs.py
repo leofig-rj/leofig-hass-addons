@@ -88,7 +88,6 @@ class DeviceManager:
         self.data_path = None
         self.config_file_path = None
         self.dev_rams = []
-        self.models = []
 
         # Acessando o caminho do arquivo config.yaml com os dispositivos
         self.data_path = globals.g_data_path
@@ -260,15 +259,10 @@ class DeviceManager:
         self.add_device(addr, name, mac, model)
 
     def get_model(self, modelo):
-        # Procuro o modelo em self.models
-#        for i in range(len(self.models)):
-#            if self.models[i].model_name == modelo:
-#                return self.models[i]
-        # Não achou, tento criar
+        # Crio um obj modelo se possível
         obj = Model.pega_obj(modelo)
         if obj is not None:
             model = Model(modelo, obj)
-            self.models.append(model)
             return model
 
         return None

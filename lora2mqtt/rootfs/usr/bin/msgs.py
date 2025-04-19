@@ -301,7 +301,6 @@ def mqtt_send_entities():
 
 def mqtt_pub(index, slug, val):
     client = globals.g_cli_mqtt
-    logging.info(f"PUB {client.work_topics[index]}/{slug} {val}")
     return client.pub(f"{client.work_topics[index]}/{slug}", 0, True, val)
 
 def mqtt_send_aux_connectivity_discovery(index):
