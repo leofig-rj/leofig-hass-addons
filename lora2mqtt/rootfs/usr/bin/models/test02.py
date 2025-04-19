@@ -1,23 +1,25 @@
 import logging
 
-from funcs import slugify
+from funcs import slugify, char_to_state
 from msgs import lora_fifo_try_to_send, mqtt_pub, mqtt_send_sensor_discovery, \
-                    mqtt_send_button_discovery
+                    mqtt_send_light_switch_discovery, mqtt_send_button_discovery
 
 from consts import EC_NONE, DEVICE_CLASS_VOLTAGE, DEVICE_CLASS_POWER, DEVICE_CLASS_CURRENT, \
-    DEVICE_CLASS_ENERGY, DEVICE_CLASS_RESTART, DEVICE_CLASS_UPDATE, STATE_CLASS_MEASUREMENT, \
-    STATE_CLASS_TOTAL_INCREASING
+    DEVICE_CLASS_ENERGY, DEVICE_CLASS_FREQUENCY, DEVICE_CLASS_RESTART,  \
+    STATE_CLASS_MEASUREMENT, STATE_CLASS_TOTAL_INCREASING
 
-class DevicePW01:
+class DeviceTEST02:
     def __init__(self):
-        self.model = "PW01"
+        self.model = "TEST02"
         self.chip = "ESP32"
         self.ver = "1.0.0"
         self.man = "Leonardo Figueiro"
         self.desc = "Sensores de elétricas"
-        self.entityNames = ["Tensao", "Potencia", "Corrente", "Energia", "Energia RAM", "Aciona Rele", "Reset Energia"]
-        self.entityDomains = ["sensor", "sensor", "sensor", "sensor", "sensor", "button", "button"]
-        self.entityValNumFator = [0.1, 0.1, 0.001, 1, 1]
+        self.entityNames = ["Tensao", "Potencia", "Corrente", "Energia", "Frequencia", "Lampada", "Reset Energia"]
+        self.entityDomains = ["sensor", "sensor", "sensor", "sensor", "sensor", "light", "button"]
+        self.entityValNumFator = [0.1, 0.1, 0.001, 1, 0.1]
+        self.entityValStr = []
+        self.entityLastValStr = []
         self.entitySlugs = []
         self.entityValNum = []
         self.entityLastValNum= []
@@ -29,20 +31,25 @@ class DevicePW01:
             self.entityValNum.append(-1)
             self.entityLastValNum.append(-1)
 
+        for i in range(1):
+            self.entityValStr.append("NULL")
+            self.entityLastValStr.append("NULL")
+
     def proc_rec_msg(self, sMsg, index):
         
-        if len(sMsg) != 33:
+        if len(sMsg) != 35:
             logging.info(f"PW01 - Erro no tamanho da mensagem! {len(sMsg)}")
             return
         
         partes = sMsg.split('#')
-        if len(partes) != 6:
+        if len(partes) != 7:
             logging.info("PW01 - Erro ao dividir a mensagem!")
             return
         
-        if len(partes[1]) != 4 or len(partes[2]) != 6 or len(partes[3]) != 6 or len(partes[4]) != 6 or len(partes[5]) != 6:
+        if len(partes[1]) != 4 or len(partes[2]) != 6 or len(partes[3]) != 6 or len(partes[4]) != 6 \
+            or len(partes[5]) != 6 or len(partes[6]) != 1:
             logging.info("PW01 - Erro no tamanho dos dados!")
-            logging.info(f"P1 {partes[1]} P2 {partes[2]} P3 {partes[3]} P4 {partes[4]} P5 {partes[5]} ")
+            logging.info(f"P1 {partes[1]} P2 {partes[2]} P3 {partes[3]} P4 {partes[4]} P5 {partes[5]} P6 {partes[6]} ")
             return
         
         self.entityValNum[0]  = int(partes[1])
@@ -51,21 +58,29 @@ class DevicePW01:
         self.entityValNum[3]  = int(partes[4])
         self.entityValNum[4]  = int(partes[5])
 
+        self.entityValStr[0] = char_to_state(partes[6])
+
         logging.debug(
             f"PW01 - Tensão: {self.entityValNum[0]} Potência: {self.entityValNum[1]} "
             f"Corrente: {self.entityValNum[2]} Energia: {self.entityValNum[3]} "
-            f"EnergiaRam: {self.entityValNum[4]}")
+            f"EnergiaRam: {self.entityValNum[4]} Interruptor: {self.entityValStr[0]}")
         
     def proc_command(self, entity, pay, index):
 
         if entity == self.entitySlugs[5]:
-            lora_fifo_try_to_send("100", index)
-            return True
+            if (pay.find("ON")!=-1):
+                # ON -> Cmd 101
+                lora_fifo_try_to_send("101", index)
+            else:
+                # OFF -> Cmd 102
+                lora_fifo_try_to_send("102", index)
+            ######  Definindo para evitar ficar mudando enquanto espera feedback
+            self.entityValStr[0] = pay
         if entity == self.entitySlugs[6]:
             lora_fifo_try_to_send("110", index)
             return True
         return False
- 
+
     def proc_publish(self, index, force):
 
         for i in range(len(self.entityValNumFator)):
@@ -74,6 +89,10 @@ class DevicePW01:
                 aAux = "{:.1f}".format(self.entityValNum[i]*self.entityValNumFator[i])
                 logging.debug(f"PW01 - entityValNum {i} {self.entitySlugs[i]} {aAux}")
                 mqtt_pub(index, self.entitySlugs[i], aAux)
+        if (self.entityLastValStr[0] != self.entityValStr[0]) or force:
+            self.entityLastValStr[0] = self.entityValStr[0]
+            logging.debug(f"PW01 - entityValStr 0 {self.entitySlugs[5]} {self.entityValStr[0]}")
+            mqtt_pub(index, self.entitySlugs[5], self.entityValStr[0])
 
     def proc_discovery(self, index):
 
@@ -81,13 +100,11 @@ class DevicePW01:
             mqtt_send_sensor_discovery(index, self.entityNames[1], EC_NONE, DEVICE_CLASS_POWER, "W", STATE_CLASS_MEASUREMENT, True) and \
             mqtt_send_sensor_discovery(index, self.entityNames[2], EC_NONE, DEVICE_CLASS_CURRENT, "A", STATE_CLASS_MEASUREMENT, True) and \
             mqtt_send_sensor_discovery(index, self.entityNames[3], EC_NONE, DEVICE_CLASS_ENERGY, "Wh", STATE_CLASS_TOTAL_INCREASING, True) and \
-            mqtt_send_sensor_discovery(index, self.entityNames[4], EC_NONE, DEVICE_CLASS_ENERGY, "Wh", STATE_CLASS_TOTAL_INCREASING, True) and \
-            mqtt_send_button_discovery(index, self.entityNames[5], EC_NONE, DEVICE_CLASS_UPDATE) and \
+            mqtt_send_sensor_discovery(index, self.entityNames[4], EC_NONE, DEVICE_CLASS_FREQUENCY, "Hz", STATE_CLASS_TOTAL_INCREASING, True) and \
+            mqtt_send_light_switch_discovery(index, self.entityNames[5], EC_NONE) and \
             mqtt_send_button_discovery(index, self.entityNames[6], EC_NONE, DEVICE_CLASS_RESTART):
             logging.debug(f"Discovery Entity PW01 OK Índex {index}")
             return True
         else:
             logging.debug("Discovery Entity PW01 NOT OK")
             return False
-
-
