@@ -8,7 +8,7 @@ import globals
 from consts import  MODE_OP_PAIRING, MODE_OP_LOOP, STEP_NEG_INIC, MSG_CHECK_OK
 
 # Para LoRa
-from consts import LORA_FIFO_LEN, LORA_NUM_ATTEMPTS_CMD, LORA_TIME_CMD, LORA_TIME_OUT, LORA_TEMPO_LOOP
+from consts import LORA_FIFO_LEN, LORA_NUM_ATTEMPTS_CMD, LORA_TIME_CMD, LORA_TIME_OUT, LORA_LOOP_TIME, LORA_PAIRING_TIME
 
 # Para MQTT
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_NONE, DEVICE_CLASS_SIGNAL_STRENGTH, \
@@ -19,6 +19,7 @@ online = False
 
 loraCommandTime = 0
 loraLoopTime = 0
+loraPairingTime = 0
 lastMsgSent = ""
 lastIdRec = 0
 lastIdSent = 0
@@ -184,7 +185,6 @@ def mqtt_bridge_proc_command(entity, pay):
 
     if entity == "modo_pareamento":
         logging.info(f"Changing Operation Mode to: {pay}")
-        mqtt_send_bridge_info(f"Pairing Mode: {pay}")
         if (pay.find("ON")!=-1):
             # ON
             globals.g_lf_lora.set_modo_op(MODE_OP_PAIRING)
@@ -340,7 +340,7 @@ def mqtt_send_light_discovery(index, name, entity_category, brightness=False, rg
     return client.send_light_discovery(index, name, entity_category, brightness, rgb)
 
 def loop_lora():
-    global loraCommandTime, loraLoopTime, loraLastTargetCmd
+    global loraCommandTime, loraLoopTime, loraPairingTime, loraLastTargetCmd
 
     if globals.g_lf_lora.modo_op() == MODE_OP_LOOP:
         
@@ -365,7 +365,7 @@ def loop_lora():
 
         # Vejo se o tempo de loop já passou
         timeLoop = funcs.get_delta_millis(loraLoopTime)
-        if timeLoop <= LORA_TEMPO_LOOP:
+        if timeLoop <= LORA_LOOP_TIME:
             return
 
         # Solicito estado periodicamente...
@@ -377,9 +377,14 @@ def loop_lora():
 
     if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
 
+        # Vejo se o tempo de pareamento já passou
+        timeLoop = funcs.get_delta_millis(loraPairingTime)
+        if timeLoop > LORA_PAIRING_TIME:
+            globals.g_lf_lora.set_modo_op(MODE_OP_LOOP)
+
         # Vejo se o tempo de loop já passou
         timeLoop = funcs.get_delta_millis(loraLoopTime)
-        if timeLoop > LORA_TEMPO_LOOP:
+        if timeLoop > LORA_LOOP_TIME:
             loraLoopTime = funcs.millis()
             globals.g_lf_lora.set_fase_negocia(STEP_NEG_INIC)
 
@@ -425,6 +430,10 @@ def lora_fifo_try_to_send(sMsg, index):
     loraFiFoMsgBuffer[loraFiFoLast] = sMsg
     loraFiFoTargetBuffer[loraFiFoLast] = index
     loraFiFoLast = aux
+
+def lora_reset_pairing_time():
+    global loraPairingTime
+    loraPairingTime = funcs.millis()
 
 def lora_send_msg_index(sMsg, index):
     # Pego oo Dispositivos na RAM
