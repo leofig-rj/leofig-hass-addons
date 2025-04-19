@@ -1,3 +1,8 @@
+# Em self.model é definido o nome do dispositivo
+# O nome do arquivo dever ser o nome do dispositivo em minúsculas .py
+# O nome da classe deve ter o padrão "Device" + o nome do dispositivo,
+# em maiúsculas
+
 import logging
 
 from funcs import slugify, char_to_state
