@@ -480,7 +480,7 @@ class LoRa2MQTTClient(mqtt.Client):
         })
         if rgb:
             payload["supported_color_modes"] = "rgb"
-            payload["effect_list "] = ["Efeito 1", "Efeito 2"]
+            payload["effect_list"] = ["Efeito 1", "Efeito 2"]
         if entity_category:
             payload["entity_category"] = entity_category
 
