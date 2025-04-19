@@ -191,7 +191,6 @@ def mqtt_bridge_proc_command(entity, pay):
         else:
             # OFF
             globals.g_lf_lora.set_modo_op(MODE_OP_LOOP)
-        client.pub(f"{client.bridge_topic}/modo_pareamento", 0, True, pay)
 
 def mqtt_bridge_refresh():
     """Refresco o dicovery de select."""

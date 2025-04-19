@@ -37,13 +37,17 @@ class LFLoraClass:
 
     def set_modo_op(self, modo):
         self._modoOp = modo
+
+        pairingStatus = "OFF"
         if self._modoOp == MODE_OP_PAIRING:
             self._negociaMsg = CMD_NEGOCIA_INIC
             self._faseNegocia = STEP_NEG_INIC
             msgs.lora_reset_pairing_time()
-            msgs.mqtt_send_bridge_info("Pairing Mode: ON")
-        else:
-            msgs.mqtt_send_bridge_info("Pairing Mode: OFF")
+            pairingStatus = "ON"
+
+        client = globals.g_cli_mqtt
+        msgs.mqtt_send_bridge_info(F"Pairing Mode: {pairingStatus}")
+        client.pub(f"{client.bridge_topic}/modo_pareamento", 0, True, pairingStatus)
 
     def modo_op(self):
         return self._modoOp
