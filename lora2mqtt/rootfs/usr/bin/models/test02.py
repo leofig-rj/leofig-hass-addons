@@ -7,7 +7,7 @@ import logging
 
 from funcs import slugify, char_to_state
 from msgs import lora_fifo_try_to_send, mqtt_pub, mqtt_send_sensor_discovery, \
-                    mqtt_send_light_switch_discovery, mqtt_send_button_discovery
+                    mqtt_send_light_discovery, mqtt_send_button_discovery
 
 from consts import EC_NONE, DEVICE_CLASS_VOLTAGE, DEVICE_CLASS_POWER, DEVICE_CLASS_CURRENT, \
     DEVICE_CLASS_ENERGY, DEVICE_CLASS_FREQUENCY, DEVICE_CLASS_RESTART,  \
@@ -106,7 +106,7 @@ class DeviceTEST02:
             mqtt_send_sensor_discovery(index, self.entityNames[2], EC_NONE, DEVICE_CLASS_CURRENT, "A", STATE_CLASS_MEASUREMENT, True) and \
             mqtt_send_sensor_discovery(index, self.entityNames[3], EC_NONE, DEVICE_CLASS_ENERGY, "Wh", STATE_CLASS_TOTAL_INCREASING, True) and \
             mqtt_send_sensor_discovery(index, self.entityNames[4], EC_NONE, DEVICE_CLASS_FREQUENCY, "Hz", STATE_CLASS_TOTAL_INCREASING, True) and \
-            mqtt_send_light_switch_discovery(index, self.entityNames[5], EC_NONE) and \
+            mqtt_send_light_discovery(index, self.entityNames[5], EC_NONE) and \
             mqtt_send_button_discovery(index, self.entityNames[6], EC_NONE, DEVICE_CLASS_RESTART):
             logging.debug(f"Discovery Entity PW01 OK Índex {index}")
             return True
