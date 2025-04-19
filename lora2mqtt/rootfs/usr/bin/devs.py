@@ -261,9 +261,9 @@ class DeviceManager:
 
     def get_model(self, modelo):
         # Procuro o modelo em self.models
-        for i in range(len(self.models)):
-            if self.models[i].model_name == modelo:
-                return self.models[i]
+#        for i in range(len(self.models)):
+#            if self.models[i].model_name == modelo:
+#                return self.models[i]
         # Não achou, tento criar
         obj = Model.pega_obj(modelo)
         if obj is not None:
