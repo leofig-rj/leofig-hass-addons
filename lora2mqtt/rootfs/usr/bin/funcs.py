@@ -52,6 +52,7 @@ def light2Pay(state, brightness=None, r=None, g=None, b=None):
         data["brightness"] = brightness
     if (r is not None) and (g is not None) and (b is not None):
         data["color"] = {"r": r, "g": g, "b": b}
+        data["color_mode"] = "rgb"
     return json.dumps(data)       # Serializa o JSON em uma string
 
 def pay2Light(pay):
