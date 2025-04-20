@@ -85,7 +85,7 @@ def loop_mqtt():
 def on_mqtt_message(topic, payload):
 
     if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
-        logging.debug(f"Msg não tratada - MODO PAREAMENTO - {top} - {pay}}")
+        logging.debug(f"Msg não tratada - MODO PAREAMENTO - {top} - {pay}")
         return
 
     top = topic
