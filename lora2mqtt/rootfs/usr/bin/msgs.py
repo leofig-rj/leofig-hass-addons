@@ -84,10 +84,6 @@ def loop_mqtt():
 
 def on_mqtt_message(topic, payload):
 
-    if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
-        logging.debug(f"Msg não tratada - MODO PAREAMENTO - {top} - {pay}")
-        return
-
     top = topic
     pay = payload
 
@@ -112,6 +108,10 @@ def on_mqtt_message(topic, payload):
             # Trata comando de Bridge
             mqtt_bridge_proc_command(entity, pay)
         else:
+            if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
+                logging.debug(f"Msg não tratada - MODO PAREAMENTO - {top} - {pay}")
+                return
+
             # Procura nos dispositivo
             index = globals.g_devices.find_ram_dev_by_name(device_name)
             if index is not None:
@@ -143,6 +143,10 @@ def mqtt_bridge_proc_command(entity, pay):
         return
 
     if entity == "excluir_disp":
+        if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
+            logging.debug(f"Msg não tratada - MODO PAREAMENTO - {entity} - {pay}")
+            return
+
         logging.debug(f"Processando comando para excluir_disp de Bridge {entity}: {pay}")
         for i in range(len(ram_devs)):
             if ram_devs[i].slaveName == mqttLastBridgeSelect:
@@ -161,6 +165,10 @@ def mqtt_bridge_proc_command(entity, pay):
                 mqtt_send_bridge_info(f"Deleted: {toDel}")
 
     if entity == "renomear_disp":
+        if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
+            logging.debug(f"Msg não tratada - MODO PAREAMENTO - {entity} - {pay}")
+            return
+
         logging.debug(f"Processando comando para renomear_disp de Bridge {entity}: {pay}")
         for i in range(len(ram_devs)):
             if ram_devs[i].slaveName == mqttLastBridgeSelect:
