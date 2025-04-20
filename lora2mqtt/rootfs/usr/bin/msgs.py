@@ -57,7 +57,7 @@ def loop_serial():
                 on_lora_message(msg, rssi, index)
 
         if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
-            if globals.g_lf_lora.on_lora_message(serial_data):
+            if globals.g_lf_lora.on_lora_pairing_message(serial_data):
                 loraLoopTime = funcs.millis()
                 lora_send_msg_cfg()
 
@@ -83,6 +83,10 @@ def loop_mqtt():
         mqtt_send_entities()
 
 def on_mqtt_message(topic, payload):
+
+    if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
+        logging.debug(f"Msg não tratada - MODO PAREAMENTO - {top} - {pay}}")
+        return
 
     top = topic
     pay = payload

@@ -151,7 +151,7 @@ class LFLoraClass:
             return True
         return False
 
-    def on_lora_message(self, msg):
+    def on_lora_pairing_message(self, msg):
         logging.debug(f"CFG - MSG: {msg} Len: {len(msg)}")
         if msg[0] != '!':
             return False
