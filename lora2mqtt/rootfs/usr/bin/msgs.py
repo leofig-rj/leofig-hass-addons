@@ -214,6 +214,11 @@ def mqtt_send_online():
         logging.debug("Erro enviando status=online")
     return online
 
+def mqtt_send_pairing_mode(pairingStatus):
+    client = globals.g_cli_mqtt
+    mqtt_send_bridge_info(F"Pairing Mode: {pairingStatus}")
+    client.pub(f"{client.bridge_topic}/modo_pareamento", 0, True, pairingStatus)
+
 def mqtt_send_discovery_bridge():
     client = globals.g_cli_mqtt
     client.send_connectivity_discovery()

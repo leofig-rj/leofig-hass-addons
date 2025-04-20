@@ -45,9 +45,7 @@ class LFLoraClass:
             msgs.lora_reset_pairing_time()
             pairingStatus = "ON"
 
-        client = globals.g_cli_mqtt
-        msgs.mqtt_send_bridge_info(F"Pairing Mode: {pairingStatus}")
-        client.pub(f"{client.bridge_topic}/modo_pareamento", 0, True, pairingStatus)
+        msgs.mqtt_send_pairing_mode(pairingStatus)
 
     def modo_op(self):
         return self._modoOp
