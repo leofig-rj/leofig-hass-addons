@@ -3,7 +3,7 @@ import logging
 import msgs
 
 from consts import MODE_OP_PAIRING, MODE_OP_LOOP, STEP_NEG_INIC, STEP_NEG_CFG, CMD_NEGOCIA_INIC, \
-    MSG_CHECK_OK, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR
+    MSG_CHECK_OK, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR, SYNC_WORD_LOOP_DEF
 
 class RegRec:
     def __init__(self, de=0, para=0, id=0):
@@ -21,7 +21,6 @@ class LFLoraClass:
         self._modoOp = MODE_OP_LOOP
         self._lastModoOp = -1  # Valor indevido para enviar na primeira vez
         self._faseNegocia = STEP_NEG_INIC
-        self._loraCfg = "12345678"
         self._negociaMsg = ""
         self._negociaDe = ""
         self._negociaMac = ""
@@ -183,7 +182,7 @@ class LFLoraClass:
             # Verificando se modelo existe no sistema
             if msgs.disp_check_model(self._negociaModelo):
                 self._negociaAddrSlave = msgs.disp_get_ram_dev_addr_by_mac(self._negociaMac)
-                self._negociaMsg = f"!{self._negociaDe}!FFFFFF!101!{self._loraCfg}!{self._myAddr:03}!{self._negociaAddrSlave:03}"
+                self._negociaMsg = f"!{self._negociaDe}!FFFFFF!101!{msgs.lora_synch_word_loop()}!{self._myAddr:03}!{self._negociaAddrSlave:03}"
                 logging.debug(f"CFG - Resposta CFG: {self._negociaMsg}")
                 logging.info(f"CFG - Responding to MAC: {self._negociaMac} Modelo: {self._negociaModelo}")
                 self.set_fase_negocia(STEP_NEG_CFG)
@@ -195,11 +194,11 @@ class LFLoraClass:
         if self._faseNegocia == STEP_NEG_CFG:
             logging.debug(f"CFG 1 - modelo: {self._negociaModelo} mac: {self._negociaMac} slaveAddr: {self._negociaAddrSlave:03}")
             logging.info(f"CFG - Receiving confirmation from MAC: {self._negociaMac} Modelo: {self._negociaModelo}")
-            if (len(msg)) != 35:
+            if (len(msg)) != 31:
+                return False
+            if msg[23] != '!':
                 return False
             if msg[27] != '!':
-                return False
-            if msg[31] != '!':
                 return False
             if para != "FFFFFF":
                 return False
@@ -207,10 +206,10 @@ class LFLoraClass:
                 return False
             if cmd != "101":
                 return False
-            loraCfg = msg[19:27]
-            masterAddr = msg[28:31]
-            slaveAddr = msg[32:35]
-            if loraCfg != f"{self._loraCfg}":
+            loraCfg = msg[19:23]
+            masterAddr = msg[24:27]
+            slaveAddr = msg[28:31]
+            if loraCfg != f"{msgs.lora_synch_word_loop()}":
                 return False
             if masterAddr != f"{self._myAddr:03}":
                 return False

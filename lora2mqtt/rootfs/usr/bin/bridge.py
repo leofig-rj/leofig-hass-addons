@@ -32,7 +32,7 @@ def main(broker, port, broker_user, broker_pass):
 
     padrao_synch_word = r"^0x[0-9A-Fa-f]{2}$"
     if re.match(padrao_synch_word, synch_word) is None:
-        logging.error(f"synch_word: {synch_word} incorrected format! Used {SYNC_WORD_LOOP_DEF}")
+        logging.error(f"synch_word: {synch_word}, incorrect format! Used {SYNC_WORD_LOOP_DEF}.")
         synch_word = SYNC_WORD_LOOP_DEF
 
     # Configurando conexão serial

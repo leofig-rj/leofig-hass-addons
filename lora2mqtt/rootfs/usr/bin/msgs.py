@@ -532,6 +532,9 @@ def lora_get_last_target_cmd():
     global loraLastTargetCmd
     return loraLastTargetCmd
 
+def lora_synch_word_loop():
+    return globals.g_synch_word
+
 def disp_get_ram_dev_addr_by_mac(mac):
     # Redireciono para a função em globals.g_devices
     return globals.g_devices.get_ram_dev_addr_by_mac(mac)
