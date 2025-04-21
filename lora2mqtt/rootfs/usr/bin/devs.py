@@ -188,8 +188,8 @@ class DeviceManager:
                                 f"{obj.chip} {device['model']} {obj.man} {obj}")
                     self.dev_rams.append(DeviceRAM(device['address'], name, slug, device['mac'], obj.ver, \
                                                 obj.chip, device['model'], obj.man, obj))
-                    return
-                logging.debug(f"Arquivo de definição do modelo {device['model']} não OK")
+                else:
+                    logging.debug(f"Arquivo de definição do modelo {device['model']} não OK")
         else:
             logging.debug("Nenhum dispositivo cadastrado.")
     
