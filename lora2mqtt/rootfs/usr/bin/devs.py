@@ -270,6 +270,8 @@ class DeviceManager:
                 # Crio com nova configuração no arquivo config.yaml
                 self.add_device(addr, ram_dev.slaveName, mac, model)
                 return
+            logging.debug(f"Arquivo de definição do modelo {model} não OK")
+            return
         # Defino o nome como mac
         name = mac
         # Defino o slug do nome
@@ -284,4 +286,4 @@ class DeviceManager:
             logging.info(f"DEVICE {index} {addr} {name} {slug} {mac} {obj.ver} {obj.chip} {model} {obj.man} {obj}")
             time.sleep(0.1)
             return
-        logging.debug(f"Arquivo de definição do modelo {device['model']} não OK")
+        logging.debug(f"Arquivo de definição do modelo {model} não OK")
