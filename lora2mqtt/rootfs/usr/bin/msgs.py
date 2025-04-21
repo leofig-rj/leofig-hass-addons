@@ -542,7 +542,7 @@ def lora_set_modo_op(modo_op):
     if modo_op == MODE_OP_PAIRING:
         cmdUsb = CMD_SET_SYNCH_WORD_PAIRING
     globals.g_serial.write(cmdUsb.encode('utf-8'))    # Enviando uma string (precisa ser em bytes)
-    logging.info("Enviado comando muda synch_word: {cmdUsb}")
+    logging.info(f"Enviado comando muda synch_word: {cmdUsb}")
     time.sleep(2)  # Aguarda 2 segundos
     globals.g_serial.write(cmdUsb.encode('utf-8'))    # Enviando uma string (precisa ser em bytes)
     globals.g_lf_lora.set_modo_op(modo_op)
