@@ -26,13 +26,13 @@ def main(broker, port, broker_user, broker_pass):
     serial_obj = options.get("serial", {"port": "/dev/ttyACM0"})
     logging.debug(f"serial_obj: {serial_obj}")
     synch_word = options.get("synch_word", SYNC_WORD_LOOP_DEF)
-    logging.info(f"synch_word: {synch_word}")
+    logging.debug(f"synch_word: {synch_word}")
     data_path = options.get("data_path", "/config/lora2mqtt")
     logging.debug(f"data_path: {data_path}")
 
     padrao_synch_word = r"^0x[0-9A-Fa-f]{2}$"
     if re.match(padrao_synch_word, synch_word) is None:
-        logging.error(f"synch_word: {synch_word} incorrected format")
+        logging.error(f"synch_word: {synch_word} incorrected format! Used {SYNC_WORD_LOOP_DEF}")
         synch_word = SYNC_WORD_LOOP_DEF
 
     # Configurando conexão serial
