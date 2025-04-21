@@ -9,7 +9,8 @@ import globals
 from consts import  MODE_OP_PAIRING, MODE_OP_LOOP, STEP_NEG_INIC, MSG_CHECK_OK
 
 # Para LoRa
-from consts import LORA_FIFO_LEN, LORA_NUM_ATTEMPTS_CMD, LORA_TIME_CMD, LORA_TIME_OUT, LORA_LOOP_TIME, LORA_PAIRING_TIME
+from consts import LORA_FIFO_LEN, LORA_NUM_ATTEMPTS_CMD, LORA_TIME_CMD, LORA_TIME_OUT, LORA_LOOP_TIME, \
+                    LORA_PAIRING_TIME, CMD_SET_SYNCH_WORD_LOOP, CMD_SET_SYNCH_WORD_PAIRING
 
 # Para MQTT
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_NONE, DEVICE_CLASS_SIGNAL_STRENGTH, \
@@ -206,10 +207,10 @@ def mqtt_bridge_proc_command(entity, pay):
         logging.info(f"Changing Operation Mode to: {pay}")
         if (pay.find("ON")!=-1):
             # ON
-            globals.g_lf_lora.set_modo_op(MODE_OP_PAIRING)
+            lora_set_modo_op(MODE_OP_PAIRING)
         else:
             # OFF
-            globals.g_lf_lora.set_modo_op(MODE_OP_LOOP)
+            lora_set_modo_op(MODE_OP_LOOP)
 
 def mqtt_bridge_refresh():
     """Refresco o dicovery de select."""
@@ -403,7 +404,7 @@ def loop_lora():
         # Vejo se o tempo de pareamento já passou
         timeLoop = funcs.get_delta_millis(loraPairingTime)
         if timeLoop > LORA_PAIRING_TIME:
-            globals.g_lf_lora.set_modo_op(MODE_OP_LOOP)
+            lora_set_modo_op(MODE_OP_LOOP)
 
         # Vejo se o tempo de loop já passou
         timeLoop = funcs.get_delta_millis(loraLoopTime)
@@ -535,6 +536,13 @@ def lora_get_last_target_cmd():
 
 def lora_synch_word_loop():
     return globals.g_synch_word
+
+def lora_set_modo_op(modo_op):
+    cmdUsb = CMD_SET_SYNCH_WORD_LOOP
+    if modo_op == MODE_OP_PAIRING:
+        cmdUsb = CMD_SET_SYNCH_WORD_PAIRING
+    globals.g_serial.write(cmdUsb.encode('utf-8'))    # Enviando uma string (precisa ser em bytes)
+    globals.g_lf_lora.set_modo_op(modo_op)
 
 def disp_get_ram_dev_addr_by_mac(mac):
     # Redireciono para a função em globals.g_devices

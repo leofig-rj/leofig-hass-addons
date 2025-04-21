@@ -206,10 +206,10 @@ class LFLoraClass:
                 return False
             if cmd != "101":
                 return False
-            loraCfg = msg[19:23]
+            synchWord = msg[19:23]
             masterAddr = msg[24:27]
             slaveAddr = msg[28:31]
-            if loraCfg != f"{msgs.lora_synch_word_loop()}":
+            if synchWord != f"{msgs.lora_synch_word_loop()}":
                 return False
             if masterAddr != f"{self._myAddr:03}":
                 return False
