@@ -15,7 +15,7 @@ import globals
 
 # Para MQTT
 from consts import ADDON_NAME, ADDON_SLUG, VERSION, UNIQUE, OWNER, HA_PREFIX, LWT_MSG, LWT_QOS, \
-    LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID, CMD_GET_USB_MODEL, SYNC_WORD_LOOP_DEF
+    LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID, CMD_GET_USB_MODEL, SYNC_WORD_LOOP_DEF, CMD_SET_SYNCH_WORD_LOOP
 
 ########### MAIN ############
 def main(broker, port, broker_user, broker_pass):
@@ -79,6 +79,12 @@ def main(broker, port, broker_user, broker_pass):
                     # Guardando o usb_id no cliente
                     client.usb_id = serial_data[1:]
                     logging.debug(f"Recebeu do adaptador: {client.usb_id}")
+
+            # Definindo a synch_word do loop no adaptador usb
+            cmdUsb = CMD_SET_SYNCH_WORD_LOOP
+            ser.write(cmdUsb.encode('utf-8'))    # Enviando uma string (precisa ser em bytes)
+            time.sleep(2)  # Aguarda 2 segundos
+            cmdUsb = CMD_SET_SYNCH_WORD_LOOP
 
             # Iniciando a comunicação MQTT
             client.mqtt_connection()
