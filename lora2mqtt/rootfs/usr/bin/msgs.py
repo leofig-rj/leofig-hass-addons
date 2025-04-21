@@ -538,9 +538,11 @@ def lora_synch_word_loop():
     return globals.g_synch_word
 
 def lora_set_modo_op(modo_op):
-    cmdUsb = CMD_SET_SYNCH_WORD_LOOP
-    if modo_op == MODE_OP_PAIRING:
-        cmdUsb = CMD_SET_SYNCH_WORD_PAIRING
+    cmdUsb = CMD_SET_SYNCH_WORD_PAIRING
+    if modo_op == MODE_OP_LOOP:
+        synch_word_int = int(lora_synch_word_loop(), 16)
+        cmdUsb = CMD_SET_SYNCH_WORD_LOOP + f"{synch_word_int:03}"
+
     globals.g_serial.write(cmdUsb.encode('utf-8'))    # Enviando uma string (precisa ser em bytes)
     logging.debug(f"Enviado comando muda synch_word: {cmdUsb}")
     time.sleep(2)  # Aguarda 2 segundos e envia novamente
