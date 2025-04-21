@@ -170,6 +170,11 @@ def mqtt_bridge_proc_command(entity, pay):
             return
 
         logging.debug(f"Processando comando para renomear_disp de Bridge {entity}: {pay}")
+        if globals.g_devices.find_ram_dev_by_name(mqttLastNameDisp):
+            logging.debug(f"Nome {mqttLastNameDisp}  já existe!")
+            mqtt_send_bridge_info(f"{mqttLastNameDisp} already exists")
+            return
+
         for i in range(len(ram_devs)):
             if ram_devs[i].slaveName == mqttLastBridgeSelect:
                 fromRen = mqttLastBridgeSelect
@@ -193,6 +198,7 @@ def mqtt_bridge_proc_command(entity, pay):
                     # Publicando entidades do dispositivo (modelo)
                     ram_devs[i].slaveObj.proc_publish(i, True)
                 mqtt_send_bridge_info(f"Renamed: {fromRen} to {toRen}")
+                return
 
 
     if entity == "modo_pareamento":
