@@ -170,7 +170,7 @@ def mqtt_bridge_proc_command(entity, pay):
             return
 
         logging.debug(f"Processando comando para renomear_disp de Bridge {entity}: {pay}")
-        if globals.g_devices.find_ram_dev_by_name(mqttLastNameDisp):
+        if globals.g_devices.find_ram_dev_by_name(mqttLastNameDisp) is not None:
             logging.debug(f"Nome {mqttLastNameDisp}  já existe!")
             mqtt_send_bridge_info(f"{mqttLastNameDisp} already exists")
             return
