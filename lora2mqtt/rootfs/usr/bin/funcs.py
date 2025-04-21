@@ -1,8 +1,6 @@
 import time
 import json
 
-import globals
-
 from consts import LORA_COM_NAME
 
 # Funções Auxiliares
@@ -74,12 +72,3 @@ def bool_to_on_off(b):
 
 def is_empty_str(string):
     return string == ""
-
-def get_index_from_addr(addr):
-    ram_devs = globals.g_devices.get_ram_devs()
-    if len(ram_devs)==0:
-        return None
-    for i in range(len(ram_devs)):
-        if ram_devs[i].slaveAddr == addr:
-            return i
-    return None

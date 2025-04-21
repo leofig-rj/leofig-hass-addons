@@ -188,6 +188,8 @@ class LFLoraClass:
                 logging.info(f"CFG - Responding to MAC: {self._negociaMac} Modelo: {self._negociaModelo}")
                 self.set_fase_negocia(STEP_NEG_CFG)
                 return True
+            logging.info(f"CFG - Model: {self._negociaModelo} not OK, check model config file!")
+            msgs.mqtt_send_bridge_info(f"Model not OK: {self._negociaModelo}")
             return False
   
         if self._faseNegocia == STEP_NEG_CFG:

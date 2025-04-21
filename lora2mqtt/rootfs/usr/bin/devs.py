@@ -8,15 +8,31 @@ import importlib
 import funcs
 import globals
 
-class Model:
-    def __init__(self, model_name="", model_obj=None):
-        self.model_name = model_name
-        self.model_obj = model_obj
+#class Model:
+#    def __init__(self, model_name="", model_obj=None):
+#        self.model_name = model_name
+#        self.model_obj = model_obj
 
-    def pega_obj(name):
+def pega_obj(name):
+    try:
+        # Importa dinamicamente o módulo correspondente em dispositivos (internos)
+        module_name = f"models.{funcs.slugify(name)}"
+        module = importlib.import_module(module_name)
+
+        # Obtém a classe com o nome esperado (DeviceXX)
+        class_name = f"Device{name}"
+        cls = getattr(module, class_name)
+
+        # Crio uma instância
+        obj = cls()
+
+        return obj
+
+    except ModuleNotFoundError:
+
         try:
-            # Importa dinamicamente o módulo correspondente em dispositivos (internos)
-            module_name = f"models.{funcs.slugify(name)}"
+            # Importa dinamicamente o módulo correspondente em dispositivos (do usuário)
+            module_name = f"models_import.{funcs.slugify(name)}"
             module = importlib.import_module(module_name)
 
             # Obtém a classe com o nome esperado (DeviceXX)
@@ -29,36 +45,20 @@ class Model:
             return obj
 
         except ModuleNotFoundError:
-
-            try:
-                # Importa dinamicamente o módulo correspondente em dispositivos (do usuário)
-                module_name = f"models_import.{funcs.slugify(name)}"
-                module = importlib.import_module(module_name)
-
-                # Obtém a classe com o nome esperado (DeviceXX)
-                class_name = f"Device{name}"
-                cls = getattr(module, class_name)
-
-                # Crio uma instância
-                obj = cls()
-
-                return obj
-
-            except ModuleNotFoundError:
-                logging.error(f"Erro: O módulo '{name}' não foi encontrado.")
-                return None
-            except AttributeError:
-                logging.error(f"Erro: A classe 'Dev{name}' não foi encontrada no módulo.")
-                return None
-            except Exception as e:
-                logging.error(f"Erro inesperado: {e}") 
-                return None
+            logging.error(f"Erro: O módulo '{name}' não foi encontrado.")
+            return None
         except AttributeError:
             logging.error(f"Erro: A classe 'Dev{name}' não foi encontrada no módulo.")
             return None
         except Exception as e:
             logging.error(f"Erro inesperado: {e}") 
             return None
+    except AttributeError:
+        logging.error(f"Erro: A classe 'Dev{name}' não foi encontrada no módulo.")
+        return None
+    except Exception as e:
+        logging.error(f"Erro inesperado: {e}") 
+        return None
 
 class DeviceRAM:
     def __init__(self, slaveAddr=0, slaveName="", slaveSlug="", slaveMac="", slaveVer="", slaveChip="", \
@@ -188,7 +188,8 @@ class DeviceManager:
                 # Vejo se o modelo existe no sistema
                 model_sis = self.get_model(device['model'])
                 if model_sis is not None:
-                    obj = model_sis.model_obj
+#                    obj = model_sis.model_obj
+                    obj = model_sis
                     logging.info(f"DEVICE {device['address']} {name} {slug} {device['mac']} {obj.ver} " \
                                 f"{obj.chip} {device['model']} {obj.man} {obj}")
                     self.dev_rams.append(DeviceRAM(device['address'], name, slug, device['mac'], obj.ver, \
@@ -260,12 +261,12 @@ class DeviceManager:
 
     def get_model(self, modelo):
         # Crio um obj modelo se possível
-        obj = Model.pega_obj(modelo)
-        if obj is not None:
-            model = Model(modelo, obj)
-            return model
+#        obj = Model.pega_obj(modelo)
+#        if obj is not None:
+#            model = Model(modelo, obj)
+#            return model
 
-        return None
+        return pega_obj(modelo)
 
     def save_ram_dev(self, addr, model, mac):
         index = self.find_ram_dev_by_mac(mac)
@@ -275,7 +276,8 @@ class DeviceManager:
             # Vejo se o modelo existe no sistema
             modelInst = self.get_model(model)
             if modelInst is not None:
-                obj = modelInst.model_obj
+#                obj = modelInst.model_obj
+                obj = modelInst
                 ram_dev.slaveAddr = addr
                 ram_dev.slaveModel = model
                 ram_dev.slaveObj = obj
@@ -291,7 +293,8 @@ class DeviceManager:
         # Vejo se o modelo existe no sistema
         modelInst = self.get_model(model)
         if modelInst is not None:
-            obj = modelInst.model_obj
+#            obj = modelInst.model_obj
+            obj = modelInst
             index = len(self.dev_rams)
             self.dev_rams.append(DeviceRAM(addr, name, slug, mac, obj.ver, obj.chip, model, obj.man, obj))
             # Crio no arquivo config.yaml
