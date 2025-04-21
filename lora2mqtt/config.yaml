@@ -38,6 +38,6 @@ schema:
     port: "str"
     baudrate: "int?"
     rtscts": "bool?"
-  synch_word: str?
   log_level: "list(DEBUG|INFO|WARNING|ERROR)?"
+  synch_word: str?
   data_path: "str?"

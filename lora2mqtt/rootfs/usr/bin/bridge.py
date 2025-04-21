@@ -31,7 +31,7 @@ def main(broker, port, broker_user, broker_pass):
     logging.debug(f"data_path: {data_path}")
 
     padrao_synch_word = r"^0x[0-9A-Fa-f]{2}$"
-    if re.match(padrao_synch_word, synch_word) is not None:
+    if re.match(padrao_synch_word, synch_word) is None:
         logging.error(f"synch_word: {synch_word} incorrected format")
         synch_word = SYNC_WORD_LOOP_DEF
 
@@ -49,11 +49,11 @@ def main(broker, port, broker_user, broker_pass):
     lf_lora.set_my_addr(1)
 
     # Inicializando variáveis globais
+    globals.g_data_path = data_path             # Torno o data_path global, tem que ser antes de g_devices...
     globals.g_devices = devs.DeviceManager()    # Crio a instância de dispositivos global
     globals.g_devices.load_devices_to_ram()     # Carrego os dispositivos cadastrados para a RAM
     globals.g_serial = ser                      # Torno o serial global
     globals.g_synch_word = synch_word           # Torno o synch_word global 
-    globals.g_data_path = data_path             # Torno o data_path global 
     globals.g_lf_lora = lf_lora                 # Torno o lf_lora global        
     globals.g_cli_mqtt  = LoRa2MQTTClient(broker, port, broker_user, broker_pass) # Criando o cliente MQTT global
  #   globals.g_cli_mqtt  = LoRa2MQTTClient("10.0.1.84", 1883, "mqtt_usr", "mqtt_psw") # Criando o cliente MQTT global
