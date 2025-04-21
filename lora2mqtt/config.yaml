@@ -41,6 +41,6 @@ schema:
     rtscts": "bool?"
   synch_word:
     type: str
-    regex: "^0x[0-9A-Fa-f]{2}$"  # Regex para um byte hexadecimal
+#    regex: "^0x[0-9A-Fa-f]{2}$"  # Regex para um byte hexadecimal
   log_level: "list(DEBUG|INFO|WARNING|ERROR)?"
   data_path: "str?"
