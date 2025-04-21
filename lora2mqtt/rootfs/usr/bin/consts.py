@@ -8,7 +8,7 @@ HA_PREFIX = "homeassistant"
 
 # Constantes para Configuração do LoRa
 SYNC_WORD_PAIRING = "0x11"
-SYNC_WORD_LOOP_DEF = "0x55"
+SYNC_WORD_LOOP_DEF = "0x12"
 
 # Constantes para Modos de Operação
 MODE_OP_LOOP = 0
