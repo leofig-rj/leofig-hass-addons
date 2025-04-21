@@ -14,13 +14,13 @@ from msgs import lora_fifo_try_to_send, mqtt_pub, mqtt_send_light_discovery, \
 
 from consts import EC_NONE
 
-class DeviceTEST01:
+class DeviceTEST03:
     def __init__(self):
-        self.model = "TEST01"
+        self.model = "TEST03"
         self.chip = "ESP32"
         self.ver = "1.0.0"
         self.man = "Leonardo Figueiro"
-        self.desc = "Teste de LF_LoRa 01"
+        self.desc = "Teste de LF_LoRa 03"
         self.entityNames = ["Lampada", "Entrada Discreta"]
         self.entityDomains = ["light", "binary_sensor"]
         self.entitySlugs = []
@@ -28,6 +28,12 @@ class DeviceTEST01:
         self.lampadaLastState = None
         self.lampadaBrig = None
         self.lampadaLastBrig = None
+        self.lampadaRed = None
+        self.lampadaLastRed = None
+        self.lampadaGreen = None
+        self.lampadaLastGreen = None
+        self.lampadaBlue = None
+        self.lampadaLastBlue = None
         self.entradaState = None
         self.entradaLastState = None
 
@@ -37,18 +43,20 @@ class DeviceTEST01:
     def proc_rec_msg(self, sMsg, index):
 
         # Mensagem recebida do dispositivo
-        # A mgs tem o padrão "#l#bbb#e"
-        # Onde l = estado da lâmpada, bbb = brilho, e = estado da entrada
-        if len(sMsg) != 8:
+        # A mgs tem o padrão "#l#BBB#rrr#ggg#bbb#e"
+        # Onde l = estado da lâmpada, BBB = brilho, rrr = vermelho, ggg = verde,
+        # bbb = azul, e = estado da entrada
+        if len(sMsg) != 20:
             logging.error(f"TEST01 - Erro no tamanho da mensagem! {len(sMsg)}")
             return
         
         partes = sMsg.split('#')
-        if len(partes) != 4:
+        if len(partes) != 7:
             logging.error("TEST01 - Erro ao dividir a mensagem!")
             return
         
-        if len(partes[1]) != 1 or len(partes[2]) != 3 or len(partes[3]) != 1:
+        if len(partes[1]) != 1 or len(partes[2]) != 3 or len(partes[3]) != 3 or \
+            len(partes[4]) != 3 or len(partes[5]) != 3 or len(partes[6]) != 1:
             logging.error("TEST01 - Erro no tamanho dos dados!")
             return
         
@@ -57,10 +65,18 @@ class DeviceTEST01:
         self.lampadaState = char_to_on_off(partes[1])
         # Estado do brilho é inteiro
         self.lampadaBrig = int(partes[2])
+        # Estado do vermelho é inteiro
+        self.lampadaRed = int(partes[3])
+        # Estado do verde é inteiro
+        self.lampadaGreen = int(partes[4])
+        # Estado do azul é inteiro
+        self.lampadaBlue = int(partes[5])
         # Estado da entrada no formato "ON" / "OFF"
-        self.entradaState = char_to_on_off(partes[3])
+        self.entradaState = char_to_on_off(partes[6])
         
-        logging.debug(f"TEST01 - Lâmpada: {self.lampadaState}-{self.lampadaBrig} Entrada Discreta: {self.entradaState}")
+        logging.debug(f"TEST01 - Lâmpada: {self.lampadaState}-{self.lampadaBrig}-" \
+            f"{self.lampadaRed}-{self.lampadaGreen}-{self.lampadaBlue}" \
+            f" Entrada Discreta: {self.entradaState}")
             
     def proc_command(self, entity, pay, index):
 
@@ -69,13 +85,17 @@ class DeviceTEST01:
         if entity == self.entitySlugs[0]:
             # Pegando o estado e o brilho da lâmpada
             state, brightness, r, g, b = pay2Light(pay)
-            logging.debug(f"TEST01 - state: {state} brightness: {brightness}")
+            logging.debug(f"TEST01 - state: {state} brightness: {brightness} red: {r} green: {g} blue: {b}")
             if state == "ON":
                 # ON -> Cmd 101
                 dispCmd = "101"
                 # se tiver brilho no comando do MQTT, acrescenta
                 if brightness is not None:
                     dispCmd = dispCmd + f"{brightness:03}"
+                # se tiver cor no comando do MQTT, acrescenta
+                else:
+                    if (r is not None) and (g is not None) and (b is not None):
+                        dispCmd = dispCmd + f"{r:03}{g:03}{b:03}"
                 # Enviando comando para dispositivo
                 lora_fifo_try_to_send(dispCmd, index)
             else:
@@ -95,14 +115,21 @@ class DeviceTEST01:
         # Publicando estados no MQTT
         # Só publica se houve alteração no valor ou se for forçado
         if (self.lampadaLastState != self.lampadaState) or \
-            (self.lampadaLastBrig != self.lampadaBrig ) or force:
+            (self.lampadaLastBrig != self.lampadaBrig ) or \
+            (self.lampadaLastRed != self.lampadaRed ) or \
+            (self.lampadaLastGreen != self.lampadaGreen ) or \
+            (self.lampadaLastBlue != self.lampadaBlue ) or force:
             self.lampadaLastState = self.lampadaState
             self.lampadaLastBrig = self.lampadaBrig
+            self.lampadaLastRed = self.lampadaRed
+            self.lampadaLastGreen = self.lampadaGreen
+            self.lampadaLastBlue = self.lampadaBlue
             # Criando a string no formato json
             val = None
             if self.lampadaState == "ON":
-                # Quando ligado o estado e o brilho são publicados
-                val = light2Pay(self.lampadaState, self.lampadaBrig)
+                # Quando ligado o estado e o brilho e a cor são publicados
+                val = light2Pay(self.lampadaState, self.lampadaBrig, \
+                        self.lampadaRed, self.lampadaGreen, self.lampadaBlue)
             else:
                 # Quando desligado somente o estado é publicado
                 val = light2Pay(self.lampadaState)
@@ -120,7 +147,7 @@ class DeviceTEST01:
     def proc_discovery(self, index):
 
         # Publicando descobrimento das entidades no MQTT
-        if mqtt_send_light_discovery(index, self.entityNames[0], EC_NONE, True, False) and \
+        if mqtt_send_light_discovery(index, self.entityNames[0], EC_NONE, True, True) and \
             mqtt_send_binary_sensor_discovery(index, self.entityNames[1], EC_NONE, EC_NONE):
             logging.debug(f"Discovery Device TEST01 OK Índex {index}")
             return True

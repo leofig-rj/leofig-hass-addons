@@ -2,6 +2,9 @@
 # O nome do arquivo dever ser o nome do dispositivo em minúsculas .py
 # O nome da classe deve ter o padrão "Device" + o nome do dispositivo,
 # em maiúsculas
+# A classe tem que ter as variáveis : self.model, self.chip, self.ver, self.man, 
+# self.desc, self.entityNames e self.entitySlugs
+# E as funções: proc_rec_msg, proc_command, proc_publish e proc_discovery
 
 import logging
 
