@@ -32,11 +32,15 @@ map:                     # Permite o uso das pastas
 options:
   serial:
     port: "/dev/ttyACM0"
+  synch_word: "0x12"             # Valor padrão (byte hexadecimal)
   log_level: "INFO"
 schema:
   serial:
     port: "str"
     baudrate: "int?"
     rtscts": "bool?"
+  synch_word:
+    type: str
+    regex: "^0x[0-9A-Fa-f]{2}$"  # Regex para um byte hexadecimal
   log_level: "list(DEBUG|INFO|WARNING|ERROR)?"
   data_path: "str?"
