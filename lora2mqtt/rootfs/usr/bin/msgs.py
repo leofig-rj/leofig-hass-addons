@@ -546,7 +546,7 @@ def disp_save_ram_dev(addr, model, mac):
     mqtt_bridge_refresh()
 
 def disp_check_model(model):
-    if globals.g_devices.get_model(model) is not None:
+    if globals.g_devices.get_model_obj(model) is not None:
         return True
     return False
 
