@@ -80,6 +80,8 @@ class LFLoraClass:
     def lora_check_msg_ini(self, input_str):
         out = ""
 
+        logging.info(f"Msg {input_str}")
+        
         if input_str[0] != '#':
             return MSG_CHECK_ERROR, 0, 0, 0, 0, out
 
