@@ -70,7 +70,6 @@ class LFLoraClass:
 
     def lora_add_header_id(self, input_str, para, msg_id):
         # Criação do buffer auxiliar com o cabeçalho
-#        aux = f"#{self._myAddr:02X}{para:02X}{msg_id:02X}{len(input_str) + 10:04X}"
         aux = f"#{self._netId:02X}{self._myAddr:02X}{para:02X}{msg_id:02X}{len(input_str) + 12:04X}"
         # Completa com a mensagem de entrada
         aux += input_str
@@ -80,8 +79,6 @@ class LFLoraClass:
     def lora_check_msg_ini(self, input_str):
         out = ""
 
-        logging.info(f"Msg {input_str}")
-        
         if input_str[0] != '#':
             return MSG_CHECK_ERROR, 0, 0, 0, 0, out
 
@@ -89,7 +86,6 @@ class LFLoraClass:
             try:
                 char = input_str[i+1:i+2]
                 if char not in "-0123456789ABCDEFabcdef":
-                    logging.info("ERRO HEXA")
                     return MSG_CHECK_ERROR, 0, 0, 0, 0, out
             except UnicodeDecodeError:
                 return MSG_CHECK_ERROR, 0, 0, 0, 0, out
@@ -102,12 +98,10 @@ class LFLoraClass:
         len_in_msg = int(input_str[13:17], 16)
 
         if net != self._netId:
-            logging.info("ERRO NET")
             return MSG_CHECK_ERROR, 0, 0, 0, 0, out
 
         # input_str tem cinco caracteres a mais (#rssi)
         if len_in_msg != len(input_str) - 5:
-            logging.info(f"ERRO LEN {len_in_msg} {len(input_str) - 5}")
             return MSG_CHECK_ERROR, 0, 0, 0, 0, out
 
         out = input_str[17:]
@@ -205,7 +199,7 @@ class LFLoraClass:
         if self._faseNegocia == STEP_NEG_CFG:
             logging.debug(f"CFG 1 - modelo: {self._negociaModelo} mac: {self._negociaMac} slaveAddr: {self._negociaAddrSlave:03}")
             logging.info(f"CFG - Receiving confirmation from MAC: {self._negociaMac} Modelo: {self._negociaModelo}")
-            if (len(msg)) != 31:
+            if (len(msg)) != 30:
                 return False
             if msg[22] != '!':
                 return False
