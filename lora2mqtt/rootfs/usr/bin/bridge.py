@@ -33,8 +33,11 @@ def main(broker, port, broker_user, broker_pass):
     data_path = options.get("data_path", "/config/lora2mqtt")
     logging.debug(f"data_path: {data_path}")
 
-    padrao_synch_word = r"^0x[0-9A-Fa-f]{2}$"
-    if re.match(padrao_synch_word, synch_word) is None:
+    hex_format = r"^0x[0-9A-Fa-f]{2}$"
+    if re.match(hex_format, net_id) is None:
+        logging.error(f"net_id: {net_id}, incorrect format! Used {NET_ID_DEF}.")
+        net_id = NET_ID_DEF
+    if re.match(hex_format, synch_word) is None:
         logging.error(f"synch_word: {synch_word}, incorrect format! Used {SYNC_WORD_DEF}.")
         synch_word = SYNC_WORD_DEF
 
@@ -47,18 +50,17 @@ def main(broker, port, broker_user, broker_pass):
         ser = None  # Define como None para evitar problemas futuros
         logging.error(f"Erro {e} na configuração serial...")
 
-    # Configurando net_id e endereço no LFLoraClass
-    lf_lora = lflora.LFLoraClass(net_id, 1)
-#    lf_lora.set_my_addr(1)
+    # LFLoraClass precisa de net_id inteiro
+    net_id_int = int(net_id, 16)
 
     # Inicializando variáveis globais
-    globals.g_data_path = data_path             # Torno o data_path global, tem que ser antes de g_devices...
-    globals.g_devices = devs.DeviceManager()    # Crio a instância de dispositivos global
-    globals.g_devices.load_devices_to_ram()     # Carrego os dispositivos cadastrados para a RAM
-    globals.g_serial = ser                      # Torno o serial global
-    globals.g_synch_word = synch_word           # Torno o synch_word global 
-    globals.g_lf_lora = lf_lora                 # Torno o lf_lora global        
-    globals.g_cli_mqtt  = LoRa2MQTTClient(broker, port, broker_user, broker_pass) # Criando o cliente MQTT global
+    globals.g_data_path = data_path             # Tornando o data_path global, tem que ser antes de g_devices...
+    globals.g_devices = devs.DeviceManager()    # Criando a instância de dispositivos global
+    globals.g_devices.load_devices_to_ram()     # Carregando os dispositivos cadastrados para a RAM
+    globals.g_serial = ser                      # Tornando o serial global
+    globals.g_synch_word = synch_word           # Tornando o synch_word global 
+    globals.g_lf_lora = lflora.LFLoraClass(net_id_int, 1)  # Criando instância LFLoraClass global, com net_id_int e endereço       
+    globals.g_cli_mqtt = LoRa2MQTTClient(broker, port, broker_user, broker_pass) # Criando o cliente MQTT global
             
     # Deixando o cliente vizível localmente
     client = globals.g_cli_mqtt                   
