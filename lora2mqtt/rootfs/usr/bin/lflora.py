@@ -87,6 +87,7 @@ class LFLoraClass:
             try:
                 char = input_str[i+1:i+2]
                 if char not in "-0123456789ABCDEFabcdef":
+                    logging.info("ERRO HEXA")
                     return MSG_CHECK_ERROR, 0, 0, 0, 0, out
             except UnicodeDecodeError:
                 return MSG_CHECK_ERROR, 0, 0, 0, 0, out
@@ -99,10 +100,12 @@ class LFLoraClass:
         len_in_msg = int(input_str[13:17], 16)
 
         if net != self._netId:
+            logging.info("ERRO NET")
             return MSG_CHECK_ERROR, 0, 0, 0, 0, out
 
         # input_str tem cinco caracteres a mais (#rssi)
         if len_in_msg != len(input_str) - 5:
+            logging.info(f"ERRO LEN {len_in_msg} {len(input_str) - 5}")
             return MSG_CHECK_ERROR, 0, 0, 0, 0, out
 
         out = input_str[17:]
@@ -202,9 +205,9 @@ class LFLoraClass:
             logging.info(f"CFG - Receiving confirmation from MAC: {self._negociaMac} Modelo: {self._negociaModelo}")
             if (len(msg)) != 31:
                 return False
-            if msg[23] != '!':
+            if msg[22] != '!':
                 return False
-            if msg[27] != '!':
+            if msg[26] != '!':
                 return False
             if para != "FFFFFF":
                 return False
@@ -212,10 +215,10 @@ class LFLoraClass:
                 return False
             if cmd != "101":
                 return False
-            synchWord = msg[19:23]
-            masterAddr = msg[24:27]
-            slaveAddr = msg[28:31]
-            if synchWord != f"{self._netId:03}":
+            netId = msg[19:22]
+            masterAddr = msg[23:26]
+            slaveAddr = msg[27:30]
+            if netId != f"{self._netId:03}":
                 return False
             if masterAddr != f"{self._myAddr:03}":
                 return False
