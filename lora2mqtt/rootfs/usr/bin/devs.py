@@ -94,15 +94,15 @@ class DeviceManager:
             os.makedirs(self.data_path)
 
         # Verificando se a pasta dos modelos do usuário existe, caso contrário, cria a pasta
-        usrs_models_path = f"{self.data_path}/models"
-        if not os.path.exists(usrs_models_path):
-            os.makedirs(usrs_models_path)
+        usr_models_path = f"{self.data_path}/models"
+        if not os.path.exists(usr_models_path):
+            os.makedirs(usr_models_path)
 
-        # Verificando se o arquivo de configuração existe, caso contrário, cria um arquivo vazio
+        # Verificando se o arquivo de configuração existe, caso contrário, cria um arquivo
         if not os.path.exists(self.config_file_path):
             try:
-                with open(self.config_file_path, "w") as arquivo_yaml:
-                    yaml.dump({"devices": []}, arquivo_yaml)
+                with open(self.config_file_path, "w") as file_yaml:
+                    yaml.dump({"devices": []}, file_yaml)
                 self.load_devices_to_ram
 
             except OSError as e:
@@ -117,24 +117,24 @@ class DeviceManager:
             os.makedirs(addon_models_path)
 
         # Copiaando os arquivos da pasta de omodelos do usr para a pasta de destino
-        for arquivo in os.listdir(usrs_models_path):
-            caminho_arquivo_origem = os.path.join(usrs_models_path, arquivo)
+        for usr_model_file in os.listdir(usr_models_path):
+            usr_model_file_path = os.path.join(usr_models_path, usr_model_file)
             
             # Verificando se é um arquivo antes de copiar (ignora pastas)
-            if os.path.isfile(caminho_arquivo_origem):
-                shutil.copy(caminho_arquivo_origem, addon_models_path)
-                logging.info(f"File {arquivo} copied to the AddOn")
+            if os.path.isfile(usr_model_file_path):
+                shutil.copy(usr_model_file_path, addon_models_path)
+                logging.info(f"File {usr_model_file} copied to the AddOn")
 
 
     def load_devices(self):
         """Carrega todos os dispositivos do arquivo config.yaml."""
-        with open(self.config_file_path, "r") as arquivo_yaml:
-            return yaml.safe_load(arquivo_yaml).get("devices", [])
+        with open(self.config_file_path, "r") as file_yaml:
+            return yaml.safe_load(file_yaml).get("devices", [])
 
     def save_devices(self, devices):
         """Salva os dispositivos no arquivo config.yaml."""
-        with open(self.config_file_path, "w") as arquivo_yaml:
-            yaml.dump({"devices": devices}, arquivo_yaml, default_flow_style=False)
+        with open(self.config_file_path, "w") as file_yaml:
+            yaml.dump({"devices": devices}, file_yaml, default_flow_style=False)
 
     def add_device(self, addr, name, mac, model):
         """Adiciona um novo dispositivo ao arquivo."""
