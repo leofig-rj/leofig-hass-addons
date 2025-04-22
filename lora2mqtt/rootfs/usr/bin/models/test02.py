@@ -46,17 +46,17 @@ class DeviceTEST02:
     def proc_rec_msg(self, sMsg, index):
         
         if len(sMsg) != 35:
-            logging.info(f"PW01 - Erro no tamanho da mensagem! {len(sMsg)}")
+            logging.info(f"TEST02 - Erro no tamanho da mensagem! {len(sMsg)}")
             return
         
         partes = sMsg.split('#')
         if len(partes) != 7:
-            logging.info("PW01 - Erro ao dividir a mensagem!")
+            logging.info("TEST02 - Erro ao dividir a mensagem!")
             return
         
         if len(partes[1]) != 4 or len(partes[2]) != 6 or len(partes[3]) != 6 or len(partes[4]) != 6 \
             or len(partes[5]) != 6 or len(partes[6]) != 1:
-            logging.info("PW01 - Erro no tamanho dos dados!")
+            logging.info("TEST02 - Erro no tamanho dos dados!")
             logging.info(f"P1 {partes[1]} P2 {partes[2]} P3 {partes[3]} P4 {partes[4]} P5 {partes[5]} P6 {partes[6]} ")
             return
         
@@ -69,7 +69,7 @@ class DeviceTEST02:
         self.entityValStr[0] = char_to_state(partes[6])
 
         logging.debug(
-            f"PW01 - Tensão: {self.entityValNum[0]} Potência: {self.entityValNum[1]} "
+            f"TEST02 - Tensão: {self.entityValNum[0]} Potência: {self.entityValNum[1]} "
             f"Corrente: {self.entityValNum[2]} Energia: {self.entityValNum[3]} "
             f"EnergiaRam: {self.entityValNum[4]} Interruptor: {self.entityValStr[0]}")
         
@@ -95,11 +95,11 @@ class DeviceTEST02:
             if (self.entityLastValNum[i] != self.entityValNum[i]) or force:
                 self.entityLastValNum[i] = self.entityValNum[i]
                 aAux = "{:.1f}".format(self.entityValNum[i]*self.entityValNumFator[i])
-                logging.debug(f"PW01 - entityValNum {i} {self.entitySlugs[i]} {aAux}")
+                logging.debug(f"TEST02 - entityValNum {i} {self.entitySlugs[i]} {aAux}")
                 mqtt_pub(index, self.entitySlugs[i], aAux)
         if (self.entityLastValStr[0] != self.entityValStr[0]) or force:
             self.entityLastValStr[0] = self.entityValStr[0]
-            logging.debug(f"PW01 - entityValStr 0 {self.entitySlugs[5]} {self.entityValStr[0]}")
+            logging.debug(f"TEST02 - entityValStr 0 {self.entitySlugs[5]} {self.entityValStr[0]}")
             mqtt_pub(index, self.entitySlugs[5], self.entityValStr[0])
 
     def proc_discovery(self, index):
@@ -111,8 +111,8 @@ class DeviceTEST02:
             mqtt_send_sensor_discovery(index, self.entityNames[4], EC_NONE, DEVICE_CLASS_FREQUENCY, "Hz", STATE_CLASS_TOTAL_INCREASING, True) and \
             mqtt_send_light_discovery(index, self.entityNames[5], EC_NONE) and \
             mqtt_send_button_discovery(index, self.entityNames[6], EC_NONE, DEVICE_CLASS_RESTART):
-            logging.debug(f"Discovery Entity PW01 OK Índex {index}")
+            logging.debug(f"Discovery Entity TEST02 OK Índex {index}")
             return True
         else:
-            logging.debug("Discovery Entity PW01 NOT OK")
+            logging.debug("Discovery Entity TEST02 NOT OK")
             return False

@@ -47,17 +47,17 @@ class DeviceTEST03:
         # Onde l = estado da lâmpada, BBB = brilho, rrr = vermelho, ggg = verde,
         # bbb = azul, e = estado da entrada
         if len(sMsg) != 20:
-            logging.error(f"TEST01 - Erro no tamanho da mensagem! {len(sMsg)}")
+            logging.error(f"TEST03 - Erro no tamanho da mensagem! {len(sMsg)}")
             return
         
         partes = sMsg.split('#')
         if len(partes) != 7:
-            logging.error("TEST01 - Erro ao dividir a mensagem!")
+            logging.error("TEST03 - Erro ao dividir a mensagem!")
             return
         
         if len(partes[1]) != 1 or len(partes[2]) != 3 or len(partes[3]) != 3 or \
             len(partes[4]) != 3 or len(partes[5]) != 3 or len(partes[6]) != 1:
-            logging.error("TEST01 - Erro no tamanho dos dados!")
+            logging.error("TEST03 - Erro no tamanho dos dados!")
             return
         
         # Presevando os dados tratados da Msg
@@ -74,7 +74,7 @@ class DeviceTEST03:
         # Estado da entrada no formato "ON" / "OFF"
         self.entradaState = char_to_on_off(partes[6])
         
-        logging.debug(f"TEST01 - Lâmpada: {self.lampadaState}-{self.lampadaBrig}-" \
+        logging.debug(f"TEST03 - Lâmpada: {self.lampadaState}-{self.lampadaBrig}-" \
             f"{self.lampadaRed}-{self.lampadaGreen}-{self.lampadaBlue}" \
             f" Entrada Discreta: {self.entradaState}")
             
@@ -85,7 +85,7 @@ class DeviceTEST03:
         if entity == self.entitySlugs[0]:
             # Pegando o estado e o brilho da lâmpada
             state, brightness, r, g, b = pay2Light(pay)
-            logging.debug(f"TEST01 - state: {state} brightness: {brightness} red: {r} green: {g} blue: {b}")
+            logging.debug(f"TEST03 - state: {state} brightness: {brightness} red: {r} green: {g} blue: {b}")
             if state == "ON":
                 # ON -> Cmd 101
                 dispCmd = "101"
@@ -135,22 +135,22 @@ class DeviceTEST03:
                 val = light2Pay(self.lampadaState)
             # Publicando o estado completo da lâmpada no MQTT (formato string json)
             mqtt_pub(index, self.entitySlugs[0], val)
-            logging.debug(f"TEST01 - entityVal {0} {self.entitySlugs[0]} {val}")
+            logging.debug(f"TEST03 - entityVal {0} {self.entitySlugs[0]} {val}")
 
         # Só publica se houve alteração no valor ou se for forçado
         if (self.entradaLastState != self.entradaState) or force:
             self.entradaLastState = self.entradaState
             # Publicando o estado da entrada no MQTT, já está no formato "ON" / "OFF"
             mqtt_pub(index, self.entitySlugs[1], self.entradaState)
-            logging.debug(f"TEST01 - entityVal {1} {self.entitySlugs[1]} {self.entradaState}")
+            logging.debug(f"TEST03 - entityVal {1} {self.entitySlugs[1]} {self.entradaState}")
 
     def proc_discovery(self, index):
 
         # Publicando descobrimento das entidades no MQTT
         if mqtt_send_light_discovery(index, self.entityNames[0], EC_NONE, True, True) and \
             mqtt_send_binary_sensor_discovery(index, self.entityNames[1], EC_NONE, EC_NONE):
-            logging.debug(f"Discovery Device TEST01 OK Índex {index}")
+            logging.debug(f"Discovery Device TEST03 OK Índex {index}")
             return True
         else:
-            logging.debug("Discovery Device TEST01 NOT OK")
+            logging.debug("Discovery Device TEST03 NOT OK")
             return False
