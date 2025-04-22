@@ -116,15 +116,6 @@ class DeviceManager:
         if not os.path.exists(addon_models_path):
             os.makedirs(addon_models_path)
 
-#        # Excluindo todos os arquivos da pasta de destino
-#        for arquivo in os.listdir(addon_models_path):
-#            caminho_arquivo_destino = os.path.join(addon_models_path, arquivo)
-#            
-#            # Verificando se é um arquivo antes de excluir (ignora pastas)
-#            if os.path.isfile(caminho_arquivo_destino):
-#                os.remove(caminho_arquivo_destino)
-#                logging.info(f"Arquivo {arquivo} excluído do AddOn")
-
         # Copiaando os arquivos da pasta de omodelos do usr para a pasta de destino
         for arquivo in os.listdir(usrs_models_path):
             caminho_arquivo_origem = os.path.join(usrs_models_path, arquivo)

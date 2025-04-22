@@ -84,7 +84,6 @@ def main(broker, port, broker_user, broker_pass):
             synch_word_int = int(synch_word, 16)
             cmdUsb = CMD_SET_SYNCH_WORD_LOOP + f"{synch_word_int:03}"
             ser.write(cmdUsb.encode('utf-8'))    # Enviando uma string (precisa ser em bytes)
-            time.sleep(2)  # Aguarda 2 segundos
 
             # Iniciando a comunicação MQTT
             client.mqtt_connection()
