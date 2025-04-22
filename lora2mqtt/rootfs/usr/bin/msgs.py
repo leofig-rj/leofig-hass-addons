@@ -547,7 +547,7 @@ def lora_set_modo_op(modo_op):
     logging.debug(f"Enviado comando muda synch_word: {cmdUsb}")
 #    time.sleep(2)  # Aguarda 2 segundos e envia novamente
 #    globals.g_serial.write(cmdUsb.encode('utf-8'))    # Enviando uma string (precisa ser em bytes)
-#    globals.g_lf_lora.set_modo_op(modo_op)
+    globals.g_lf_lora.set_modo_op(modo_op)
 
 def disp_get_ram_dev_addr_by_mac(mac):
     # Redireciono para a função em globals.g_devices
