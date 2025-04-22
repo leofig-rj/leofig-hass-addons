@@ -414,7 +414,7 @@ def loop_lora():
 
         # Solicito estado periodicamente...
         timeCmd = funcs.get_delta_millis(loraCommandTime)
-        if timeCmd > LORA_TIME_CMD * 2:
+        if timeCmd > LORA_TIME_CMD:
             if globals.g_lf_lora.fase_negocia() == STEP_NEG_INIC:
                 lora_send_msg_cfg()
         
@@ -545,8 +545,6 @@ def lora_set_modo_op(modo_op):
 
     globals.g_serial.write(cmdUsb.encode('utf-8'))    # Enviando uma string (precisa ser em bytes)
     logging.debug(f"Enviado comando muda synch_word: {cmdUsb}")
-#    time.sleep(2)  # Aguarda 2 segundos e envia novamente
-#    globals.g_serial.write(cmdUsb.encode('utf-8'))    # Enviando uma string (precisa ser em bytes)
     globals.g_lf_lora.set_modo_op(modo_op)
 
 def disp_get_ram_dev_addr_by_mac(mac):

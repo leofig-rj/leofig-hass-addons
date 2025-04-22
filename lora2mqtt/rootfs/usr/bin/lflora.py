@@ -3,7 +3,7 @@ import logging
 import msgs
 
 from consts import MODE_OP_PAIRING, MODE_OP_LOOP, STEP_NEG_INIC, STEP_NEG_CFG, CMD_NEGOCIA_INIC, \
-    MSG_CHECK_OK, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR, SYNC_WORD_LOOP_DEF
+    MSG_CHECK_OK, MSG_CHECK_NOT_ME, MSG_CHECK_ALREADY_REC, MSG_CHECK_ERROR
 
 class RegRec:
     def __init__(self, de=0, para=0, id=0):
