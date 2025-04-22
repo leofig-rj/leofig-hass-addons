@@ -8,7 +8,7 @@ HA_PREFIX = "homeassistant"
 
 # Constantes para Configuração do LoRa
 NET_ID_DEF = "0x00"
-SYNC_WORD_DEF = "0x11"
+SYNC_WORD_DEF = "0xE6"
 
 # Constantes para Modos de Operação
 MODE_OP_LOOP = 0
