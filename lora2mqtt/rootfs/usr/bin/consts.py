@@ -7,8 +7,8 @@ OWNER = "Leonardo Figueiró"
 HA_PREFIX = "homeassistant"
 
 # Constantes para Configuração do LoRa
-SYNC_WORD_PAIRING = "0x11"
-SYNC_WORD_LOOP_DEF = "0x11"
+NET_ID_DEF = "0x00"
+SYNC_WORD_DEF = "0x11"
 
 # Constantes para Modos de Operação
 MODE_OP_LOOP = 0
@@ -26,8 +26,7 @@ MSG_CHECK_NOT_ME = 2
 MSG_CHECK_ALREADY_REC = 3
 MSG_CHECK_ERROR = 4
 CMD_GET_USB_MODEL = "!000"
-CMD_SET_SYNCH_WORD_LOOP = "!001"
-CMD_SET_SYNCH_WORD_PAIRING = "!002"
+CMD_SET_SYNCH_WORD = "!001"
 CMD_NEGOCIA_INIC = "!000000!FFFFFF!100"
 
 # Constantes para mensagens

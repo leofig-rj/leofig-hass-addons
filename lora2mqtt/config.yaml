@@ -32,12 +32,14 @@ map:                     # Permite o uso das pastas
 options:
   serial:
     port: "/dev/ttyACM0"
+  net_id: "0x00"
   log_level: "INFO"
 schema:
   serial:
     port: "str"
     baudrate: "int?"
     rtscts": "bool?"
+  net_id: str
   log_level: "list(DEBUG|INFO|WARNING|ERROR)?"
   synch_word: str?
   data_path: "str?"

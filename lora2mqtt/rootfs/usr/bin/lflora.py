@@ -13,8 +13,9 @@ class RegRec:
 
 class LFLoraClass:
 
-    def __init__(self):
-        self._myAddr = 0
+    def __init__(self, net_id, addr):
+        self._netId = net_id
+        self._myAddr = addr
         self._lastSendId = 255
         self._regRecs = []
         self._lastRegRec = RegRec()
@@ -28,11 +29,11 @@ class LFLoraClass:
         self._negociaAddrSlave = ""
         self._slaveAddr = 3
 
-    def set_my_addr(self, addr):
-        self._myAddr = addr
+#    def set_my_addr(self, addr):
+#        self._myAddr = addr
 
-    def my_addr(self):
-        return self._myAddr
+#    def my_addr(self):
+#        return self._myAddr
 
     def set_modo_op(self, modo):
         self._modoOp = modo

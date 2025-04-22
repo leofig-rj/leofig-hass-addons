@@ -10,7 +10,7 @@ from consts import  MODE_OP_PAIRING, MODE_OP_LOOP, STEP_NEG_INIC, MSG_CHECK_OK
 
 # Para LoRa
 from consts import LORA_FIFO_LEN, LORA_NUM_ATTEMPTS_CMD, LORA_TIME_CMD, LORA_TIME_OUT, LORA_LOOP_TIME, \
-                    LORA_PAIRING_TIME, CMD_SET_SYNCH_WORD_LOOP, CMD_SET_SYNCH_WORD_PAIRING
+                    LORA_PAIRING_TIME, CMD_SET_SYNCH_WORD, CMD_SET_SYNCH_WORD_PAIRING
 
 # Para MQTT
 from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_NONE, DEVICE_CLASS_SIGNAL_STRENGTH, \
@@ -538,13 +538,6 @@ def lora_synch_word_loop():
     return globals.g_synch_word
 
 def lora_set_modo_op(modo_op):
-    cmdUsb = CMD_SET_SYNCH_WORD_PAIRING
-    if modo_op == MODE_OP_LOOP:
-        synch_word_int = int(lora_synch_word_loop(), 16)
-        cmdUsb = CMD_SET_SYNCH_WORD_LOOP + f"{synch_word_int:03}"
-
-    globals.g_serial.write(cmdUsb.encode('utf-8'))    # Enviando uma string (precisa ser em bytes)
-    logging.debug(f"Enviado comando muda synch_word: {cmdUsb}")
     globals.g_lf_lora.set_modo_op(modo_op)
 
 def disp_get_ram_dev_addr_by_mac(mac):

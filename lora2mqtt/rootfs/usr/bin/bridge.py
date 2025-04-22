@@ -15,7 +15,8 @@ import globals
 
 # Para MQTT
 from consts import ADDON_NAME, ADDON_SLUG, VERSION, UNIQUE, OWNER, HA_PREFIX, LWT_MSG, LWT_QOS, \
-    LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID, CMD_GET_USB_MODEL, SYNC_WORD_LOOP_DEF, CMD_SET_SYNCH_WORD_LOOP
+    LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID, CMD_GET_USB_MODEL, NET_ID_DEF, SYNC_WORD_DEF, \
+    CMD_SET_SYNCH_WORD
 
 ########### MAIN ############
 def main(broker, port, broker_user, broker_pass):
@@ -25,15 +26,17 @@ def main(broker, port, broker_user, broker_pass):
 
     serial_obj = options.get("serial", {"port": "/dev/ttyACM0"})
     logging.debug(f"serial_obj: {serial_obj}")
-    synch_word = options.get("synch_word", SYNC_WORD_LOOP_DEF)
+    net_id = options.get("net_id", NET_ID_DEF)
+    logging.info(f"net_id: {net_id}")
+    synch_word = options.get("synch_word", SYNC_WORD_DEF)
     logging.debug(f"synch_word: {synch_word}")
     data_path = options.get("data_path", "/config/lora2mqtt")
     logging.debug(f"data_path: {data_path}")
 
     padrao_synch_word = r"^0x[0-9A-Fa-f]{2}$"
     if re.match(padrao_synch_word, synch_word) is None:
-        logging.error(f"synch_word: {synch_word}, incorrect format! Used {SYNC_WORD_LOOP_DEF}.")
-        synch_word = SYNC_WORD_LOOP_DEF
+        logging.error(f"synch_word: {synch_word}, incorrect format! Used {SYNC_WORD_DEF}.")
+        synch_word = SYNC_WORD_DEF
 
     # Configurando conexão serial
     try:
@@ -44,19 +47,19 @@ def main(broker, port, broker_user, broker_pass):
         ser = None  # Define como None para evitar problemas futuros
         logging.error(f"Erro {e} na configuração serial...")
 
-    # Configurando meu endereço no LFLoraClass
-    lf_lora = lflora.LFLoraClass()
-    lf_lora.set_my_addr(1)
+    # Configurando net_id e endereço no LFLoraClass
+    lf_lora = lflora.LFLoraClass(net_id, 1)
+#    lf_lora.set_my_addr(1)
 
     # Inicializando variáveis globais
     globals.g_data_path = data_path             # Torno o data_path global, tem que ser antes de g_devices...
     globals.g_devices = devs.DeviceManager()    # Crio a instância de dispositivos global
     globals.g_devices.load_devices_to_ram()     # Carrego os dispositivos cadastrados para a RAM
     globals.g_serial = ser                      # Torno o serial global
+    globals.g_net_id = net_id                   # Torno o net_id global 
     globals.g_synch_word = synch_word           # Torno o synch_word global 
     globals.g_lf_lora = lf_lora                 # Torno o lf_lora global        
     globals.g_cli_mqtt  = LoRa2MQTTClient(broker, port, broker_user, broker_pass) # Criando o cliente MQTT global
- #   globals.g_cli_mqtt  = LoRa2MQTTClient("10.0.1.84", 1883, "mqtt_usr", "mqtt_psw") # Criando o cliente MQTT global
             
     # Deixando o cliente vizível localmente
     client = globals.g_cli_mqtt                   
@@ -82,7 +85,7 @@ def main(broker, port, broker_user, broker_pass):
 
             # Definindo a synch_word do loop no adaptador usb
             synch_word_int = int(synch_word, 16)
-            cmdUsb = CMD_SET_SYNCH_WORD_LOOP + f"{synch_word_int:03}"
+            cmdUsb = CMD_SET_SYNCH_WORD + f"{synch_word_int:03}"
             ser.write(cmdUsb.encode('utf-8'))    # Enviando uma string (precisa ser em bytes)
 
             # Iniciando a comunicação MQTT
