@@ -89,7 +89,16 @@ class DeviceManager:
         self.data_path = globals.g_data_path
         self.config_file_path = f"{self.data_path}/config.yaml"
 
-        # Verificando se o arquivo existe, caso contrário, cria um arquivo vazio
+        # Verificando se a pasta raiz do addon existe, caso contrário, cria a pasta
+        if not os.path.exists(self.data_path):
+            os.makedirs(self.data_path)
+
+        # Verificando se a pasta dos modelos do usuário existe, caso contrário, cria a pasta
+        usrs_models_path = f"{self.data_path}/models"
+        if not os.path.exists(usrs_models_path):
+            os.makedirs(usrs_models_path)
+
+        # Verificando se o arquivo de configuração existe, caso contrário, cria um arquivo vazio
         if not os.path.exists(self.config_file_path):
             try:
                 with open(self.config_file_path, "w") as arquivo_yaml:
@@ -100,32 +109,29 @@ class DeviceManager:
                 logging.error(f"Erro ao criar o arquivo: {e}")
                 logging.error("Certifique-se de que o diretório possui permissões de gravação.")
 
-        # Copiando os arquivos de modelos do usuário. Definindo o caminho da pasta de origem
-        pasta_origem = f"{self.data_path}/models"
-
-        # Definindo o caminho da pasta de destino
-        pasta_destino = "/usr/bin/models_import"
+        # Copiando os arquivos de modelos do usuário. Definindo o caminho da pasta de destino
+        addon_models_path = "/usr/bin/models_import"
 
         # Certificando-se de que a pasta de destino existe, caso contrário, criar
-        if not os.path.exists(pasta_destino):
-            os.makedirs(pasta_destino)
+        if not os.path.exists(addon_models_path):
+            os.makedirs(addon_models_path)
 
 #        # Excluindo todos os arquivos da pasta de destino
-#        for arquivo in os.listdir(pasta_destino):
-#            caminho_arquivo_destino = os.path.join(pasta_destino, arquivo)
+#        for arquivo in os.listdir(addon_models_path):
+#            caminho_arquivo_destino = os.path.join(addon_models_path, arquivo)
 #            
 #            # Verificando se é um arquivo antes de excluir (ignora pastas)
 #            if os.path.isfile(caminho_arquivo_destino):
 #                os.remove(caminho_arquivo_destino)
 #                logging.info(f"Arquivo {arquivo} excluído do AddOn")
 
-        # Copiaando os arquivos da pasta de origem para a pasta de destino
-        for arquivo in os.listdir(pasta_origem):
-            caminho_arquivo_origem = os.path.join(pasta_origem, arquivo)
+        # Copiaando os arquivos da pasta de omodelos do usr para a pasta de destino
+        for arquivo in os.listdir(usrs_models_path):
+            caminho_arquivo_origem = os.path.join(usrs_models_path, arquivo)
             
             # Verificando se é um arquivo antes de copiar (ignora pastas)
             if os.path.isfile(caminho_arquivo_origem):
-                shutil.copy(caminho_arquivo_origem, pasta_destino)
+                shutil.copy(caminho_arquivo_origem, addon_models_path)
                 logging.info(f"File {arquivo} copied to the AddOn")
 
 
