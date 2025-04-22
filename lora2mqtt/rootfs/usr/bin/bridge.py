@@ -58,7 +58,6 @@ def main(broker, port, broker_user, broker_pass):
     globals.g_devices = devs.DeviceManager()    # Criando a instância de dispositivos global
     globals.g_devices.load_devices_to_ram()     # Carregando os dispositivos cadastrados para a RAM
     globals.g_serial = ser                      # Tornando o serial global
-    globals.g_synch_word = synch_word           # Tornando o synch_word global 
     globals.g_lf_lora = lflora.LFLoraClass(net_id_int, 1)  # Criando instância LFLoraClass global, com net_id_int e endereço       
     globals.g_cli_mqtt = LoRa2MQTTClient(broker, port, broker_user, broker_pass) # Criando o cliente MQTT global
             

@@ -534,9 +534,6 @@ def lora_get_last_target_cmd():
     global loraLastTargetCmd
     return loraLastTargetCmd
 
-def lora_synch_word_loop():
-    return globals.g_synch_word
-
 def lora_set_modo_op(modo_op):
     globals.g_lf_lora.set_modo_op(modo_op)
 

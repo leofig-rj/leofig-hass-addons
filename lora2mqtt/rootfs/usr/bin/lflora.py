@@ -70,7 +70,8 @@ class LFLoraClass:
 
     def lora_add_header_id(self, input_str, para, msg_id):
         # Criação do buffer auxiliar com o cabeçalho
-        aux = f"#{self._myAddr:02X}{para:02X}{msg_id:02X}{len(input_str) + 10:04X}"
+#        aux = f"#{self._myAddr:02X}{para:02X}{msg_id:02X}{len(input_str) + 10:04X}"
+        aux = f"#{self._netId:02X}{self._myAddr:02X}{para:02X}{msg_id:02X}{len(input_str) + 12:04X}"
         # Completa com a mensagem de entrada
         aux += input_str
         # Retorna a mensagem com o cabeçalho
@@ -82,7 +83,7 @@ class LFLoraClass:
         if input_str[0] != '#':
             return MSG_CHECK_ERROR, 0, 0, 0, 0, out
 
-        for i in range(14):
+        for i in range(16):
             try:
                 char = input_str[i+1:i+2]
                 if char not in "-0123456789ABCDEFabcdef":
@@ -91,16 +92,20 @@ class LFLoraClass:
                 return MSG_CHECK_ERROR, 0, 0, 0, 0, out
 
         rssi = int(input_str[1:5], 10)
-        de = int(input_str[5:7], 16)
-        para = int(input_str[7:9], 16)
-        id = int(input_str[9:11], 16)
-        len_in_msg = int(input_str[11:15], 16)
+        net = int(input_str[5:7], 16)
+        de = int(input_str[7:9], 16)
+        para = int(input_str[9:11], 16)
+        id = int(input_str[11:13], 16)
+        len_in_msg = int(input_str[13:17], 16)
+
+        if net != self._netId:
+            return MSG_CHECK_ERROR, 0, 0, 0, 0, out
 
         # input_str tem cinco caracteres a mais (#rssi)
         if len_in_msg != len(input_str) - 5:
             return MSG_CHECK_ERROR, 0, 0, 0, 0, out
 
-        out = input_str[15:]
+        out = input_str[17:]
 
         self._lastRegRec = RegRec(de, para, id)
 
@@ -183,7 +188,7 @@ class LFLoraClass:
             # Verificando se modelo existe no sistema
             if msgs.disp_check_model(self._negociaModelo):
                 self._negociaAddrSlave = msgs.disp_get_ram_dev_addr_by_mac(self._negociaMac)
-                self._negociaMsg = f"!{self._negociaDe}!FFFFFF!101!{msgs.lora_synch_word_loop()}!{self._myAddr:03}!{self._negociaAddrSlave:03}"
+                self._negociaMsg = f"!{self._negociaDe}!FFFFFF!101!{self._netId:03}!{self._myAddr:03}!{self._negociaAddrSlave:03}"
                 logging.debug(f"CFG - Resposta CFG: {self._negociaMsg}")
                 logging.info(f"CFG - Responding to MAC: {self._negociaMac} Modelo: {self._negociaModelo}")
                 self.set_fase_negocia(STEP_NEG_CFG)
@@ -210,7 +215,7 @@ class LFLoraClass:
             synchWord = msg[19:23]
             masterAddr = msg[24:27]
             slaveAddr = msg[28:31]
-            if synchWord != f"{msgs.lora_synch_word_loop()}":
+            if synchWord != f"{self._netId:03}":
                 return False
             if masterAddr != f"{self._myAddr:03}":
                 return False
