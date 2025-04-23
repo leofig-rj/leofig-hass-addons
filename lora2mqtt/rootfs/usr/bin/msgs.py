@@ -19,6 +19,7 @@ from consts import EC_NONE, EC_DIAGNOSTIC, DEVICE_CLASS_NONE, DEVICE_CLASS_SIGNA
 # Variáveis globais
 online = False
 
+loraReturnTime = 0
 loraCommandTime = 0
 loraLoopTime = 0
 loraPairingTime = 0
@@ -467,9 +468,10 @@ def lora_send_msg_index(sMsg, index):
 
 
 def lora_send_msg(sMsg, para):
-    global loraCommandTime, attemptsCmd, lastIdSent, lastMsgSent
+    global loraCommandTime, attemptsCmd, lastIdSent, lastMsgSent, loraReturnTime
     
     loraCommandTime = funcs.millis()
+    loraReturnTime = funcs.millis()
     attemptsCmd = 0
     
     # Envio comando de solicitação de estado
@@ -481,9 +483,10 @@ def lora_send_msg(sMsg, para):
     lastMsgSent = serial_data
 
 def lora_resend_msg():
-    global loraCommandTime, attemptsCmd
+    global loraCommandTime, attemptsCmd, loraReturnTime
     
     loraCommandTime = funcs.millis()
+    loraReturnTime = funcs.millis()
     attemptsCmd += 1
 
     # Reenvio último comando
@@ -502,9 +505,11 @@ def lora_send_msg_cfg():
     logging.debug(f"CFG - Enviando: {serial_data}")
 
 def lora_last_cmd_returned():
-    global lastIdRec, lastIdSent, loraCommandTime, attemptsCmd
+    global lastIdRec, lastIdSent, loraCommandTime, attemptsCmd, loraReturnTime
     
     if lastIdRec == lastIdSent:
+        returnTime = funcs.get_delta_millis(loraReturnTime)
+        logging.info(f"Temo de retorno: {returnTime}")
         return True
     
     if funcs.get_delta_millis(loraCommandTime) > LORA_TIME_CMD:
