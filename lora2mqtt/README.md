@@ -9,8 +9,7 @@ Integrate LoRa devices using Arduino library [LF_Lora][github_LF_LoRa] to Home A
 
 ## Configuration
 
-1. Click install.
-2. Read the [DOCS][docs_link].
+1. Read the [DOCS][docs_link].
 
 ## Release History
 
