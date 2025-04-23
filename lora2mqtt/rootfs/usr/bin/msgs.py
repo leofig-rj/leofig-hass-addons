@@ -426,8 +426,8 @@ def on_lora_message(sMsg, rssi, index):
     
     if lastIdRec == lastIdSent:
         returnTime = funcs.get_delta_millis(loraReturnTime)
-        logging.info(f"Temo de retorno: {returnTime}")
-        
+        logging.debug(f"Tempo de retorno: {returnTime}")
+
     try:
         # Pego o Dispositivo na RAM
         ram_dev = globals.g_devices.get_ram_devs()[index]
