@@ -18,20 +18,30 @@ https://github.com/home-assistant/hassio-addons/tree/master/mosquitto
 **Note**: _Remember to restart the add-on when the configuration is changed._
 
 serial:
-    port:   is serial port where the LoRa USB Adapter is connected.
+    port:   This is the serial port where the LoRa USB Adapter is connected.
 
-data_path:  is the path to the config.yaml used to save LoRa2MQTT data.
-            use default.
+net_id:     This is the ID used to identify devices in the LoRa2MQTT network.
+            Change this if there is another LoRa2MQTT running nearby.
+            Range from 0x00 to 0xFF.
+
+synch_word: This is the synch_word used in LoRa library for Arduino.
+            Use default.
+
+data_path:  This is the path to the config.yaml used to save LoRa2MQTT data.
+            Use default.
 
 Example add-on configuration:
 
 ```yaml
 serial:
     port: /dev/ttyACM0 
+net_id: "0x00"
 loglevel: INFO
 ```
 
 ### Option: `serial`
+
+### Option: `net_id`
 
 ### Option: `loglevel`
 
@@ -40,5 +50,6 @@ loglevel: INFO
 - `WARNING`: Little alerts.
 - `ERROR`:  Only errors.
 
-### Option: `data_path`
+### Option: `synch_word`
 
+### Option: `data_path`

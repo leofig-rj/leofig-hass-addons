@@ -1,16 +1,16 @@
 # LoRa2MQTT
-> Integrating your LoRa devices with Home Assistant over MQTT.
+> Integrate LoRa devices with Home Assistant via MQTT.
 
 ![Project Stage][project-stage-shield]![Maintenance][maintenance-shield]
 
-Enables adding your LoRa devices to Home Assistant over MQTT
+Integrate LoRa devices using Arduino library [LF_Lora][github_LF_LoRa] to Home Assistant via MQTT.
 
 <img src="https://raw.githubusercontent.com/leofig-rj/leofig-hass-addons/main/lora2mqtt/pictures/LoRa2MQTT logo.png"/>
 
 ## Configuration
 
 1. Click install.
-2. Read the [DOCS](https://github.com/leofig-rj/leofig-hass-addons/blob/master/lora2mqtt/DOCS.md).
+2. Read the [DOCS][docs_link].
 
 ## Release History
 
@@ -24,7 +24,8 @@ Leonardo Figueiro - [leofig-rj][github_leofig-rj] - leoagfig@gmail.com
 Distributed under the Apache-2.0 License. See ``LICENSE`` for more information.
 
 <!-- Markdown link -->
-[wiki]: https://github.com/leofig-rj/leofig-hass-addons
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-development%20beta-red.svg
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2025.svg
-[github_leofig-rj]: https://github.com/leofig-rj/
+[github_LF_LoRa]: https://github.com/leofig-rj/Arduino-LF_LoRa
+[docs_link]: https://github.com/leofig-rj/leofig-hass-addons/blob/master/lora2mqtt/DOCS.md
+[github_leofig-rj]: https://github.com/leofig-rj
