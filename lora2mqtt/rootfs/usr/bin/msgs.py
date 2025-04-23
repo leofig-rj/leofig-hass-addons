@@ -384,9 +384,7 @@ def loop_lora():
         # Verifico se a última mensagem retornou...
         if not lora_last_cmd_returned():
             return
-        returnTime = funcs.get_delta_millis(loraReturnTime)
-        logging.info(f"Temo de retorno: {returnTime}")
-
+        
         # Verifico se tem comando no FiFo para enviar...
         lora_fifo_check()
 
@@ -426,6 +424,10 @@ def on_lora_message(sMsg, rssi, index):
 #    global loraFiFoFirst, loraFiFoLast
     logging.debug(f"LoRa - Tamanho da MSG: {len(sMsg)} Índice {index}")
     
+    if lastIdRec == lastIdSent:
+        returnTime = funcs.get_delta_millis(loraReturnTime)
+        logging.info(f"Temo de retorno: {returnTime}")
+        
     try:
         # Pego o Dispositivo na RAM
         ram_dev = globals.g_devices.get_ram_devs()[index]
