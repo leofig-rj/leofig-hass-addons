@@ -384,6 +384,8 @@ def loop_lora():
         # Verifico se a última mensagem retornou...
         if not lora_last_cmd_returned():
             return
+        returnTime = funcs.get_delta_millis(loraReturnTime)
+        logging.info(f"Temo de retorno: {returnTime}")
 
         # Verifico se tem comando no FiFo para enviar...
         lora_fifo_check()
@@ -508,8 +510,6 @@ def lora_last_cmd_returned():
     global lastIdRec, lastIdSent, loraCommandTime, attemptsCmd, loraReturnTime
     
     if lastIdRec == lastIdSent:
-        returnTime = funcs.get_delta_millis(loraReturnTime)
-        logging.info(f"Temo de retorno: {returnTime}")
         return True
     
     if funcs.get_delta_millis(loraCommandTime) > LORA_TIME_CMD:
