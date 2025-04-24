@@ -40,12 +40,19 @@ Example add-on configuration:
 serial:
     port: /dev/ttyUSB0 
 net_id: "0x00"
+frequency: "915E6"
 loglevel: INFO
 ```
 
 ### Option: `serial`
 
 ### Option: `net_id`
+
+### Option: `frequency`
+
+- `433E6`: Asia.
+- `868E6`: Europe.
+- `915E6`: North America & Brazil.
 
 ### Option: `loglevel`
 
