@@ -16,7 +16,7 @@ import globals
 # Para MQTT
 from consts import ADDON_NAME, ADDON_SLUG, VERSION, UNIQUE, OWNER, HA_PREFIX, LWT_MSG, LWT_QOS, \
     LWT_REATAIN, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID, CMD_GET_USB_MODEL, NET_ID_DEF, SYNC_WORD_DEF, \
-    CMD_SET_SYNCH_WORD
+    FREQUENCY_DEF, CMD_SET_SYNCH_WORD
 
 ########### MAIN ############
 def main(broker, port, broker_user, broker_pass):
@@ -28,6 +28,8 @@ def main(broker, port, broker_user, broker_pass):
     logging.debug(f"serial_obj: {serial_obj}")
     net_id = options.get("net_id", NET_ID_DEF)
     logging.info(f"net_id: {net_id}")
+    frequency = options.get("frequency", FREQUENCY_DEF)
+    logging.info(f"frequency: {frequency}")
     synch_word = options.get("synch_word", SYNC_WORD_DEF)
     logging.debug(f"synch_word: {synch_word}")
     data_path = options.get("data_path", "/config/lora2mqtt")
@@ -83,9 +85,9 @@ def main(broker, port, broker_user, broker_pass):
                     client.usb_id = serial_data[1:]
                     logging.debug(f"Recebeu do adaptador: {client.usb_id}")
 
-            # Definindo a synch_word do loop no adaptador usb
+            # Definindo a synch_word e a frequência no adaptador usb
             synch_word_int = int(synch_word, 16)
-            cmdUsb = CMD_SET_SYNCH_WORD + f"{synch_word_int:03}"
+            cmdUsb = CMD_SET_SYNCH_WORD + f"{synch_word_int:03}{frequency}"
             ser.write(cmdUsb.encode('utf-8'))    # Enviando uma string (precisa ser em bytes)
 
             # Iniciando a comunicação MQTT

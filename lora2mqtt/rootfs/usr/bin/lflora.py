@@ -29,12 +29,6 @@ class LFLoraClass:
         self._negociaAddrSlave = ""
         self._slaveAddr = 3
 
-#    def set_my_addr(self, addr):
-#        self._myAddr = addr
-
-#    def my_addr(self):
-#        return self._myAddr
-
     def set_modo_op(self, modo):
         self._modoOp = modo
 

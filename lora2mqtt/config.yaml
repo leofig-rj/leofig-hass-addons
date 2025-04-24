@@ -33,6 +33,7 @@ options:
   serial:
     port: "/dev/ttyACM0"
   net_id: "0x00"
+  frequency: "915E6"
   log_level: "INFO"
 schema:
   serial:
@@ -40,6 +41,7 @@ schema:
     baudrate: "int?"
     rtscts": "bool?"
   net_id: str
+  frequency: "list(433E6|868E6|915E6)?"
   log_level: "list(DEBUG|INFO|WARNING|ERROR)?"
   synch_word: str?
   data_path: "str?"
