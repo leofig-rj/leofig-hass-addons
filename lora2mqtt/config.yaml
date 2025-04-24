@@ -31,7 +31,7 @@ map:                     # Permite o uso das pastas
     path: /addon_config
 options:
   serial:
-    port: "/dev/ttyACM0"
+    port: "/dev/ttyUSB0"
   net_id: "0x00"
   frequency: "915E6"
   log_level: "INFO"

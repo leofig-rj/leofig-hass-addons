@@ -38,7 +38,7 @@ Example add-on configuration:
 
 ```yaml
 serial:
-    port: /dev/ttyACM0 
+    port: /dev/ttyUSB0 
 net_id: "0x00"
 loglevel: INFO
 ```
