@@ -2,6 +2,10 @@
 
 Integrating your LoRa devices with Home Assistant over MQTT
 
+![Project Stage][project-stage-shield]![Maintenance][maintenance-shield]
+
+<img src="https://raw.githubusercontent.com/leofig-rj/leofig-hass-addons/main/lora2mqtt/pictures/LoRa2MQTT logo.png"/>
+
 ## Installation
 
 You need a MQTT Broker to use these Add-on. If you don't have one, install this Add-on:
@@ -53,3 +57,50 @@ loglevel: INFO
 ### Option: `synch_word`
 
 ### Option: `data_path`
+
+## Device Examples
+
+There are examples for a first experience with the device / LoRa2MQTT pair. They use the [LF_Lora][github_LF_LoRa] library.
+
+The example [LF_LoRa_USB_Adapter_01][ex_usb] is to flash the USB adapter to be connected to the Home Assistant server and allow connection to devices.
+
+Each example contains a corresponding LoRa MQTT configuration file. This example .ino / .py file pair serves as a basis for developing new devices.
+
+They are:
+
+- [LF_LoRa_Model_TEST01.ino][ex_01_ino] / [test01.py][ex_01_py]
+
+- [LF_LoRa_Model_TEST02.ino][ex_02_ino] / [test02.py][ex_02_py]
+
+- [LF_LoRa_Model_TEST03.ino][ex_03_ino] / [test03.py][ex_03_py]
+
+## New Devices
+
+New devices can be developed based on the above examples.
+The .py configuration file for LoRa2MQTT should be placed in the /Config/lora2mqtt/models folder of the Home Assistant server.
+
+### Note
+
+The configuration files for the examples are already included in LoRa2MQTT and the new ones should be placed in /Config/lora2mqtt/models.
+
+## License
+
+This libary is [licensed][license] under the [MIT Licence][mit].
+
+<!-- Markdown link -->
+[project-stage-shield]: https://img.shields.io/badge/project%20stage-development%20beta-red.svg
+[maintenance-shield]: https://img.shields.io/maintenance/yes/2025.svg
+[github_LF_LoRa]: https://github.com/leofig-rj/Arduino-LF_LoRa
+[docs_link]: https://github.com/leofig-rj/leofig-hass-addons/blob/master/lora2mqtt/DOCS.md
+[github_leofig-rj]: https://github.com/leofig-rj
+[arduino]:https://arduino.cc/
+[lora]:https://www.lora-alliance.org/
+[ex_usb]:https://github.com/leofig-rj/Arduino-LF_LoRa/tree/main/examples/LF_LoRa_USB_Adapter_01
+[ex_01_ino]:https://github.com/leofig-rj/Arduino-LF_LoRa/tree/main/examples/LF_LoRa_Model_TEST01
+[ex_01_py]:https://github.com/leofig-rj/leofig-hass-addons/blob/main/lora2mqtt/rootfs/usr/bin/models/test01.py
+[ex_02_ino]:https://github.com/leofig-rj/Arduino-LF_LoRa/tree/main/examples/LF_LoRa_Model_TEST02
+[ex_02_py]:https://github.com/leofig-rj/leofig-hass-addons/blob/main/lora2mqtt/rootfs/usr/bin/models/test02.py
+[ex_03_ino]:https://github.com/leofig-rj/Arduino-LF_LoRa/tree/main/examples/LF_LoRa_Model_TEST03
+[ex_03_py]:https://github.com/leofig-rj/leofig-hass-addons/blob/main/lora2mqtt/rootfs/usr/bin/models/test03.py
+[license]:https://github.com/leofig-rj/leofig-hass-addons/blob/main/LICENSE
+[mit]:https://en.wikipedia.org/wiki/MIT_License
