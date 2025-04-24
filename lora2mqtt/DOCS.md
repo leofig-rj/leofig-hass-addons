@@ -79,6 +79,16 @@ They are:
 New devices can be developed based on the above examples.
 The .py configuration file for LoRa2MQTT should be placed in the /Config/lora2mqtt/models folder of the Home Assistant server.
 
+To pair the device to the Home Assistant LoRa2MQTT AddOn:
+
+- The first time, the device will have the LED blinking.
+- To enter the device into pairing mode (if it is not already), click the button 5 times.
+- In Home Assistant, go to Settings/Devices and Services/MQTT/Devices/LoRa2MQTT Bridge.
+- Activate Config Mode.
+- After a while the LED stops flashing and "info" of the LoRa2MQTT Bridge indicates the MAC of the connected device.
+- Turn off the Config Mode of the LoRa2MQTT Bridge.
+- A new device should appear on the LoRa2MQTT Bridge screen under "Connected Devices".
+
 ### Note
 
 The configuration files for the examples are already included in LoRa2MQTT and the new ones should be placed in /Config/lora2mqtt/models.
