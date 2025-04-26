@@ -59,7 +59,9 @@ class LFLoraClass:
         return self._lastRegRec
 
     def lora_add_header(self, input_str, para):
-        self._lastSendId = (self._lastSendId + 1) % 256 
+        self._lastSendId = (self._lastSendId + 1) % 128 
+        if self._lastSendId == 0:
+            self._lastSendId = 1
         return self.lora_add_header_id(input_str, para, self._lastSendId)
 
     def lora_add_header_id(self, input_str, para, msg_id):
