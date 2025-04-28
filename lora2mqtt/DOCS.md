@@ -1,6 +1,8 @@
 # LoRa2MQTT Add-on
 
-Integrating your LoRa devices with Home Assistant over MQTT
+Integrating your LoRa devices with Home Assistant over MQTT.
+
+Useful for making your own local LoRa infrastructure, without the need for complex structures like LoRaWan.
 
 ![Project Stage][project-stage-shield]![Maintenance][maintenance-shield]
 
