@@ -61,6 +61,7 @@ def loop_serial():
                 if index is None:
                     return
                 logging.debug(f"Índice do dispositivo: {index}")
+                logging.info(f"MSG: {len(msg)} Índice {index} Addr {de} Id {id}")
                 on_lora_message(msg, rssi, index)
 
         if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
