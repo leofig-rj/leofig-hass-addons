@@ -444,10 +444,6 @@ def on_lora_message(sMsg, rssi, index):
         ram_dev.loraTimeOut = funcs.millis()
         ram_dev.loraCom = True
 
-        # Verifico se a mensagem precisa de reconhecimento
-#        if lastIdRec > 191:
-#            lora_fifo_try_to_send("000", lastSenderAddrRec, lastIdRec)
-
         if lora_get_last_target_cmd() == index:
             lora_next_target_cmd()
     except Exception as e:
@@ -480,7 +476,6 @@ def lora_send_msg_index(sMsg, index, id):
 
     lora_send_msg(sMsg, ram_devs[index].slaveAddr, id)
 
-
 def lora_send_msg(sMsg, para, id):
     global loraCommandTime, attemptsCmd, lastIdSent, lastMsgSent, loraReturnTime
     
@@ -493,7 +488,8 @@ def lora_send_msg(sMsg, para, id):
     globals.g_serial.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
     logging.debug(f"Enviado {serial_data}")
 
-    lastIdSent = globals.g_lf_lora.last_sent_id()
+    if id < 128:
+        lastIdSent = id
     lastMsgSent = serial_data
 
 def lora_resend_msg():
@@ -519,7 +515,11 @@ def lora_send_msg_cfg():
     logging.debug(f"CFG - Enviando: {serial_data}")
 
 def lora_last_cmd_returned():
-    global lastIdRec, lastIdSent, loraCommandTime, attemptsCmd, loraReturnTime
+    global lastIdRec, lastIdSent, lastSenderAddrRec, loraCommandTime, attemptsCmd, loraReturnTime
+    
+    if lastIdRec > 191:
+        lora_send_msg("000", lastSenderAddrRec, lastIdRec)
+        return False
     
     if lastIdRec == lastIdSent:
         return True
