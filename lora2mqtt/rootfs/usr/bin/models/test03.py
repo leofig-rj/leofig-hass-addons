@@ -9,7 +9,7 @@
 import logging
 
 from funcs import slugify, char_to_on_off, pay2Light, light2Pay
-from msgs import lora_fifo_try_to_send, mqtt_pub, mqtt_send_light_discovery, \
+from msgs import lora_send_msg_usr, mqtt_pub, mqtt_send_light_discovery, \
                     mqtt_send_binary_sensor_discovery
 
 from consts import EC_NONE
@@ -97,11 +97,11 @@ class DeviceTEST03:
                     if (r is not None) and (g is not None) and (b is not None):
                         dispCmd = dispCmd + f"{r:03}{g:03}{b:03}"
                 # Enviando comando para dispositivo
-                lora_fifo_try_to_send(dispCmd, index)
+                lora_send_msg_usr(dispCmd, index)
             else:
                 # OFF -> Cmd 102
                 # Enviando comando para dispositivo
-                lora_fifo_try_to_send("102", index)
+                lora_send_msg_usr("102", index)
 
             #  Atualizando para evitar ficar mudando enquanto espera feedback
             self.lampadaState = state

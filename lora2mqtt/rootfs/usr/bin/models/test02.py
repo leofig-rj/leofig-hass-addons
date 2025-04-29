@@ -9,7 +9,7 @@
 import logging
 
 from funcs import slugify, char_to_state
-from msgs import lora_fifo_try_to_send, mqtt_pub, mqtt_send_sensor_discovery, \
+from msgs import lora_send_msg_usr, mqtt_pub, mqtt_send_sensor_discovery, \
                     mqtt_send_light_discovery, mqtt_send_button_discovery
 
 from consts import EC_NONE, DEVICE_CLASS_VOLTAGE, DEVICE_CLASS_POWER, DEVICE_CLASS_CURRENT, \
@@ -78,14 +78,14 @@ class DeviceTEST02:
         if entity == self.entitySlugs[5]:
             if (pay.find("ON")!=-1):
                 # ON -> Cmd 101
-                lora_fifo_try_to_send("101", index)
+                lora_send_msg_usr("101", index)
             else:
                 # OFF -> Cmd 102
-                lora_fifo_try_to_send("102", index)
+                lora_send_msg_usr("102", index)
             ######  Definindo para evitar ficar mudando enquanto espera feedback
             self.entityValStr[0] = pay
         if entity == self.entitySlugs[6]:
-            lora_fifo_try_to_send("110", index)
+            lora_send_msg_usr("110", index)
             return True
         return False
 

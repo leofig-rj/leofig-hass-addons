@@ -516,6 +516,9 @@ def lora_send_msg_cfg():
     globals.g_serial.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
     logging.debug(f"CFG - Enviando: {serial_data}")
 
+def lora_send_msg_usr(sMsg, index):
+    lora_fifo_try_to_send(sMsg, index, globals.g_lf_lora.lora_get_next_id())
+
 def lora_last_cmd_returned():
     global lastIdRec, lastIdSent, lastSenderAddrRec, loraCommandTime, attemptsCmd, loraReturnTime
     
