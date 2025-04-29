@@ -63,7 +63,7 @@ def loop_serial():
                     return
                 logging.debug(f"Índice do dispositivo: {index}")
                 logging.info(f"MSG: {len(msg)} Índice {index} Addr {de} Id {id}")
-#                on_lora_message(msg, rssi, index)
+                on_lora_message(msg, rssi, index)
 
         if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
             if globals.g_lf_lora.on_lora_pairing_message(serial_data):
@@ -521,6 +521,7 @@ def lora_last_cmd_returned():
     
     if lastIdRec > 191:
         lora_send_msg("000", lastSenderAddrRec, lastIdRec)
+        lastIdRec = 0
         return False
     
     if lastIdRec == lastIdSent:
