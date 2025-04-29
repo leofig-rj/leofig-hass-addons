@@ -46,11 +46,10 @@ def loop_serial():
     if globals.g_serial.in_waiting > 0:
         # Pegando o dado e deixando como string
         serial_data = globals.g_serial.readline().decode('utf-8').strip()
-        logging.info(f"Recebido serial_data: {serial_data}")
         if globals.g_lf_lora.modo_op() == MODE_OP_LOOP:
             # Tratando o dado
             result, de, para, id, rssi, msg = globals.g_lf_lora.lora_check_msg_ini(serial_data)
-            logging.info(f"Recebido result: {result} de: {de} para: {para} id: {id} msg: {msg}")
+            logging.debug(f"Recebido result: {result} de: {de} para: {para} id: {id} msg: {msg}")
             # Trato a mensagem
             if result == MSG_CHECK_OK:
                 # Preservando o ID
@@ -61,8 +60,7 @@ def loop_serial():
                 index = disp_get_index_from_addr(de)
                 if index is None:
                     return
-                logging.debug(f"Índice do dispositivo: {index}")
-                logging.info(f"MSG: {len(msg)} Índice {index} Addr {de} Id {id}")
+                logging.debug(f"MSG: {len(msg)} Índice {index} Addr {de} Id {id}")
                 on_lora_message(msg, rssi, index)
 
         if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
@@ -165,13 +163,14 @@ def mqtt_bridge_proc_command(entity, pay):
                 client.send_delete_discovery_x(i, "sensor", "RSSI")
                 obj = ram_devs[i].slaveObj
                 for j in range(len(obj.entityNames)):
-                    logging.info(f"Dev Deleted {ram_devs[i].slaveName} Entity {j} Domain{obj.entityDomains[j]} Name {obj.entityNames[j]}")
+                    logging.debug(f"Dev Deleted {ram_devs[i].slaveName} Entity {j} Domain{obj.entityDomains[j]} Name {obj.entityNames[j]}")
                     client.send_delete_discovery_x(i, obj.entityDomains[j], obj.entityNames[j])
                 # Excluindo da lista de slaves na RAM e no arquivo config.yaml
                 globals.g_devices.delete_ram_dev(i)
                 # Refrescando dispositivos da bridge
                 mqtt_bridge_refresh()
                 mqtt_send_bridge_info(f"Deleted: {toDel}")
+                logging.info(f"Deleted: {toDel}")
 
     if entity == "renomear_disp":
         if globals.g_lf_lora.modo_op() == MODE_OP_PAIRING:
@@ -207,11 +206,12 @@ def mqtt_bridge_proc_command(entity, pay):
                     # Publicando entidades do dispositivo (modelo)
                     ram_devs[i].slaveObj.proc_publish(i, True)
                 mqtt_send_bridge_info(f"Renamed: {fromRen} to {toRen}")
+                logging.info(f"Renamed: {fromRen} to {toRen}")
                 return
 
 
     if entity == "modo_pareamento":
-        logging.info(f"Changing Operation Mode to: {pay}")
+        logging.info(f"Changing Pairing Mode to: {pay}")
         if (pay.find("ON")!=-1):
             # ON
             lora_set_modo_op(MODE_OP_PAIRING)
@@ -488,7 +488,7 @@ def lora_send_msg(sMsg, para, id):
     # Envio comando de solicitação de estado
     serial_data = globals.g_lf_lora.lora_add_header_id(sMsg, para, id)
     globals.g_serial.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
-    logging.info(f"Enviado {serial_data} para{para} id {id}")
+    logging.debug(f"Enviado {serial_data} para {para} id {id}")
 
     if id < 128:
         lastIdSent = id
