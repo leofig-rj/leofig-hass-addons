@@ -49,7 +49,7 @@ def loop_serial():
         if globals.g_lf_lora.modo_op() == MODE_OP_LOOP:
             # Tratando o dado
             result, de, para, id, rssi, msg = globals.g_lf_lora.lora_check_msg_ini(serial_data)
-            logging.debug(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
+            logging.info(f"Recebido result: {result} de: {de} para: {para} msg: {msg}")
             # Trato a mensagem
             if result == MSG_CHECK_OK:
                 # Preservando o ID
