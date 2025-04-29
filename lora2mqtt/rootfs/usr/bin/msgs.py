@@ -488,7 +488,7 @@ def lora_send_msg(sMsg, para, id):
     # Envio comando de solicitação de estado
     serial_data = globals.g_lf_lora.lora_add_header_id(sMsg, para, id)
     globals.g_serial.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
-    logging.debug(f"Enviado {serial_data}")
+    logging.info(f"Enviado {serial_data} para{para} id {id}")
 
     if id < 128:
         lastIdSent = id
