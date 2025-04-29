@@ -46,6 +46,7 @@ def loop_serial():
     if globals.g_serial.in_waiting > 0:
         # Pegando o dado e deixando como string
         serial_data = globals.g_serial.readline().decode('utf-8').strip()
+        logging.info(f"Recebido serial_data: {serial_data}")
         if globals.g_lf_lora.modo_op() == MODE_OP_LOOP:
             # Tratando o dado
             result, de, para, id, rssi, msg = globals.g_lf_lora.lora_check_msg_ini(serial_data)
