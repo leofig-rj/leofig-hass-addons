@@ -25,7 +25,7 @@ loraLoopTime = 0
 loraPairingTime = 0
 lastMsgSent = ""
 lastIdRec = 0
-lastSenderRec = 0
+lastSenderAddrRec = 0
 lastIdSent = 0
 attemptsCmd = 0
 
@@ -41,7 +41,7 @@ mqttLastNameDisp = ""
 
 
 def loop_serial():
-    global lastIdRec, loraLoopTime, lastSenderRec
+    global lastIdRec, loraLoopTime, lastSenderAddrRec
     # Verifico se tem dado na serial
     if globals.g_serial.in_waiting > 0:
         # Pegando o dado e deixando como string
@@ -55,7 +55,7 @@ def loop_serial():
                 # Preservando o ID
                 lastIdRec = id
                 # Preservo o emissor
-                lastSenderRec = de
+                lastSenderAddrRec = de
                 # Tratando a msg conforme remetente
                 index = disp_get_index_from_addr(de)
                 if index is None:
@@ -425,7 +425,7 @@ def loop_lora():
         
         
 def on_lora_message(sMsg, rssi, index):
-    global lastIdRec, lastIdSent, lastSenderRec
+    global lastIdRec, lastIdSent, lastSenderAddrRec
     logging.debug(f"LoRa - Tamanho da MSG: {len(sMsg)} Índice {index}")
     
     if lastIdRec == lastIdSent:
@@ -445,9 +445,8 @@ def on_lora_message(sMsg, rssi, index):
         ram_dev.loraCom = True
 
         # Verifico se a mensagem precisa de reconhecimento
-        if lastIdRec > 191:
-            lora_fifo_try_to_send("000", lastSenderRec, lastIdRec)
-
+#        if lastIdRec > 191:
+#            lora_fifo_try_to_send("000", lastSenderAddrRec, lastIdRec)
 
         if lora_get_last_target_cmd() == index:
             lora_next_target_cmd()
@@ -498,7 +497,7 @@ def lora_send_msg(sMsg, para, id):
     lastMsgSent = serial_data
 
 def lora_resend_msg():
-    global loraCommandTime, attemptsCmd, loraReturnTime
+    global loraCommandTime, attemptsCmd, loraReturnTime, lastMsgSent
     
     loraCommandTime = funcs.millis()
     loraReturnTime = funcs.millis()
