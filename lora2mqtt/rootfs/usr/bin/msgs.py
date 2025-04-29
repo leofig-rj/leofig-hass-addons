@@ -25,6 +25,7 @@ loraLoopTime = 0
 loraPairingTime = 0
 lastMsgSent = ""
 lastIdRec = 0
+lastSenderRec = 0
 lastIdSent = 0
 attemptsCmd = 0
 
@@ -32,6 +33,7 @@ loraFiFoFirst = 0
 loraFiFoLast = 0
 loraFiFoMsgBuffer = [""] * LORA_FIFO_LEN
 loraFiFoTargetBuffer = [0] * LORA_FIFO_LEN
+loraFiFoIdBuffer = [0] * LORA_FIFO_LEN
 loraLastTargetCmd = 0
 
 mqttLastBridgeSelect = ""
@@ -39,7 +41,7 @@ mqttLastNameDisp = ""
 
 
 def loop_serial():
-    global lastIdRec, loraLoopTime
+    global lastIdRec, loraLoopTime, lastSenderRec
     # Verifico se tem dado na serial
     if globals.g_serial.in_waiting > 0:
         # Pegando o dado e deixando como string
@@ -52,6 +54,8 @@ def loop_serial():
             if result == MSG_CHECK_OK:
                 # Preservando o ID
                 lastIdRec = id
+                # Preservo o emissor
+                lastSenderRec = de
                 # Tratando a msg conforme remetente
                 index = disp_get_index_from_addr(de)
                 if index is None:
@@ -396,7 +400,7 @@ def loop_lora():
         # Solicito estado periodicamente...
         timeCmd = funcs.get_delta_millis(loraCommandTime)
         if timeCmd > LORA_TIME_CMD:
-            lora_fifo_try_to_send("000", loraLastTargetCmd)
+            lora_fifo_try_to_send("000", loraLastTargetCmd, globals.g_lf_lora.lora_get_next_id())
             # Defino o próximo destino para solicitar estado...
             lora_next_target_cmd()
 
@@ -421,12 +425,12 @@ def loop_lora():
         
         
 def on_lora_message(sMsg, rssi, index):
-#    global loraFiFoFirst, loraFiFoLast
+    global lastIdRec, lastIdSent, lastSenderRec
     logging.debug(f"LoRa - Tamanho da MSG: {len(sMsg)} Índice {index}")
     
     if lastIdRec == lastIdSent:
         returnTime = funcs.get_delta_millis(loraReturnTime)
-        logging.debug(f"Tempo de retorno: {returnTime}")
+        logging.info(f"Tempo de retorno: {returnTime}")
 
     try:
         # Pego o Dispositivo na RAM
@@ -439,17 +443,23 @@ def on_lora_message(sMsg, rssi, index):
         ram_dev.loraRSSI = rssi
         ram_dev.loraTimeOut = funcs.millis()
         ram_dev.loraCom = True
+
+        # Verifico se a mensagem precisa de reconhecimento
+        if lastIdRec > 191:
+            lora_fifo_try_to_send("000", lastSenderRec, lastIdRec)
+
+
         if lora_get_last_target_cmd() == index:
             lora_next_target_cmd()
     except Exception as e:
         logging.error(f"Erro: {e}")
 
-def lora_fifo_try_to_send(sMsg, index):
-    global loraFiFoFirst, loraFiFoLast, loraFiFoMsgBuffer, loraFiFoTargetBuffer
+def lora_fifo_try_to_send(sMsg, index, id):
+    global loraFiFoFirst, loraFiFoLast, loraFiFoMsgBuffer, loraFiFoTargetBuffer, loraFiFoIdBuffer
     
     if loraFiFoFirst == loraFiFoLast:
         if lora_last_cmd_returned():
-            lora_send_msg_index(sMsg, index)
+            lora_send_msg_index(sMsg, index, id)
             return
     
     aux = (loraFiFoLast + 1) % LORA_FIFO_LEN
@@ -458,20 +468,21 @@ def lora_fifo_try_to_send(sMsg, index):
     
     loraFiFoMsgBuffer[loraFiFoLast] = sMsg
     loraFiFoTargetBuffer[loraFiFoLast] = index
+    loraFiFoIdBuffer[loraFiFoLast] = id
     loraFiFoLast = aux
 
 def lora_reset_pairing_time():
     global loraPairingTime
     loraPairingTime = funcs.millis()
 
-def lora_send_msg_index(sMsg, index):
-    # Pego oo Dispositivos na RAM
+def lora_send_msg_index(sMsg, index, id):
+    # Pego os Dispositivos na RAM
     ram_devs = globals.g_devices.get_ram_devs()
 
-    lora_send_msg(sMsg, ram_devs[index].slaveAddr)
+    lora_send_msg(sMsg, ram_devs[index].slaveAddr, id)
 
 
-def lora_send_msg(sMsg, para):
+def lora_send_msg(sMsg, para, id):
     global loraCommandTime, attemptsCmd, lastIdSent, lastMsgSent, loraReturnTime
     
     loraCommandTime = funcs.millis()
@@ -479,7 +490,7 @@ def lora_send_msg(sMsg, para):
     attemptsCmd = 0
     
     # Envio comando de solicitação de estado
-    serial_data = globals.g_lf_lora.lora_add_header(sMsg, para)
+    serial_data = globals.g_lf_lora.lora_add_header_id(sMsg, para, id)
     globals.g_serial.write(serial_data.encode('utf-8'))    # Enviar uma string (precisa ser em bytes)
     logging.debug(f"Enviado {serial_data}")
 
@@ -521,12 +532,13 @@ def lora_last_cmd_returned():
     return False
 
 def lora_fifo_check():
-    global loraFiFoFirst, loraFiFoLast, loraFiFoMsgBuffer, loraFiFoTargetBuffer
+    global loraFiFoFirst, loraFiFoLast, loraFiFoMsgBuffer, loraFiFoTargetBuffer, loraFiFoIdBuffer
     
     if loraFiFoFirst != loraFiFoLast:
         if lora_last_cmd_returned():
             lora_send_msg_index(loraFiFoMsgBuffer[loraFiFoFirst], \
-                                      loraFiFoTargetBuffer[loraFiFoFirst])
+                                      loraFiFoTargetBuffer[loraFiFoFirst], \
+                                      loraFiFoIdBuffer[loraFiFoFirst])
             loraFiFoFirst = (loraFiFoFirst + 1) % LORA_FIFO_LEN
 
 def lora_next_target_cmd():

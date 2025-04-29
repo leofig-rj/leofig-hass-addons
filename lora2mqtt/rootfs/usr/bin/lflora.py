@@ -58,11 +58,11 @@ class LFLoraClass:
     def last_reg_rec(self):
         return self._lastRegRec
 
-    def lora_add_header(self, input_str, para):
+    def lora_get_next_id(self):
         self._lastSendId = self._lastSendId + 1
         if self._lastSendId > 127:
             self._lastSendId = 1
-        return self.lora_add_header_id(input_str, para, self._lastSendId)
+        return self._lastSendId
 
     def lora_add_header_id(self, input_str, para, msg_id):
         # Criação do buffer auxiliar com o cabeçalho
