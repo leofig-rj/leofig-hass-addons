@@ -517,7 +517,7 @@ def lora_send_msg_cfg():
     logging.debug(f"CFG - Enviando: {serial_data}")
 
 def lora_send_msg_usr(sMsg, index):
-    lora_fifo_try_to_send(sMsg, index, globals.g_lf_lora.lora_get_next_id())
+    lora_fifo_try_to_send(sMsg, index, globals.g_lf_lora.lora_get_next_id_usr())
 
 def lora_last_cmd_returned():
     global lastIdRec, lastIdSent, lastSenderAddrRec, loraCommandTime, attemptsCmd, loraReturnTime
@@ -526,6 +526,9 @@ def lora_last_cmd_returned():
         lora_send_msg("000", lastSenderAddrRec, lastIdRec)
         lastIdRec = 0
         return False
+    
+    if lastIdSent < 64:
+        return True
     
     if lastIdRec == lastIdSent:
         return True

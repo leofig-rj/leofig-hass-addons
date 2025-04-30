@@ -17,6 +17,7 @@ class LFLoraClass:
         self._netId = net_id
         self._myAddr = addr
         self._lastSendId = 255
+        self._lastSendIdUsr = 127
         self._regRecs = []
         self._lastRegRec = RegRec()
         self._modoOp = MODE_OP_LOOP
@@ -60,9 +61,15 @@ class LFLoraClass:
 
     def lora_get_next_id(self):
         self._lastSendId = self._lastSendId + 1
-        if self._lastSendId > 127:
+        if self._lastSendId > 63:
             self._lastSendId = 1
         return self._lastSendId
+
+    def lora_get_next_id_usr(self):
+        self._lastSendIdUsr = self._lastSendIdUsr + 1
+        if self._lastSendIdUsr > 127:
+            self._lastSendIdUsr = 64
+        return self._lastSendIdUsr
 
     def lora_add_header_id(self, input_str, para, msg_id):
         # Criação do buffer auxiliar com o cabeçalho
