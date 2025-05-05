@@ -19,6 +19,7 @@ uart: true               # Habilita o acesso à uart do OS
 udev: true               # Habilita o acesso à udev do OS para monitorar USB
 homeassistant_api: true  # Habilita o acesso à API do Home Assistant
 host_network: true       # Permite o uso da rede do host
+apparmor: false
 cap_add:
   - NET_ADMIN
   - SYS_ADMIN
