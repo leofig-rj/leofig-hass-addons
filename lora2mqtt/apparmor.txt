@@ -27,4 +27,10 @@ profile example flags=(attach_disconnected,mediate_deleted) {
   # Access to options.json and other files within your addon
   /data/** rw,
 
+  # Permitir conexões de rede para o addon
+  network inet stream,
+  network inet6 stream,
+  network inet dgram,
+  network inet6 dgram,
+
 }
