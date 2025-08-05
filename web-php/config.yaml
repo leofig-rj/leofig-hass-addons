@@ -1,0 +1,47 @@
+# https://developers.home-assistant.io/docs/add-ons/configuration#add-on-config
+name: LoRa2MQTT
+version: "0.0.1"
+slug: lora2mqtt
+description: Integrate LoRa devices with Home Assistant via MQTT.
+url: "https://github.com/leofig-rj/leofig-hass-addons"
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+  - i386
+startup: application
+boot: auto
+init: false
+services:
+  - mqtt:need
+uart: true               # Habilita o acesso à uart do OS
+udev: true               # Habilita o acesso à udev do OS para monitorar USB
+homeassistant_api: true  # Habilita o acesso à API do Home Assistant
+host_network: true       # Permite o uso da rede do host
+map:                     # Permite o uso das pastas
+  - type: share
+    read_only: false
+    path: /share
+  - type: homeassistant_config
+    read_only: false
+    path: /config
+  - type: addon_config
+    read_only: false
+    path: /addon_config
+options:
+  serial:
+    port: "/dev/ttyUSB0"
+  net_id: "0x00"
+  frequency: "915E6"
+  log_level: "INFO"
+schema:
+  serial:
+    port: "str"
+    baudrate: "int?"
+    rtscts": "bool?"
+  net_id: str
+  frequency: "list(433E6|868E6|915E6)?"
+  log_level: "list(DEBUG|INFO|WARNING|ERROR)?"
+  synch_word: str?
+  data_path: "str?"
