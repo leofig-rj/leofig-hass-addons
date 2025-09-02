@@ -458,7 +458,7 @@ class LoRa2MQTTClient(mqtt.Client):
         payload_json = json.dumps(payload)
         return self.pub(topic, 0, True, payload_json)
 
-    def send_number_discovery(self, index, name, entity_category, step):
+    def send_number_discovery(self, index, name, entity_category, min, max, step):
         """
         Envia a descoberta de um número via MQTT.
         """
@@ -472,6 +472,10 @@ class LoRa2MQTTClient(mqtt.Client):
             "stat_t": f"~/{slug}",
             "cmd_t": f"~/{slug}/set",
         })
+        if min:
+            payload["step"] = min
+        if max:
+            payload["step"] = max
         if step:
             payload["step"] = step
         if entity_category:
